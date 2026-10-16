@@ -1,0 +1,1 @@
+{"name":"westernstadt","version":"0.1.0","scripts":{"start":"node server.js"},"dependencies":{"express":"^4.19.2","qrcode":"^1.5.3","socket.io":"^4.7.5"}}

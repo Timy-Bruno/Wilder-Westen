@@ -1,0 +1,30 @@
+<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,user-scalable=no">
+<style>*{box-sizing:border-box;touch-action:none;user-select:none}body{margin:0;height:100vh;background:#2b1d12;color:#f3e3c3;font-family:Georgia,serif;display:flex;flex-direction:column}
+#top{padding:10px;text-align:center;background:#1c120a}#msg{min-height:32px;text-align:center;color:#ffb347;padding:4px}
+#city,#in{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px}
+#joy{width:180px;height:180px;border-radius:50%;background:#4a2f15;position:relative}#knob{width:70px;height:70px;border-radius:50%;background:#c27a2c;position:absolute;left:55px;top:55px}
+button{font:inherit;font-size:1.2rem;padding:14px 22px;border:0;border-radius:10px;background:#c27a2c;color:#fff;min-width:200px}button:disabled{background:#555}
+#bar{width:80%;height:22px;background:#555;border-radius:11px;overflow:hidden}#bar i{display:block;height:100%;width:0;background:#6bbf59}
+#bells{display:flex;gap:8px}#bells button{min-width:0;padding:12px 14px;font-size:1rem}[hidden]{display:none!important}</style>
+<div id=top>Verbinde …</div><div id=msg></div>
+<div id=city hidden><div id=joy><div id=knob></div></div><button id=act></button><div id=bells hidden><button data-s=1>🔔 Mangel</button><button data-s=2>🔔 Angriff</button><button data-s=3>🔔 Feuer</button></div></div>
+<div id=in hidden><h2 id=bn></h2><div id=wk><div id=bar><i></i></div><br><button id=work></button></div><div id=nothing hidden>Hier gibt es für dich nichts zu tun.</div><button id=leave>Gebäude verlassen</button></div>
+<script src=/socket.io/socket.io.js></script>
+<script>
+const $=i=>document.getElementById(i),slot=+new URLSearchParams(location.search).get('slot'),s=io();
+s.on('connect',()=>s.emit('join',slot));s.on('err',t=>$('top').textContent=t);
+s.on('alert',a=>{$('msg').textContent='🔔 '+a.txt;navigator.vibrate&&navigator.vibrate(a.sig===1?200:[200,100,200,100,200]);setTimeout(()=>$('msg').textContent='',7000)});
+s.on('me',m=>{$('top').innerHTML=`<b>${m.role}</b> · gefertigt: ${m.done}`;
+ $('city').hidden=!!m.inside;$('in').hidden=!m.inside;
+ if(m.inside){$('bn').textContent=m.inside;$('wk').hidden=!m.mine;$('nothing').hidden=m.mine;$('work').textContent=m.task;$('bar').firstChild.style.width=m.prog+'%'}
+ else{const a=$('act');a.disabled=!m.near||m.near==='Kirche';a.textContent=!m.near?'Lauf zu einem Gebäude':m.near==='Kirche'?'Am Glockenturm':'Betreten: '+m.near;
+  $('bells').hidden=m.near!=='Kirche';[...$('bells').children].forEach(b=>b.disabled=m.cd>0);}});
+$('act').onclick=()=>s.emit('act');$('leave').onclick=()=>s.emit('act');
+$('work').onclick=()=>{s.emit('work');navigator.vibrate&&navigator.vibrate(20)};
+$('bells').onclick=e=>{const v=e.target.dataset.s;if(v)s.emit('bell',+v)};
+const j=$('joy'),k=$('knob');let on=false;
+function mv(e){if(!on)return;const r=j.getBoundingClientRect(),R=60;let x=e.clientX-r.left-90,y=e.clientY-r.top-90,l=Math.hypot(x,y);if(l>R){x*=R/l;y*=R/l}
+ k.style.left=55+x+'px';k.style.top=55+y+'px';s.emit('input',{dx:x/R,dy:y/R})}
+j.onpointerdown=e=>{on=true;j.setPointerCapture(e.pointerId);mv(e)};j.onpointermove=mv;
+j.onpointerup=j.onpointercancel=()=>{on=false;k.style.left=k.style.top='55px';s.emit('input',{dx:0,dy:0})};
+</script>
