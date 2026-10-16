@@ -2,7 +2,7 @@ const express=require('express'),http=require('http'),os=require('os'),QR=requir
 const {Server}=require('socket.io');
 const app=express(),srv=http.createServer(app),io=new Server(srv);
 app.use(express.static(__dirname+'/public'));
-const PORT=3000,W=1000,H=600;
+const PORT=process.env.PORT||3000,W=1000,H=600;
 const ROLES=[
  {n:'Schmied',b:'Schmiede',s:'ammo',t:'Hämmern'},
  {n:'Doc',b:'Arztpraxis',s:'med',t:'Medizin mischen'},
@@ -23,7 +23,7 @@ io.on('connection',s=>{
  const P=()=>room&&room.slots[s.data.slot];
  s.on('create',async n=>{
   n=Math.max(1,Math.min(8,n|0));
-  const roles=shuffle([...ROLES.keys()]).slice(0,n),base='http://'+lanIP()+':'+PORT;
+  const roles=shuffle([...ROLES.keys()]).slice(0,n),h=s.handshake.headers,host=h.host||'',proto=(h['x-forwarded-proto']||'http').split(',')[0],base=/^(localhost|127\.)/.test(host)?'http://'+lanIP()+':'+PORT:proto+'://'+host;
   room={phase:'lobby',stats:{food:60,ammo:60,med:60,morale:60,security:60},slots:[],npcs:[],bellUntil:0,bell:null};
   for(let i=0;i<n;i++){const url=base+'/phone.html?slot='+i;
    room.slots.push({i,role:roles[i],x:300+i*55,y:400,dx:0,dy:0,inside:null,prog:0,done:0,sock:null,
