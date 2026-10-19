@@ -1,36 +1,56 @@
-<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
-<title>Wilder Westen</title>
-<style>body{margin:0;background:#2b1d12;color:#f3e3c3;font-family:Georgia,serif;text-align:center}
-button{font:inherit;font-size:1.4rem;margin:6px;padding:10px 18px;border:0;border-radius:8px;background:#c27a2c;color:#fff;cursor:pointer}
-#qrs{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin:16px}.q{background:#f3e3c3;color:#2b1d12;padding:8px;border-radius:10px;font-weight:bold}.q.on{outline:5px solid #6bbf59}
-canvas{width:100%;max-width:1400px;background:#d9b57a}</style>
+<!doctype html><html lang=de><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>Wilder Westen</title><link href="https://fonts.googleapis.com/css2?family=Rye&display=swap" rel=stylesheet>
+<style>body{margin:0;background:radial-gradient(#4a2f18,#150b05);color:#f3e3c3;font-family:Georgia,serif;text-align:center;min-height:100vh}
+h1{font-family:Rye,Georgia,serif;font-size:3.2rem;margin:.5em 0 .1em;color:#f4c06a;text-shadow:0 4px 0 #5a3410}
+button{font:inherit;font-weight:bold;font-size:1.4rem;margin:6px;padding:12px 22px;border:0;border-radius:12px;background:linear-gradient(#d98d3a,#b8661a);color:#fff;box-shadow:0 4px 0 #6e3b0c;cursor:pointer}
+#qrs{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin:18px}.q{background:#f3e3c3;color:#2b1d12;padding:10px;border-radius:12px;font-weight:bold;font-size:1.1rem}.q.on{outline:6px solid #6bbf59}
+canvas{width:100%;max-width:1500px;display:block;margin:0 auto}</style></head><body>
 <div id=lobby><h1>🤠 Wilder Westen</h1><div id=pick>Wie viele Spieler? </div><div id=qrs></div><button id=go style=display:none>Spiel starten</button></div>
-<canvas id=c width=1000 height=600 hidden></canvas>
+<canvas id=c width=2000 height=1200 hidden></canvas>
 <script src=/socket.io/socket.io.js></script>
 <script>
-const s=io(),$=i=>document.getElementById(i),cv=$('c'),g=cv.getContext('2d');
+const s=io(),$=i=>document.getElementById(i),cv=$('c'),g=cv.getContext('2d');g.scale(2,2);
 for(let n=1;n<=8;n++){const b=document.createElement('button');b.textContent=n;b.onclick=()=>{s.emit('create',n);$('pick').style.display='none'};$('pick').append(b)}
-s.on('lobby',l=>{$('qrs').innerHTML=l.map(p=>`<div class="q ${p.on?'on':''}">Spieler ${p.i+1}<br><img src="${p.qr}"><br>${p.on?'✔ verbunden':'scannen'}</div>`).join('');
- $('go').style.display=l.some(p=>p.on)?'':'none'});
+s.on('lobby',l=>{$('qrs').innerHTML=l.map(p=>`<div class="q ${p.on?'on':''}">Spieler ${p.i+1}<br><img src="${p.qr}"><br>${p.on?'✔ verbunden':'scannen'}</div>`).join('');$('go').style.display=l.some(p=>p.on)?'':'none'});
 $('go').onclick=()=>s.emit('start');
 s.on('started',()=>{$('lobby').hidden=true;cv.hidden=false});
-const COL=['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22','#1abc9c','#ecf0f1'];
-const NAMES={food:'Nahrung',ammo:'Munition',med:'Medizin',morale:'Moral',security:'Sicherheit'};
-s.on('state',d=>{
- g.fillStyle='#d9b57a';g.fillRect(0,0,1000,600);g.fillStyle='#c9a263';g.fillRect(0,170,1000,70);g.fillRect(0,350,1000,80);
- g.textAlign='center';g.font='15px Georgia';
- d.builds.forEach((b,i)=>{const occ=d.occupied.includes(i);g.fillStyle=occ?'#4a2f15':'#8b5a2b';g.fillRect(b.x,b.y,b.w,b.h);
-  g.fillStyle='#fff';g.fillText(b.name,b.x+b.w/2,b.y+b.h/2);if(occ)g.fillText('🔒 besetzt',b.x+b.w/2,b.y+b.h/2+22)});
- const c=d.church,r=d.bell;g.fillStyle='#f5efe0';g.fillRect(c.x,c.y,c.w,c.h);g.fillStyle='#222';g.fillText('Kirche',c.x+65,c.y+30);
- g.font=(r?44:30)+'px serif';g.fillText('🔔',c.x+65+(r?Math.sin(Date.now()/40)*6:0),c.y+80);
- d.npcs.forEach(n=>{g.fillStyle='#7a5230';g.beginPath();g.arc(n.x,n.y,6,0,7);g.fill()});
- d.slots.forEach(p=>{if(p.hidden)return;g.fillStyle=COL[p.i];g.beginPath();g.arc(p.x,p.y,13,0,7);g.fill();g.strokeStyle=p.on?'#000':'#888';g.lineWidth=2;g.stroke();
-  g.fillStyle='#000';g.font='bold 14px Georgia';g.fillText(p.i+1,p.x,p.y+5)});
- g.fillStyle='#2b1d12';g.fillRect(0,0,1000,40);g.font='13px Georgia';
- Object.keys(NAMES).forEach((k,i)=>{const x=15+i*196;g.fillStyle='#f3e3c3';g.textAlign='left';g.fillText(NAMES[k],x,16);
-  g.fillStyle='#555';g.fillRect(x,22,170,10);g.fillStyle=d.stats[k]<30?'#e74c3c':'#6bbf59';g.fillRect(x,22,170*d.stats[k]/100,10)});
- g.textAlign='center';g.font='bold 26px Georgia';
- if(r){g.fillStyle='#b00';g.fillText('🔔 '+r.txt+(r.false?' (Falscher Alarm?)':''),500,205)}
- else if(d.warn){g.fillStyle='#a33';g.fillText('⚠ '+NAMES[d.warn]+' wird knapp!',500,205)}
-});
-</script>
+const COL=['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22','#1abc9c','#ecf0f1'],BC=['#8b5a2b','#7d4f26','#946238','#82522a'];
+const ST=[['food','🍖','Nahrung'],['ammo','🔫','Munition'],['med','💊','Medizin'],['morale','🎭','Moral'],['security','🛡️','Sicherheit']];
+let S=null,fx=[],dp=[],dn=[];
+s.on('state',d=>{S=d});s.on('fx',a=>a.forEach(f=>fx.push({...f,at:Date.now()})));
+const lerp=(a,b)=>a+(b-a)*.3;
+function frame(){requestAnimationFrame(frame);if(!S)return;const d=S,t=Date.now();
+ const gr=g.createLinearGradient(0,0,0,600);gr.addColorStop(0,'#e6c88f');gr.addColorStop(1,'#cfa766');g.fillStyle=gr;g.fillRect(0,0,1000,600);
+ g.fillStyle='#bf9a5e';g.fillRect(0,165,1000,70);g.fillRect(0,355,1000,70);
+ g.strokeStyle='rgba(255,255,255,.3)';g.lineWidth=3;g.setLineDash([18,14]);g.beginPath();g.moveTo(0,200);g.lineTo(1000,200);g.moveTo(0,390);g.lineTo(1000,390);g.stroke();g.setLineDash([]);
+ g.textAlign='center';g.font='28px serif';[[30,300],[965,300],[260,300],[760,310],[30,575],[965,575],[480,590]].forEach(c=>g.fillText('🌵',c[0],c[1]));
+ d.builds.forEach((b,i)=>{const occ=d.occupied.includes(i),top=i<4;
+  g.fillStyle='rgba(0,0,0,.2)';g.fillRect(b.x+7,b.y+9,b.w,b.h);
+  g.fillStyle=occ?'#4a2f15':BC[i%4];g.fillRect(b.x,b.y,b.w,b.h);
+  g.strokeStyle='rgba(0,0,0,.13)';g.lineWidth=1;for(let k=1;k<6;k++){g.beginPath();g.moveTo(b.x,b.y+k*16);g.lineTo(b.x+b.w,b.y+k*16);g.stroke()}
+  g.fillStyle='rgba(30,12,2,.65)';g.fillRect(b.x,top?b.y:b.y+b.h-24,b.w,24);
+  g.fillStyle='#2b1a0c';g.fillRect(b.x+b.w/2-13,top?b.y+b.h-30:b.y,26,30);
+  g.fillStyle='#fff';g.font='bold 14px Georgia';g.fillText(b.name,b.x+b.w/2,top?b.y+17:b.y+b.h-7);
+  g.font='36px serif';g.fillText(occ?'🔒':b.ic,b.x+b.w/2,top?b.y+58:b.y+68);
+  if(occ){g.font='bold 12px Georgia';g.fillStyle='#f4c06a';g.fillText('besetzt',b.x+b.w/2,top?b.y+76:b.y+86)}});
+ const c=d.church,r=d.bell;g.fillStyle='rgba(0,0,0,.2)';g.fillRect(c.x+7,c.y+9,c.w,c.h);
+ g.fillStyle='#f5efe0';g.fillRect(c.x,c.y+20,c.w,c.h-20);g.fillStyle='#a33';g.beginPath();g.moveTo(c.x-8,c.y+22);g.lineTo(c.x+c.w/2,c.y-18);g.lineTo(c.x+c.w+8,c.y+22);g.fill();
+ g.fillStyle='#222';g.font='bold 14px Georgia';g.fillText('Kirche',c.x+c.w/2,c.y+c.h-8);
+ if(r){g.strokeStyle='rgba(244,192,106,'+(.6-(t%900)/1500)+')';g.lineWidth=4;g.beginPath();g.arc(c.x+c.w/2,c.y+55,30+(t%900)/12,0,7);g.stroke()}
+ g.font=(r?44:32)+'px serif';g.fillText('🔔',c.x+c.w/2+(r?Math.sin(t/40)*6:0),c.y+62);
+ d.npcs.forEach((n,i)=>{const p=dn[i]=dn[i]||{x:n.x,y:n.y};p.x=lerp(p.x,n.x);p.y=lerp(p.y,n.y);g.font='20px serif';g.fillText('🧑‍🌾',p.x,p.y+7)});
+ d.slots.forEach(q=>{const p=dp[q.i]=dp[q.i]||{x:q.x,y:q.y};p.x=lerp(p.x,q.x);p.y=lerp(p.y,q.y);if(q.hidden)return;
+  g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse(p.x,p.y+13,14,5,0,0,7);g.fill();
+  g.fillStyle=COL[q.i];g.beginPath();g.arc(p.x,p.y,14,0,7);g.fill();g.strokeStyle=q.on?'#fff':'#777';g.lineWidth=3;g.stroke();
+  g.fillStyle='#000';g.font='bold 15px Georgia';g.fillText(q.i+1,p.x,p.y+5)});
+ g.fillStyle='rgba(20,10,4,.92)';g.fillRect(0,0,1000,46);
+ ST.forEach(([k,ic,n],i)=>{const x=12+i*198,v=d.stats[k],low=v<30;g.textAlign='left';g.font='20px serif';g.fillStyle='#fff';g.fillText(ic,x,28);
+  g.font='bold 13px Georgia';g.fillStyle=low&&t%800<400?'#ff7b6b':'#f3e3c3';g.fillText(n+'  '+Math.round(v),x+28,18);
+  g.fillStyle='#444';g.fillRect(x+28,24,150,10);g.fillStyle=low?'#e74c3c':'#6bbf59';g.fillRect(x+28,24,1.5*v,10)});
+ g.textAlign='center';
+ const msg=r?'🔔 '+r.txt+(r.false?' (Falscher Alarm?)':''):d.warn?'⚠ '+({food:'Nahrung',ammo:'Munition',med:'Medizin',morale:'Moral',security:'Sicherheit'})[d.warn]+' wird knapp!':'';
+ if(msg){g.font='bold 24px Georgia';const w=g.measureText(msg).width+40;g.fillStyle=r?'rgba(150,20,20,.9)':'rgba(120,50,20,.9)';g.beginPath();g.roundRect(500-w/2,176,w,38,10);g.fill();g.fillStyle='#fff';g.fillText(msg,500,203)}
+ fx=fx.filter(f=>t-f.at<2600);fx.forEach(f=>{const a=t-f.at;g.globalAlpha=1-a/2600;g.fillStyle='#fff6c8';g.strokeStyle='#5a3410';g.lineWidth=4;g.font='bold 22px Georgia';g.strokeText(f.t,f.x,f.y-a*.03);g.fillText(f.t,f.x,f.y-a*.03);g.globalAlpha=1});
+}
+frame();
+</script></body></html>
