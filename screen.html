@@ -1,0 +1,36 @@
+<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>Wilder Westen</title>
+<style>body{margin:0;background:#2b1d12;color:#f3e3c3;font-family:Georgia,serif;text-align:center}
+button{font:inherit;font-size:1.4rem;margin:6px;padding:10px 18px;border:0;border-radius:8px;background:#c27a2c;color:#fff;cursor:pointer}
+#qrs{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin:16px}.q{background:#f3e3c3;color:#2b1d12;padding:8px;border-radius:10px;font-weight:bold}.q.on{outline:5px solid #6bbf59}
+canvas{width:100%;max-width:1400px;background:#d9b57a}</style>
+<div id=lobby><h1>🤠 Wilder Westen</h1><div id=pick>Wie viele Spieler? </div><div id=qrs></div><button id=go style=display:none>Spiel starten</button></div>
+<canvas id=c width=1000 height=600 hidden></canvas>
+<script src=/socket.io/socket.io.js></script>
+<script>
+const s=io(),$=i=>document.getElementById(i),cv=$('c'),g=cv.getContext('2d');
+for(let n=1;n<=8;n++){const b=document.createElement('button');b.textContent=n;b.onclick=()=>{s.emit('create',n);$('pick').style.display='none'};$('pick').append(b)}
+s.on('lobby',l=>{$('qrs').innerHTML=l.map(p=>`<div class="q ${p.on?'on':''}">Spieler ${p.i+1}<br><img src="${p.qr}"><br>${p.on?'✔ verbunden':'scannen'}</div>`).join('');
+ $('go').style.display=l.some(p=>p.on)?'':'none'});
+$('go').onclick=()=>s.emit('start');
+s.on('started',()=>{$('lobby').hidden=true;cv.hidden=false});
+const COL=['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22','#1abc9c','#ecf0f1'];
+const NAMES={food:'Nahrung',ammo:'Munition',med:'Medizin',morale:'Moral',security:'Sicherheit'};
+s.on('state',d=>{
+ g.fillStyle='#d9b57a';g.fillRect(0,0,1000,600);g.fillStyle='#c9a263';g.fillRect(0,170,1000,70);g.fillRect(0,350,1000,80);
+ g.textAlign='center';g.font='15px Georgia';
+ d.builds.forEach((b,i)=>{const occ=d.occupied.includes(i);g.fillStyle=occ?'#4a2f15':'#8b5a2b';g.fillRect(b.x,b.y,b.w,b.h);
+  g.fillStyle='#fff';g.fillText(b.name,b.x+b.w/2,b.y+b.h/2);if(occ)g.fillText('🔒 besetzt',b.x+b.w/2,b.y+b.h/2+22)});
+ const c=d.church,r=d.bell;g.fillStyle='#f5efe0';g.fillRect(c.x,c.y,c.w,c.h);g.fillStyle='#222';g.fillText('Kirche',c.x+65,c.y+30);
+ g.font=(r?44:30)+'px serif';g.fillText('🔔',c.x+65+(r?Math.sin(Date.now()/40)*6:0),c.y+80);
+ d.npcs.forEach(n=>{g.fillStyle='#7a5230';g.beginPath();g.arc(n.x,n.y,6,0,7);g.fill()});
+ d.slots.forEach(p=>{if(p.hidden)return;g.fillStyle=COL[p.i];g.beginPath();g.arc(p.x,p.y,13,0,7);g.fill();g.strokeStyle=p.on?'#000':'#888';g.lineWidth=2;g.stroke();
+  g.fillStyle='#000';g.font='bold 14px Georgia';g.fillText(p.i+1,p.x,p.y+5)});
+ g.fillStyle='#2b1d12';g.fillRect(0,0,1000,40);g.font='13px Georgia';
+ Object.keys(NAMES).forEach((k,i)=>{const x=15+i*196;g.fillStyle='#f3e3c3';g.textAlign='left';g.fillText(NAMES[k],x,16);
+  g.fillStyle='#555';g.fillRect(x,22,170,10);g.fillStyle=d.stats[k]<30?'#e74c3c':'#6bbf59';g.fillRect(x,22,170*d.stats[k]/100,10)});
+ g.textAlign='center';g.font='bold 26px Georgia';
+ if(r){g.fillStyle='#b00';g.fillText('🔔 '+r.txt+(r.false?' (Falscher Alarm?)':''),500,205)}
+ else if(d.warn){g.fillStyle='#a33';g.fillText('⚠ '+NAMES[d.warn]+' wird knapp!',500,205)}
+});
+</script>
