@@ -37,7 +37,7 @@ h3{margin:4px 0 0;font-size:.8rem;letter-spacing:.1em;color:var(--g);text-transf
  #city{flex-direction:row;flex-wrap:wrap;justify-content:center;align-content:center;gap:12px}#joy{order:-1;width:130px;height:130px}header{padding-top:4px;padding-bottom:4px}#stats{margin-top:3px}}
 #tb{position:relative;width:300px;height:40px;background:#555;border-radius:8px;margin:20px auto}.tz{position:absolute;top:0;bottom:0;background:#6bbf59;opacity:.85}.tm{position:absolute;top:-6px;width:6px;height:52px;background:#fff;margin-left:-3px}
 .mb{display:grid;grid-template-columns:repeat(3,80px);gap:8px;justify-content:center}.mb button{min-width:0;font-size:2rem;padding:10px}
-#sb{width:280px;height:18px;background:#555;border-radius:9px;overflow:hidden}#sf{display:block;height:100%;width:0;background:#6bbf59}</style></head><body>
+#sb{width:280px;height:18px;background:#555;border-radius:9px;overflow:hidden}#sf{display:block;height:100%;width:0;background:#6bbf59}</style><link rel="stylesheet" href="/campaign.css"></head><body>
 <div id=app>
 <header><div class=hr><span id=ric>🤠</span><span id=rn>Verbinde …</span><button id=fs hidden style="margin-left:auto;min-width:0;padding:6px 12px;font-size:1.2rem">⛶</button></div><div id=stats></div></header>
 <main>
@@ -130,4 +130,5 @@ function mv(e){if(!on)return;const r=j.getBoundingClientRect(),R=r.width/2-30;le
  k.style.transform=`translate(${x}px,${y}px)`;s.emit('input',{dx:x/R,dy:y/R})}
 j.onpointerdown=e=>{on=true;j.setPointerCapture(e.pointerId);mv(e)};j.onpointermove=mv;
 j.onpointerup=j.onpointercancel=()=>{on=false;k.style.transform='';s.emit('input',{dx:0,dy:0})};
-</script></body></html>
+</script><script src="/campaign-phone.js"></script></body></html>
+
