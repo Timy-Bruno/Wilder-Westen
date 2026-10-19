@@ -2,6 +2,9 @@ const express=require('express'),http=require('http'),os=require('os'),QR=requir
 const {Server}=require('socket.io');
 const {ITEM,SELL,META,STN,RICON,ROLES}=require('./data');
 const app=express(),srv=http.createServer(app),io=new Server(srv);
+app.get('/manifest.json',(q,r)=>{const sl=Math.max(0,Math.min(7,+q.query.slot||0));
+ r.type('application/manifest+json').json({name:'Wilder Westen',short_name:'Wilder Westen',start_url:'/phone.html?slot='+sl,scope:'/',display:'fullscreen',orientation:'any',background_color:'#1a0f07',theme_color:'#120a04',
+  icons:[{src:'/icon-192.png',sizes:'192x192',type:'image/png'},{src:'/icon-512.png',sizes:'512x512',type:'image/png'}]})});
 app.use(express.static(__dirname+'/public'));
 const PORT=process.env.PORT||3000,W=1000,H=600;
 const fmt=o=>Object.entries(o).map(([k,v])=>META[k][0]+' '+v+'× '+ITEM[k]).join('  +  ');
