@@ -86,7 +86,7 @@ s.on('me',m=>{
   $('bells').hidden=$('deliver').hidden=m.near!=='Kirche';[...$('bells').children].forEach(b=>b.disabled=m.cd>0);
   const d=$('deliver');d.disabled=!sell.length;d.textContent=sell.length?'📦 Abliefern: '+sell.map(i=>i.n+'× '+i.name).join(', '):'📦 Nichts abzuliefern (erst verarbeiten)'}
  else{$('bn').textContent=m.inside;let h='';
-  if(m.mine){h+=m.recipes.map(r=>`<button data-r="${r.id}" ${r.ok?'':'disabled'}>🔧 ${r.n}<small>${r.i}  ➜  ${r.o}</small><small>${r.id==='hunt'?'Wald erkunden · 6 Patronen · 1 Tier':'⏱ '+r.t+' s'}${r.ok?'':' · Material fehlt oder beschäftigt'}</small></button>`).join('');
+  if(m.mine){h+=m.recipes.map(r=>`<button data-r="${r.id}" ${r.ok?'':'disabled'}>🔧 ${r.n}<small>${r.i}  ➜  ${r.o}</small><small>${r.id==='hunt'?'Wald erkunden · 6 Patronen':'⏱ '+r.t+' s'}${r.ok?'':' · Material fehlt oder beschäftigt'}</small></button>`).join('');
    h+=O.inc.filter(o=>o.st==='open').map(o=>`<button data-f="${o.id}">📋 Auftrag von Spieler ${o.from+1}<small>${o.n} – Material liegt bereit</small></button>`).join('')}
   else{const b=m.bld;h+=b.pick.map(o=>`<button data-c="${o.id}">✅ Abholen: ${o.n}</button>`).join('');
    if(!b.provider)h+='<div class=muted>Hier arbeitet gerade niemand.</div>';

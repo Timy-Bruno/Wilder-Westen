@@ -52,10 +52,10 @@ function shoot(h){
  h.ammo--;h.shots++;h.cooldown=h.elapsed+1.2;
  const hit=Math.hypot(aim.x-a.x,aim.y-a.y)<=17;
  h.lastShot={at:h.elapsed,x:aim.x,y:aim.y,fromX:h.player.x,fromY:h.player.y,hit};
- if(hit){a.alive=false;a.fade=1;h.kills++;h.loot.meat+=2;h.loot.hide++;h.status='done';h.message='Weidmannsheil! 2 Fleisch und 1 Fell. Mit „Zur Stadt“ nimmst du die Beute mit.';}
+ if(hit){a.alive=false;a.fade=1;h.kills++;h.loot.meat+=2;h.loot.hide++;h.message='Weidmannsheil! Beute gesichert. Du kannst weiter erkunden und Köder auslegen oder zur Stadt zurückkehren.';}
  else{a.mode='flee';a.until=h.elapsed+5;h.message='Vorbei! Das Tier flieht. Folge seiner Spur und versuche es später erneut.';}
  h.aiming=false;h.focus=0;
- if(h.ammo===0&&h.status==='active'){h.status='done';h.message='Keine Patronen mehr. Kehre zur Stadt zurück und starte einen neuen Ausflug.';}
+ if(h.ammo===0){h.message='Keine Patronen mehr. Du kannst weiter erkunden und Köder auslegen. Zur Stadt kehrst du selbst zurück.';}
  return true;
 }
 function tick(h,dt,random=Math.random){
