@@ -37,12 +37,18 @@ h3{margin:4px 0 0;font-size:.8rem;letter-spacing:.1em;color:var(--g);text-transf
  #city{flex-direction:row;flex-wrap:wrap;justify-content:center;align-content:center;gap:12px}#joy{order:-1;width:130px;height:130px}header{padding-top:4px;padding-bottom:4px}#stats{margin-top:3px}}
 #tb{position:relative;width:300px;height:40px;background:#555;border-radius:8px;margin:20px auto}.tz{position:absolute;top:0;bottom:0;background:#6bbf59;opacity:.85}.tm{position:absolute;top:-6px;width:6px;height:52px;background:#fff;margin-left:-3px}
 .mb{display:grid;grid-template-columns:repeat(3,80px);gap:8px;justify-content:center}.mb button{min-width:0;font-size:2rem;padding:10px}
-#sb{width:280px;height:18px;background:#555;border-radius:9px;overflow:hidden}#sf{display:block;height:100%;width:0;background:#6bbf59}</style><link rel="stylesheet" href="/campaign.css"></head><body>
+#sb{width:280px;height:18px;background:#555;border-radius:9px;overflow:hidden}#sf{display:block;height:100%;width:0;background:#6bbf59}/* Reserve the thumb area independently of contextual actions. */
+#city{--stick-size:160px;position:absolute;inset:0;width:auto;display:block}
+#cityActions{position:absolute;inset:0 0 calc(var(--stick-size) + 32px);overflow-y:auto;touch-action:pan-y;display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:10px;padding:12px}
+#cityActions>button,#cityActions>#bells{flex:none;max-width:100%}
+#city>#joy{position:absolute;bottom:16px;left:calc(50% - var(--stick-size)/2);width:var(--stick-size);height:var(--stick-size);margin:0}
+@media(orientation:landscape){#city{--stick-size:130px}#city>#joy{left:max(16px,env(safe-area-inset-left));bottom:max(16px,env(safe-area-inset-bottom))}#cityActions{inset:0 0 0 calc(var(--stick-size) + 40px)}}
+</style><link rel="stylesheet" href="/campaign.css"></head><body>
 <div id=app>
 <header><div class=hr><span id=ric>🤠</span><span id=rn>Verbinde …</span><button id=fs hidden style="margin-left:auto;min-width:0;padding:6px 12px;font-size:1.2rem">⛶</button></div><div id=stats></div></header>
 <main>
  <section class=v id=v_map>
-  <div id=city hidden><button id=act></button><div id=bells hidden><button data-s=1>🔔 Mangel</button><button data-s=2>🔔 Angriff</button><button data-s=3>🔔 Feuer</button></div><button id=deliver hidden></button><div id=joy><div id=knob></div></div></div>
+  <div id=city hidden><div id=cityActions><button id=act></button><div id=bells hidden><button data-s=1>🔔 Mangel</button><button data-s=2>🔔 Angriff</button><button data-s=3>🔔 Feuer</button></div><button id=deliver hidden></button></div><div id=joy><div id=knob></div></div></div>
   <div id=in hidden><h2 class=ttl id=bn></h2><div class=rc id=rec></div><button id=leave>Gebäude verlassen</button></div>
  </section>
  <section class=v id=v_pack hidden><div id=give style="width:100%"></div><h3>🎒 Rucksack</h3><div id=pack></div><div id=jobs style="width:100%;display:flex;flex-direction:column;gap:6px"></div></section>
