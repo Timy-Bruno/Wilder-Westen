@@ -25,7 +25,7 @@ function renderConvoy(g,d,t){
  g.fillStyle='#c9995f';g.fillRect(0,225,1000,220);g.strokeStyle='#b18350';g.lineWidth=3;for(const y of [270,350]){g.beginPath();g.moveTo(0,y);g.lineTo(1000,y);g.stroke();}
  for(let i=0;i<24;i++){const x=((i*157-scroll*.8)%1100+1100)%1100-50,y=i%2?480+(i%4)*22:185+(i%3)*12;g.fillStyle=i%3?'#756e3c':'#855c3c';g.beginPath();g.ellipse(x,y,12+i%7,5,0,0,7);g.fill();if(i%3===0){g.strokeStyle='#586343';g.lineWidth=7;g.beginPath();g.moveTo(x,y);g.lineTo(x,y-38);g.moveTo(x,y-17);g.lineTo(x-12,y-17);g.lineTo(x-12,y-29);g.stroke();}}
  // Escort ring is an explicit gameplay boundary, kept visible beneath entities.
- g.fillStyle='#fff0bc14';g.strokeStyle='#ffe4a75c';g.lineWidth=2;g.beginPath();g.ellipse(500,310,190,100,0,0,7);g.fill();g.stroke();
+ g.fillStyle='#fff0bc14';g.strokeStyle='#ffe4a75c';g.lineWidth=2;g.beginPath();g.ellipse(500,310,190,190,0,0,7);g.fill();g.stroke();
  g.fillStyle='#41291b55';g.beginPath();g.ellipse(500,330,75,22,0,0,7);g.fill();
  g.fillStyle='#583a24';g.fillRect(444,288,115,48);g.fillStyle='#d5b584';g.beginPath();g.roundRect(440,257,116,64,[30,30,4,4]);g.fill();g.strokeStyle='#a08054';g.lineWidth=3;for(let x=453;x<550;x+=22){g.beginPath();g.moveTo(x,263);g.lineTo(x,315);g.stroke();}
  for(const x of [459,542]){g.fillStyle='#36291d';g.beginPath();g.arc(x,336,16,0,7);g.fill();g.strokeStyle='#b68c50';g.lineWidth=3;g.beginPath();g.arc(x,336,11,0,7);g.stroke();g.beginPath();g.moveTo(x-10,336);g.lineTo(x+10,336);g.moveTo(x,326);g.lineTo(x,346);g.stroke();}
