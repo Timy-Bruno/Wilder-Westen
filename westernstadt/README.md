@@ -48,7 +48,12 @@ Ein sichtbares Tier antippen, „Zielen“ links über dem Joystick mit dem link
 
 Der erste Waldausflug enthält ein Tier, sechs Patronen und kein Zeitlimit. Nach einem Treffer oder mit leerer Waffe kann man weiterlaufen und den übrigen Köder auslegen; der Ausflug endet erst mit „Zur Stadt“. „Zur Stadt“ beendet ihn und legt vorhandene Beute genau einmal in den Rucksack. Treffer, Bewegung, Sicht, Munition und Beute prüft der Server. Versteckte Tiere werden nicht an das Handy übertragen. Neuladen desselben Handy-Links stellt Position, Munition und Beute wieder her, solange der Server läuft; gehaltene Eingaben werden bei Unterbrechungen zurückgesetzt.
 
-Die anderen Berufsminispiele bleiben vorläufig. Waffenhandel und weitere eigenständige Berufsaufgaben folgen später.
+Die anderen Berufsminispiele bleiben vorläufig. Weitere Waffen und eigenständige Berufsaufgaben folgen später.
+
+### Ladenkatalog und Gold
+Im Laden öffnet jeder Spieler den vierseitigen Katalog (Jagdvorräte, Gewehr, Rohstoffe, Ankauf). Jeder startet mit 12 Gold. Sechs Jagdpatronen kosten 4 Gold, zwei Köder 3 Gold. Fleisch bringt 1 Gold, ein Fell 3 Gold; verkauft wird jeweils ein bereits im Rucksack befindliches Stück. Rohstoffe werden direkt in den Rucksack geliefert.
+
+Die einmalige Gewehrverbesserung kostet 18 Gold: volle Zielruhe nach 1,6 statt 2,2 Sekunden, Reichweite 70 statt 60 Meter. Patronen und Köder bleiben zwischen Waldbesuchen erhalten und werden beim Auslegen beziehungsweise Schießen verbraucht. Neue Waldbesuche füllen sie nicht auf. Käufe und Verkäufe prüft der Server anhand fester Preise, Gebäude, Beschäftigung und tatsächlicher Bestände. Gold und Ausrüstung gelten für die laufende Partie im Serverprozess; eine Datenbank ist weiterhin nicht angebunden.
 
 ## Fallen
 

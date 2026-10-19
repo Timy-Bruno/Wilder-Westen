@@ -4,6 +4,7 @@ const {randomUUID}=require('crypto');
 const Campaign=require('./campaign');
 const Hunt=require('./hunt');
 const Repairs=require('./repairs');
+const Shop=require('./shop');
 const {ITEM,SELL,META,STN,RICON,ROLES}=require('./data');
 const app=express(),srv=http.createServer(app),io=new Server(srv);
 const WebAssets=require('./web-assets'),CLIENT_BUILD=WebAssets.install(app,__dirname);
@@ -38,7 +39,7 @@ io.on('connection',s=>{
    base=/^(localhost|127\.)/.test(host)?'http://'+lanIP()+':'+PORT:proto+'://'+host;
   room={repairs:[],repairOid:0,hostToken:randomUUID(),campaign:Campaign.createCampaign(n),phase:'lobby',stats:{food:60,ammo:60,med:60,morale:60,security:60},slots:[],npcs:[],orders:[],oid:1,bellUntil:0,bell:null};
   for(let i=0;i<n;i++){const url=base+'/phone.html?slot='+i+'&v='+CLIENT_BUILD;
-   room.slots.push({i,role:roles[i],x:300+i*55,y:400,dx:0,dy:0,inside:null,cur:null,curOrder:null,jobs:[],inv:{ore:2,coal:1,herbs:2,wood:2,meat:1},
+   room.slots.push({i,role:roles[i],x:300+i*55,y:400,dx:0,dy:0,inside:null,cur:null,curOrder:null,jobs:[],gold:12,inv:{ore:2,coal:1,herbs:2,wood:2,meat:1},
     sock:null,qr:await QR.toDataURL(url,{margin:1,width:200})});}
   for(let i=0;i<6;i++)room.npcs.push({x:200+Math.random()*600,y:200+Math.random()*200,tx:500,ty:380});
   s.data.hostToken=room.hostToken;s.emit('hostToken',room.hostToken);s.join('screen');lobby();
@@ -100,6 +101,8 @@ io.on('connection',s=>{
  s.on('missionAction',kind=>{const p=P();if(p)Campaign.act(room.campaign,p,kind)});
  s.on('pause',()=>{if(!host()||room.phase!=='play')return;if(room.slots.some(p=>p.cur&&!p.hunt))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');room.campaign.paused=!room.campaign.paused;for(const p of room.slots){p.dx=p.dy=0;if(p.hunt){p.hunt.player.dx=p.hunt.player.dy=0;p.hunt.aiming=false;p.hunt.focus=0}if(p.forge)Repairs.action(room,p,{type:'heat',active:false})}});
  s.on('retry',()=>{if(host())Campaign.retry(room.campaign)});
+ s.on('shopBuy',id=>{const p=P();if(!p||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare')return;const g=Shop.buy(p,id);s.emit('shopReceipt',g?g.name+' gekauft.':'Kauf nicht möglich. Prüfe Gold und Ausrüstung.');});
+ s.on('shopSell',id=>{const p=P();if(!p||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare')return;const g=Shop.sell(p,id);s.emit('shopReceipt',g?g.name+' verkauft: +'+g.price+' Gold.':'Verkauf nicht möglich.');});
  s.on('repairRequest',()=>{const p=P();if(!p||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare')return;const j=Repairs.request(room,p);if(!j)return say(p,Repairs.reason(room,p));say(p,j.npc?'⚒️ Falle abgegeben. Der NPC-Schmied repariert sie in etwa 40 Sekunden Spielzeit.':'⚒️ Falle abgegeben. Dein Schmied hat den Auftrag erhalten.');if(!j.npc)say(room.slots[j.provider],'⚒️ Neuer Reparaturauftrag: Falle von Spieler '+(p.i+1)+'. In der Schmiede übernehmen.');});
  s.on('repairStart',id=>{const p=P();if(!p||room.campaign.paused||room.campaign.stage!=='prepare')return;if(Repairs.start(room,p,id))s.emit('repairState',Repairs.snapshot(room,p));});
  s.on('repairAction',input=>{const p=P();if(!p||room.campaign.paused||room.campaign.stage!=='prepare')return;if(Repairs.action(room,p,input)&&input.type==='quench'){s.emit('repairClosed');say(p,'Die Falle wird abgeschreckt. Der Besitzer bekommt gleich Nachricht.');}});
@@ -152,7 +155,7 @@ setInterval(()=>{
   bell:now<room.bellUntil?room.bell:null,warn:low[1]<30?low[0]:null,builds:BUILD,church:CHURCH});
  for(const p of room.slots){if(!p.sock)continue;if(p.hunt)io.to(p.sock).emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));if(p.forge)io.to(p.sock).emit('repairState',Repairs.snapshot(room,p,room.campaign.paused));const r=ROLES[p.role];
   const nb=BUILD.findIndex(b=>near(p,b)),mine=p.inside!==null&&(p.inside===p.role||!room.slots.some(q=>q.role===p.inside)),inB=p.inside!==null;
-  io.to(p.sock).emit('me',{workshop:Repairs.view(room,p),woodland:p.woodland?Hunt.fieldSnapshot(p.woodland):null,campaign:Campaign.publicState(room.campaign,room.slots),myVote:room.campaign.votes[p.i]||null,position:{x:p.x,y:p.y},slot:p.i,apprentice:mine&&p.inside!==p.role,role:r.n,icon:RICON[p.role],
+  io.to(p.sock).emit('me',{gold:p.gold,shop:Shop.view(p),workshop:Repairs.view(room,p),woodland:p.woodland?Hunt.fieldSnapshot(p.woodland):null,campaign:Campaign.publicState(room.campaign,room.slots),myVote:room.campaign.votes[p.i]||null,position:{x:p.x,y:p.y},slot:p.i,apprentice:mine&&p.inside!==p.role,role:r.n,icon:RICON[p.role],
    inside:inB?BUILD[p.inside].name:null,mine,
    recipes:mine?ROLES[p.inside].r.map(x=>({id:x.id,n:x.n,i:fmt(x.i)||'nichts',o:x.g==='hunt'?'Eigene Jagd · Beute sofort im Rucksack':fmt(x.o),t:x.t*(p.inside===p.role?1:2),ok:has(p,x)&&!p.cur})):[],
    bld:inB&&!mine?{provider:room.slots.some(q=>q.role===p.inside&&q!==p),

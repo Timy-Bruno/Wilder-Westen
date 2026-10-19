@@ -15,9 +15,9 @@ function segmentDistance(a,b,p){const dx=b.x-a.x,dy=b.y-a.y,t=clamp(((p.x-a.x)*d
 function lineClear(a,b){return ![...TREES,...ROCKS].some(o=>segmentDistance(a,b,o)<o.r);}
 function canStand(x,y,r=11){return x>=30&&y>=30&&x<=WORLD.w-30&&y<=WORLD.h-30&&![...TREES,...ROCKS].some(o=>Math.hypot(x-o.x,y-o.y)<o.r+r);}
 function move(entity,dx,dy,r=11){if(canStand(entity.x+dx,entity.y,r))entity.x+=dx;if(canStand(entity.x,entity.y+dy,r))entity.y+=dy;}
-function createField(){return {trap:null,pendingNotice:false,catches:0,condition:3,repairId:null};}
+function createField(){return {trap:null,pendingNotice:false,catches:0,condition:3,repairId:null,ammo:6,bait:1,rifleLevel:1};}
 function nearTrail(p){return TRACKS.some(t=>dist(p,t)<=85);}
-function create(field=createField()){return {field,elapsed:0,ammo:6,bait:1,baitSpot:null,sneak:false,aiming:false,focus:0,suspended:false,
+function create(field=createField()){return {field,elapsed:0,ammo:field.ammo??6,bait:field.bait??1,baitSpot:null,sneak:false,aiming:false,focus:0,suspended:false,
  player:{x:180,y:810,dx:0,dy:0,facing:0},targetId:null,cooldown:0,kills:0,shots:0,loot:{meat:0,hide:0},status:'active',
  message:'Folge den Wildspuren nach Nordosten. Leise bewegen, dann ein sichtbares Tier antippen.',
  animals:[{id:1,x:650,y:405,dir:1,mode:'graze',until:8,tx:705,ty:430,alive:true,fade:0}],lastShot:null};}
@@ -25,7 +25,7 @@ function visible(h,a){return a.alive&&dist(h.player,a)<=370&&lineClear(h.player,
 function selected(h){return h.animals.find(a=>a.id===h.targetId&&visible(h,a));}
 function aimInfo(h){const a=selected(h);if(!a)return null;const distance=dist(h.player,a),moving=a.mode==='walk'||a.mode==='flee';
  const radius=(1-h.focus)*(30+distance*.09)+(moving?12:1.5),angle=h.elapsed*2.3;
- return {targetId:a.id,distance:Math.round(distance/5),inRange:distance<=300,clear:lineClear(h.player,a),focus:h.focus,radius,
+ return {targetId:a.id,distance:Math.round(distance/5),inRange:distance<=(h.field.rifleLevel>=2?350:300),clear:lineClear(h.player,a),focus:h.focus,radius,
  x:a.x+Math.cos(angle)*radius,y:a.y+Math.sin(angle)*radius};}
 function control(h,input){
  if(!input||typeof input!=='object')return false;
@@ -52,7 +52,7 @@ function control(h,input){
  }
  if(input.type==='trapBait'){
   if(!near||trap.state!=='armed'||trap.baited||h.bait<1)return false;
-  h.bait--;trap.baited=true;h.message='Köder in der Falle. Halte Abstand, damit sich Kleinwild herantraut.';return true;
+  h.bait--;h.field.bait=h.bait;trap.baited=true;h.message='Köder in der Falle. Halte Abstand, damit sich Kleinwild herantraut.';return true;
  }
  if(input.type==='trapCollect'){
   if(!near||trap.state!=='caught')return false;
@@ -66,13 +66,13 @@ function control(h,input){
   if(!near||trap.state==='caught')return false;
   h.field.trap=null;h.field.pendingNotice=false;h.message=h.field.condition>0?'Falle eingepackt. Du kannst sie an einem anderen Wildwechsel aufstellen.':'Defekte Falle eingepackt. Bring sie zur Schmiede; die Reparatur braucht 1 Erz und 1 Kohle.';return true;
  }
- if(input.type==='bait'&&h.bait>0){h.bait--;h.baitSpot={x:h.player.x,y:h.player.y,until:h.elapsed+65};h.message='Köder ausgelegt. Geh leise auf Abstand und beobachte den Platz.';return true;}
+ if(input.type==='bait'&&h.bait>0){h.bait--;h.field.bait=h.bait;h.baitSpot={x:h.player.x,y:h.player.y,until:h.elapsed+65};h.message='Köder ausgelegt. Geh leise auf Abstand und beobachte den Platz.';return true;}
  return false;
 }
 function shoot(h){
  const aim=aimInfo(h),a=selected(h);
  if(h.status!=='active'||h.suspended||!h.aiming||!aim||!aim.inRange||h.ammo<=0||h.elapsed<h.cooldown)return false;
- h.ammo--;h.shots++;h.cooldown=h.elapsed+1.2;
+ h.ammo--;h.field.ammo=h.ammo;h.shots++;h.cooldown=h.elapsed+1.2;
  const hit=Math.hypot(aim.x-a.x,aim.y-a.y)<=17;
  h.lastShot={at:h.elapsed,x:aim.x,y:aim.y,fromX:h.player.x,fromY:h.player.y,hit};
  if(hit){a.alive=false;a.fade=1;h.kills++;h.loot.meat+=2;h.loot.hide++;h.message='Weidmannsheil! Beute gesichert. Du kannst weiter erkunden und Köder auslegen oder zur Stadt zurückkehren.';}
@@ -85,7 +85,7 @@ function tick(h,dt,random=Math.random){
  if(h.status!=='active'||h.suspended)return;dt=clamp(dt,0,.2);h.elapsed+=dt;
  const p=h.player,walking=Math.hypot(p.dx,p.dy)>.05;
  if(walking&&!h.aiming){const speed=h.sneak?48:108;move(p,p.dx*speed*dt,p.dy*speed*dt);p.facing=Math.atan2(p.dy,p.dx);h.focus=0;}
- const target=selected(h);if(h.aiming&&target){p.facing=Math.atan2(target.y-p.y,target.x-p.x);h.focus=Math.min(1,h.focus+dt/2.2);}else h.focus=0;
+ const target=selected(h);if(h.aiming&&target){p.facing=Math.atan2(target.y-p.y,target.x-p.x);h.focus=Math.min(1,h.focus+dt/(h.field.rifleLevel>=2?1.6:2.2));}else h.focus=0;
  for(const a of h.animals){
   if(!a.alive)continue;
   const d=dist(p,a),noticed=lineClear(p,a)&&(d<48||(walking&&!h.aiming&&d<(h.sneak?65:170))||(a.mode==='watch'&&d<(h.sneak?90:125)));

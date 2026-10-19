@@ -9,10 +9,10 @@ Nicht geprüft: echte iOS-/Android-Geräte, längere Mehrspieler-Balancetests mi
 
 ## Jagd: begehbarer Wald
 
-- Vierzehn Regeltests für normalisierte Bewegung, Grenzen/Kollisionen, Schleichen, Sichtschutz, Zielauswahl, ruhige und überhastete Schüsse, Reichweite, Fluchtverhalten, Köder, Unterbrechung und getrennte Sitzungen. Zusammen mit den Kapiteltests und Fallenregeln 43 Tests.
+- Vierzehn Regeltests für normalisierte Bewegung, Grenzen/Kollisionen, Schleichen, Sichtschutz, Zielauswahl, ruhige und überhastete Schüsse, Reichweite, Fluchtverhalten, Köder, Unterbrechung und getrennte Sitzungen. Zusammen mit den Kapiteltests und Fallenregeln 49 Tests.
 - Browserprüfung: realer Einstieg über die Jagdhütte, Weg mit dem Joystick, Entdecken und Antippen des Tiers, Zielen, Schuss mit zwei gleichzeitigen Touchkontakten (Zielen halten + Schießen), Beutegutschrift, Pause und Neuladen.
 - Portrait 390×844, Querformat 844×390 und kleines Handy 320×568: Steuerungspositionen geprüft, Screenshots erzeugt; Portrait und Querformat visuell geprüft.
-- Für reproduzierbare Ziel-/Touchtests blieb das Tier in einer lokalen Testkonfiguration stehen; der normale Weg durch den Wald wurde separat mit dem Joystick geprüft. Die Browserprüfung läuft ohne den problematischen Chromium-Einprozessmodus. Echte Zwei-Daumen-Bedienung auf iOS/Android und längere Mehrspielerbalance sind noch nicht geprüft. Zusätzliche sichtbare Tierarten und Waffenhandel sind noch nicht enthalten.
+- Für reproduzierbare Ziel-/Touchtests blieb das Tier in einer lokalen Testkonfiguration stehen; der normale Weg durch den Wald wurde separat mit dem Joystick geprüft. Die Browserprüfung läuft ohne den problematischen Chromium-Einprozessmodus. Echte Zwei-Daumen-Bedienung auf iOS/Android und längere Mehrspielerbalance sind noch nicht geprüft. Zusätzliche sichtbare Tierarten und weitere Waffen sind noch nicht enthalten.
 
 ### Offener Ausflug und Daumensteuerung
 
@@ -38,3 +38,8 @@ Zielen sitzt links über dem unveränderten Joystick; Schießen rechts. Regeltes
 - Browser mit zwei Spieler-Handys: Reparatur zuweisen, unberechtigte Arbeit ablehnen, Erhitzen/Hammer mit zwei Touchpunkten, Unterbrechen und Neuladen nach dem ersten Gelenk, restliche Gelenke, Abschrecken und Nachricht an zeitweise getrennten Besitzer; fremde Abholung ablehnen, richtige Abholung und Materialerhaltung.
 - Lokale Browser-Fixtures starteten mit defekten eingepackten Fallen in der Schmiede. Nur die NPC-Zeit wurde zum Test beschleunigt; normale 40 Sekunden und Verschleiß werden separat durch Regeltests geprüft. Produktion verwendet normale gemeinsame Spielzeit.
 - Werkbank bei 390×844, 844×390 und 320×568 geprüft und fotografiert; Erhitzen links und Hammer rechts in allen drei Ansichten kontrolliert; Portrait/Querformat sowie NPC-Abholung visuell geprüft. Keine Browser-Ausnahmen. Echte Geräte und langfristige Balance stehen noch aus.
+
+## Ladenkatalog
+- Sechs Regeltests: feste Preise, Gebäude- und Beschäftigungsprüfung, ungültige Transaktionen, Verkauf bis Bestandsende, einmalige Gewehrverbesserung und bleibende Jagdvorräte.
+- Lokaler Browser mit echtem Server/Socket.IO: Patronen und Köder gekauft, Felle und Fleisch verkauft, Gewehr verbessert, gesperrte Kaufknöpfe sowie Zustand nach Neuladen geprüft. Startposition und vier Felle wurden ausschließlich durch eine lokale Testkonfiguration vorgegeben.
+- Katalog in 390×844, 844×390 und 320×568 geprüft und fotografiert; keine JavaScript-Fehler.
