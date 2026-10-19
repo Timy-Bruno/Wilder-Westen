@@ -43,3 +43,8 @@ Zielen sitzt links über dem unveränderten Joystick; Schießen rechts. Regeltes
 - Sechs Regeltests: feste Preise, Gebäude- und Beschäftigungsprüfung, ungültige Transaktionen, Verkauf bis Bestandsende, einmalige Gewehrverbesserung und bleibende Jagdvorräte.
 - Lokaler Browser mit echtem Server/Socket.IO: Patronen und Köder gekauft, Felle und Fleisch verkauft, Gewehr verbessert, gesperrte Kaufknöpfe sowie Zustand nach Neuladen geprüft. Startposition und vier Felle wurden ausschließlich durch eine lokale Testkonfiguration vorgegeben.
 - Katalog in 390×844, 844×390 und 320×568 geprüft und fotografiert; keine JavaScript-Fehler.
+
+### Katalogdarstellung nach Handy-Rückmeldung
+- Querformat als Doppelseite: Zeichnung/Beschreibung links, Waren und Kauf rechts. Kompakte Kopf- und Fußzeile; beide Seitenspalten sind bei langen Listen separat scrollbar.
+- Eigene SVG-Gewehrgravur ersetzt das Werkzeug-Emoji. Keine externen Bildabhängigkeiten.
+- Lokale Browserprüfung aller vier Seiten in 390×844, 844×390, 320×568 und 667×375: keine horizontale Überbreite, mindestens 120 Pixel Inhaltshöhe, getrennte Spalten im Querformat, Fußleiste innerhalb des Bildschirms. Kauf-/Verkaufsablauf einschließlich Neuladen erneut geprüft.
