@@ -22,7 +22,7 @@ Hauptbildschirm: `http://localhost:3000/screen.html`. Spielerzahl wählen, QR-Co
 5. Auf dem Hauptbildschirm den Wagen begleiten; auf den Handys Joystick, Schießen und Reparatur benutzen. Im Schutzkreis fährt der Wagen. In Reichweite trifft ein Schuss den nächsten Banditen. Ohne eingelagerte Munition sind zwei statt eines Treffers nötig. Reparatur verbraucht ein Brett, Medizin wird bei kritischem Schaden automatisch verwendet. Proviant wird abschnittsweise verbraucht und erhöht das Reisetempo.
 6. Ankunft = Kapitel gewonnen. Wagen zerstört = erneuter Versuch möglich. Restinventare und übrige Vorräte bleiben erhalten. Weitere Kapitel sind noch nicht implementiert.
 
-Pause und Fortsetzen erfolgen am Hauptbildschirm. Die Jagd lässt sich gemeinsam pausieren; bei den übrigen laufenden Minispielen ist Pause gesperrt. Ohne verbundene Handys ruht die Simulation ebenfalls. Das ursprüngliche Hauptbildschirm-Browserprofil merkt sich seinen Hostzugang; neu laden verbindet wieder. Gleicher Handy-Link übernimmt denselben Spielerplatz und trennt eine ältere Verbindung.
+Pause und Fortsetzen erfolgen am Hauptbildschirm. Jagd und Reparaturwerkbank lassen sich gemeinsam pausieren; bei den ursprünglichen laufenden Minispielen ist Pause gesperrt. Ohne verbundene Handys ruht die Simulation ebenfalls. Das ursprüngliche Hauptbildschirm-Browserprofil merkt sich seinen Hostzugang; neu laden verbindet wieder. Gleicher Handy-Link übernimmt denselben Spielerplatz und trennt eine ältere Verbindung.
 
 ## Tests
 
@@ -48,7 +48,7 @@ Ein sichtbares Tier antippen, „Zielen“ links über dem Joystick mit dem link
 
 Der erste Waldausflug enthält ein Tier, sechs Patronen und kein Zeitlimit. Nach einem Treffer oder mit leerer Waffe kann man weiterlaufen und den übrigen Köder auslegen; der Ausflug endet erst mit „Zur Stadt“. „Zur Stadt“ beendet ihn und legt vorhandene Beute genau einmal in den Rucksack. Treffer, Bewegung, Sicht, Munition und Beute prüft der Server. Versteckte Tiere werden nicht an das Handy übertragen. Neuladen desselben Handy-Links stellt Position, Munition und Beute wieder her, solange der Server läuft; gehaltene Eingaben werden bei Unterbrechungen zurückgesetzt.
 
-Die anderen Berufsminispiele bleiben vorläufig. Waffenhandel und Reparaturaufträge folgen später.
+Die anderen Berufsminispiele bleiben vorläufig. Waffenhandel und weitere eigenständige Berufsaufgaben folgen später.
 
 ## Fallen
 
@@ -63,3 +63,13 @@ Fallenstandort und Fang gehören zum Spielerplatz und bleiben bei Rückkehr in d
 HTML und Spielskripte werden mit `no-store` ausgeliefert. Lokale CSS-/JS-Dateien bekommen automatisch aus ihrem Inhalt abgeleitete Versionsadressen; ein Update lädt dadurch keine ältere Jagddatei aus dem Browsercache. QR-Codes und die Startadresse der Handy-App enthalten die aktuelle Spielversion. Eine bereits mit diesem Mechanismus geladene Seite erkennt bei erneuter Serververbindung einen Versionswechsel und lädt ihre aktuelle Adresse unter Beibehaltung des Spielerplatzes neu.
 
 Falls eine ältere, vorher geöffnete Handyseite noch keine Update-Erkennung besitzt: Hauptbildschirm mit einer frischen Versionsadresse öffnen und dessen neuen QR-Code scannen. Es ist kein Löschen sämtlicher Browserdaten nötig.
+
+## Verschleiß und Fallenreparatur
+
+Die Leihfalle startet mit Zustand 3/3. Jeder Fang kostet einen Zustandspunkt. Auch der dritte Fang kann sicher geborgen werden; danach ist die Feder verschlissen und die Falle lässt sich nicht mehr spannen. Aufnehmen/Umsetzen und neue Waldbesuche setzen den Zustand nicht zurück. Eine Reparatur ist auch schon bei 2/3 oder 1/3 möglich.
+
+Falle im Wald aufnehmen, zur Stadt zurückkehren und die Schmiede betreten. Unter „Fallenwerkstatt“ die Falle für 1 Erz und 1 Kohle abgeben. Material wird genau einmal bei Auftragserteilung verbraucht; die Falle bleibt bis zur Abholung in der Werkstatt. In dieser Zeit kann man andere Tätigkeiten ausüben. Aufträge-Tab und Rucksack zeigen den Status dauerhaft an.
+
+Ist kein menschlicher Schmied zugeteilt, repariert ein NPC die Falle in 40 Sekunden gemeinsamer Spielzeit. Ein zugeteilter menschlicher Schmied übernimmt den Auftrag in der Schmiede – auch einen Auftrag für seine eigene Falle. Auf der Werkbank: ein Gelenk antippen, links „Erhitzen“ gedrückt halten bis Arbeitswärme erreicht ist, rechts mit „Gelenk richten“ bearbeiten. Drei Gelenke richten, dann abschrecken; nach drei weiteren Spielsekunden ist die Falle abholbereit. Überhitztes oder kaltes Metall lässt sich nicht richten. Arbeit kann unterbrochen und nach Neuladen fortgesetzt werden; gehaltene Hitze wird bei Unterbrechungen beendet.
+
+Der Besitzer wird im Spiel benachrichtigt und holt die Falle in der Schmiede ab. Erst dann ist Zustand 3/3 wiederhergestellt. Fremde Spieler können weder seinen Auftrag manipulieren noch seine Falle abholen. Alle Schritte, Material, Temperatur, Gelenke und Abholung werden auf dem Server geprüft. Dauerhafte Speicherung über Serverneustarts ist weiterhin nicht enthalten.

@@ -3,6 +3,7 @@ const {Server}=require('socket.io');
 const {randomUUID}=require('crypto');
 const Campaign=require('./campaign');
 const Hunt=require('./hunt');
+const Repairs=require('./repairs');
 const {ITEM,SELL,META,STN,RICON,ROLES}=require('./data');
 const app=express(),srv=http.createServer(app),io=new Server(srv);
 const WebAssets=require('./web-assets'),CLIENT_BUILD=WebAssets.install(app,__dirname);
@@ -35,7 +36,7 @@ io.on('connection',s=>{
   n=Math.max(1,Math.min(8,n|0));
   const roles=shuffle([...ROLES.keys()]).slice(0,n),h=s.handshake.headers,host=h.host||'',proto=(h['x-forwarded-proto']||'http').split(',')[0],
    base=/^(localhost|127\.)/.test(host)?'http://'+lanIP()+':'+PORT:proto+'://'+host;
-  room={hostToken:randomUUID(),campaign:Campaign.createCampaign(n),phase:'lobby',stats:{food:60,ammo:60,med:60,morale:60,security:60},slots:[],npcs:[],orders:[],oid:1,bellUntil:0,bell:null};
+  room={repairs:[],repairOid:0,hostToken:randomUUID(),campaign:Campaign.createCampaign(n),phase:'lobby',stats:{food:60,ammo:60,med:60,morale:60,security:60},slots:[],npcs:[],orders:[],oid:1,bellUntil:0,bell:null};
   for(let i=0;i<n;i++){const url=base+'/phone.html?slot='+i+'&v='+CLIENT_BUILD;
    room.slots.push({i,role:roles[i],x:300+i*55,y:400,dx:0,dy:0,inside:null,cur:null,curOrder:null,jobs:[],inv:{ore:2,coal:1,herbs:2,wood:2,meat:1},
     sock:null,qr:await QR.toDataURL(url,{margin:1,width:200})});}
@@ -45,17 +46,17 @@ io.on('connection',s=>{
  s.on('start',()=>{if(host()&&room.phase==='lobby'){room.phase='play';io.to('screen').emit('started')}});
  s.on('join',i=>{const p=room&&room.slots[i|0];if(!p)return s.emit('err','Kein Spiel gefunden. Erst am großen Bildschirm starten.');
   if(p.sock&&p.sock!==s.id){const old=io.sockets.sockets.get(p.sock);if(old)old.disconnect(true);}
-  p.dx=p.dy=0;p.sock=s.id;s.data.slot=i|0;lobby();if(p.hunt)s.emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));else if(p.cur)s.emit('game',{g:p.cur.g,n:p.cur.n,h:p.cur.h});if(p.woodland?.pendingNotice){say(p,'🪤 Deine Falle hat Kleinwild gefangen. Im Wald kannst du den Fang bergen.');p.woodland.pendingNotice=false;}});
+  p.dx=p.dy=0;p.sock=s.id;s.data.slot=i|0;lobby();if(p.hunt)s.emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));else if(p.forge)s.emit('repairState',Repairs.snapshot(room,p,room.campaign.paused));else if(p.cur)s.emit('game',{g:p.cur.g,n:p.cur.n,h:p.cur.h});if(p.woodland?.pendingNotice){say(p,'🪤 Deine Falle hat Kleinwild gefangen. Im Wald kannst du den Fang bergen.');p.woodland.pendingNotice=false;}for(const j of room.repairs||[])if(j.owner===p.i&&j.notice&&j.state==='ready'){say(p,'⚒️ Deine Falle ist fertig. Hol sie in der Schmiede ab.');j.notice=false;}});
  s.on('input',v=>{if(!v||typeof v!=='object')return;const p=P();if(!p||room.phase!=='play'||p.inside!==null)return;
   p.dx=Math.max(-1,Math.min(1,+v.dx||0));p.dy=Math.max(-1,Math.min(1,+v.dy||0))});
- s.on('act',()=>{const p=P();if(!p||room.phase!=='play'||p.cur)return;
+ s.on('act',()=>{const p=P();if(!p||room.phase!=='play'||p.cur||p.forge)return;
   if(p.inside!==null){p.inside=null;return}
   const b=BUILD.findIndex(b=>near(p,b));if(b>=0){p.inside=b;p.dx=p.dy=0}});
- s.on('craft',rid=>{const p=P();if(!p||p.inside===null||p.cur||(p.inside!==p.role&&room.slots.some(q=>q.role===p.inside)))return;
+ s.on('craft',rid=>{const p=P();if(!p||p.inside===null||p.cur||p.forge||(p.inside!==p.role&&room.slots.some(q=>q.role===p.inside)))return;
   const r=ROLES[p.inside].r.find(x=>x.id===rid);if(!r||!has(p,r))return;
   for(const k in r.i)p.inv[k]-=r.i[k];p.cur=p.inside===p.role?r:{...r,t:r.t*2};p.curOrder=null;if(r.g==='hunt'){p.woodland=p.woodland||Hunt.createField();p.hunt=Hunt.create(p.woodland);p.dx=p.dy=0;s.emit('huntState',Hunt.snapshot(p.hunt));}else s.emit('game',{g:r.g,n:r.n,h:r.h})});
  s.on('fulfill',oid=>{const p=P(),o=room&&room.orders.find(x=>x.id===oid);
-  if(!p||!o||o.to!==p.i||o.st!=='open'||p.inside!==p.role||p.cur)return;
+  if(!p||p.forge||!o||o.to!==p.i||o.st!=='open'||p.inside!==p.role||p.cur)return;
   const r=ROLES[p.role].r.find(x=>x.id===o.rid);o.st='work';p.cur=r;p.curOrder=o;s.emit('game',{g:r.g,n:r.n+' (Auftrag)',h:r.h})});
  s.on('result',sc=>{const p=P();if(!p||!p.cur||p.hunt)return;const r=p.cur,o=p.curOrder;p.cur=null;p.curOrder=null;sc=Math.max(0,Math.min(1,+sc||0));
   if(sc<.35){if(o){room.orders=room.orders.filter(x=>x!==o);say(room.slots[o.from],'❌ Dein Auftrag „'+o.n+'“ ist misslungen. Das Material ist verloren.')}
@@ -91,18 +92,23 @@ io.on('connection',s=>{
   for(const q of room.slots)if(q.sock)io.to(q.sock).emit('alert',{sig,txt})});
  s.on('donate',key=>{const p=P();if(p&&p.inside===null&&near(p,CHURCH)&&Campaign.donate(room.campaign,p,key))say(p,'Für den Treck eingelagert: '+Campaign.GOODS[key])});
  s.on('depart',()=>{if(!host()||room.phase!=='play')return;
-  if(room.slots.some(p=>p.cur))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');
+  if(room.slots.some(p=>p.cur||p.forge))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');
   if(!Campaign.startVote(room.campaign))s.emit('err','Mindestens 1 Proviant und 1 Brett an der Kirche einlagern.');
   for(const p of room.slots)p.dx=p.dy=0;
  });
  s.on('routeVote',route=>{const p=P();if(p)Campaign.vote(room.campaign,p,route)});
  s.on('missionAction',kind=>{const p=P();if(p)Campaign.act(room.campaign,p,kind)});
- s.on('pause',()=>{if(!host()||room.phase!=='play')return;if(room.slots.some(p=>p.cur&&!p.hunt))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');room.campaign.paused=!room.campaign.paused;for(const p of room.slots){p.dx=p.dy=0;if(p.hunt){p.hunt.player.dx=p.hunt.player.dy=0;p.hunt.aiming=false;p.hunt.focus=0}}});
+ s.on('pause',()=>{if(!host()||room.phase!=='play')return;if(room.slots.some(p=>p.cur&&!p.hunt))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');room.campaign.paused=!room.campaign.paused;for(const p of room.slots){p.dx=p.dy=0;if(p.hunt){p.hunt.player.dx=p.hunt.player.dy=0;p.hunt.aiming=false;p.hunt.focus=0}if(p.forge)Repairs.action(room,p,{type:'heat',active:false})}});
  s.on('retry',()=>{if(host())Campaign.retry(room.campaign)});
+ s.on('repairRequest',()=>{const p=P();if(!p||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare')return;const j=Repairs.request(room,p);if(!j)return say(p,Repairs.reason(room,p));say(p,j.npc?'⚒️ Falle abgegeben. Der NPC-Schmied repariert sie in etwa 40 Sekunden Spielzeit.':'⚒️ Falle abgegeben. Dein Schmied hat den Auftrag erhalten.');if(!j.npc)say(room.slots[j.provider],'⚒️ Neuer Reparaturauftrag: Falle von Spieler '+(p.i+1)+'. In der Schmiede übernehmen.');});
+ s.on('repairStart',id=>{const p=P();if(!p||room.campaign.paused||room.campaign.stage!=='prepare')return;if(Repairs.start(room,p,id))s.emit('repairState',Repairs.snapshot(room,p));});
+ s.on('repairAction',input=>{const p=P();if(!p||room.campaign.paused||room.campaign.stage!=='prepare')return;if(Repairs.action(room,p,input)&&input.type==='quench'){s.emit('repairClosed');say(p,'Die Falle wird abgeschreckt. Der Besitzer bekommt gleich Nachricht.');}});
+ s.on('repairClose',()=>{const p=P();if(!p)return;Repairs.stop(room,p);s.emit('repairClosed');});
+ s.on('repairCollect',id=>{const p=P();if(!p||room.campaign.paused||room.campaign.stage!=='prepare')return;if(Repairs.collect(room,p,id))say(p,'🪤 Reparierte Falle abgeholt: Zustand 3/3. Du kannst wieder Fallen stellen.');});
  s.on('huntControl',input=>{const p=P();if(!p?.hunt||room.campaign.paused||room.campaign.stage!=='prepare')return;Hunt.control(p.hunt,input)});
  s.on('huntShoot',point=>{const p=P();if(!p?.hunt||room.campaign.paused||room.campaign.stage!=='prepare')return;if(Hunt.shoot(p.hunt,point))s.emit('huntState',Hunt.snapshot(p.hunt))});
  s.on('huntLeave',()=>{const p=P();if(!p?.hunt)return;const loot={...p.hunt.loot};for(const [k,n] of Object.entries(loot))p.inv[k]=(p.inv[k]||0)+n;p.hunt=null;p.cur=null;p.curOrder=null;s.emit('huntEnded',{loot});const text=loot.meat?'Jagdbeute im Rucksack: '+loot.meat+' Fleisch, '+loot.hide+' Felle.':'Du bist ohne Beute zurückgekehrt. Du kannst eine neue Jagd starten.';say(p,text+(p.woodland?.trap?' 🪤 Deine Falle bleibt im Wald. Ihren Zustand findest du im Rucksack.':''))});
- s.on('disconnect',()=>{const p=P();if(p&&p.sock===s.id){p.sock=null;p.dx=p.dy=0;if(p.hunt)Hunt.control(p.hunt,{type:'suspend',active:true});lobby()}});
+ s.on('disconnect',()=>{const p=P();if(p&&p.sock===s.id){p.sock=null;p.dx=p.dy=0;if(p.hunt)Hunt.control(p.hunt,{type:'suspend',active:true});if(p.forge)Repairs.action(room,p,{type:'suspend',active:true});lobby()}});
 });
 let previousTick=Date.now();
 setInterval(()=>{
@@ -113,6 +119,10 @@ setInterval(()=>{
   const text='🪤 Deine Falle hat Kleinwild gefangen. Geh zum markierten Fallenplatz und berge den Fang.';
   if(p.hunt)p.hunt.message=text;
   if(p.sock){say(p,text);p.woodland.pendingNotice=false;}
+ }
+ for(const j of Repairs.tick(room,dt)){
+  const owner=room.slots[j.owner];if(owner.sock){say(owner,'⚒️ Deine Falle ist fertig. Hol sie in der Schmiede ab.');j.notice=false;}
+  if(j.provider!==null&&j.provider!==j.owner)say(room.slots[j.provider],'⚒️ Reparatur fertig. Der Besitzer wurde benachrichtigt.');
  }
  Campaign.tick(room.campaign,room.slots,dt);
  if(room.campaign.stage==='escort'){for(const p of room.slots){for(const j of p.jobs)j.t+=wall;p.x=Math.max(25,Math.min(W-25,p.x+p.dx*190*dt));p.y=Math.max(95,Math.min(H-25,p.y+p.dy*190*dt));}return;}
@@ -140,9 +150,9 @@ setInterval(()=>{
   slots:room.slots.map(p=>({i:p.i,x:p.x,y:p.y,hidden:p.inside!==null,on:!!p.sock})),
   occupied:room.slots.filter(p=>p.inside!==null).map(p=>p.inside),
   bell:now<room.bellUntil?room.bell:null,warn:low[1]<30?low[0]:null,builds:BUILD,church:CHURCH});
- for(const p of room.slots){if(!p.sock)continue;if(p.hunt)io.to(p.sock).emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));const r=ROLES[p.role];
+ for(const p of room.slots){if(!p.sock)continue;if(p.hunt)io.to(p.sock).emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));if(p.forge)io.to(p.sock).emit('repairState',Repairs.snapshot(room,p,room.campaign.paused));const r=ROLES[p.role];
   const nb=BUILD.findIndex(b=>near(p,b)),mine=p.inside!==null&&(p.inside===p.role||!room.slots.some(q=>q.role===p.inside)),inB=p.inside!==null;
-  io.to(p.sock).emit('me',{woodland:p.woodland?Hunt.fieldSnapshot(p.woodland):null,campaign:Campaign.publicState(room.campaign,room.slots),myVote:room.campaign.votes[p.i]||null,position:{x:p.x,y:p.y},slot:p.i,apprentice:mine&&p.inside!==p.role,role:r.n,icon:RICON[p.role],
+  io.to(p.sock).emit('me',{workshop:Repairs.view(room,p),woodland:p.woodland?Hunt.fieldSnapshot(p.woodland):null,campaign:Campaign.publicState(room.campaign,room.slots),myVote:room.campaign.votes[p.i]||null,position:{x:p.x,y:p.y},slot:p.i,apprentice:mine&&p.inside!==p.role,role:r.n,icon:RICON[p.role],
    inside:inB?BUILD[p.inside].name:null,mine,
    recipes:mine?ROLES[p.inside].r.map(x=>({id:x.id,n:x.n,i:fmt(x.i)||'nichts',o:x.g==='hunt'?'Eigene Jagd · Beute sofort im Rucksack':fmt(x.o),t:x.t*(p.inside===p.role?1:2),ok:has(p,x)&&!p.cur})):[],
    bld:inB&&!mine?{provider:room.slots.some(q=>q.role===p.inside&&q!==p),

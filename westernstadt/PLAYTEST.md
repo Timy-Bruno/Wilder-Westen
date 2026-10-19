@@ -9,7 +9,7 @@ Nicht geprüft: echte iOS-/Android-Geräte, längere Mehrspieler-Balancetests mi
 
 ## Jagd: begehbarer Wald
 
-- Vierzehn Regeltests für normalisierte Bewegung, Grenzen/Kollisionen, Schleichen, Sichtschutz, Zielauswahl, ruhige und überhastete Schüsse, Reichweite, Fluchtverhalten, Köder, Unterbrechung und getrennte Sitzungen. Zusammen mit den Kapiteltests und Fallenregeln 33 Tests.
+- Vierzehn Regeltests für normalisierte Bewegung, Grenzen/Kollisionen, Schleichen, Sichtschutz, Zielauswahl, ruhige und überhastete Schüsse, Reichweite, Fluchtverhalten, Köder, Unterbrechung und getrennte Sitzungen. Zusammen mit den Kapiteltests und Fallenregeln 43 Tests.
 - Browserprüfung: realer Einstieg über die Jagdhütte, Weg mit dem Joystick, Entdecken und Antippen des Tiers, Zielen, Schuss mit zwei gleichzeitigen Touchkontakten (Zielen halten + Schießen), Beutegutschrift, Pause und Neuladen.
 - Portrait 390×844, Querformat 844×390 und kleines Handy 320×568: Steuerungspositionen geprüft, Screenshots erzeugt; Portrait und Querformat visuell geprüft.
 - Für reproduzierbare Ziel-/Touchtests blieb das Tier in einer lokalen Testkonfiguration stehen; der normale Weg durch den Wald wurde separat mit dem Joystick geprüft. Die Browserprüfung läuft ohne den problematischen Chromium-Einprozessmodus. Echte Zwei-Daumen-Bedienung auf iOS/Android und längere Mehrspielerbalance sind noch nicht geprüft. Zusätzliche sichtbare Tierarten und Waffenhandel sind noch nicht enthalten.
@@ -29,3 +29,12 @@ Zielen sitzt links über dem unveränderten Joystick; Schießen rechts. Regeltes
 
 - Zwei HTTP-Tests prüfen nicht speicherbare HTML-/Skriptantworten, versionierte lokale Ressourcen, unveränderte externe/dynamische URLs, neue Skriptadresse bei geänderter Datei und eine frische HTML-Antwort statt 304 für den alten Seitenstand.
 - Chromium-Regression: alten unversionierten Jagdcode mit langem Cachezeitraum laden und dessen Cachetreffer nachweisen; neue Handyseite öffnen und linke Zieltaste/Fallenknopf trotz dieses alten Cacheeintrags prüfen. QR-/Manifestadressen müssen Version und richtigen Spielerplatz enthalten; ein gemeldeter Versionswechsel muss ohne Schleife neu laden und den Spielerplatz erhalten.
+
+## Verschleiß und Reparaturwerkbank
+
+- Zwei Verschleißtests: drei Fänge, letzter Fang bleibt bergbar, Defekt verhindert weiteres Spannen/Platzieren, Aufnehmen und neuer Besuch setzen Zustand nicht zurück; Reparaturbesitz verhindert eine zweite Falle.
+- Acht Reparaturtests: Standort/Material/Toolbesitz, NPC-Auftrag und einmalige Kosten, Fertigmeldung und kontrollierte Abholung, Rollenberechtigung, serverseitige Temperatur/Abklingzeit/Gelenke/Abschrecken, Überhitzung und Unterbrechungen, Fortsetzen und Fremdzugriff sowie Eigenreparatur durch den Schmied.
+- Browser NPC: Abgabe, doppelte Anfrage, Verbrauch, Pause, Gebäude verlassen, Fertigmeldung, Abholung außerhalb des Gebäudes ablehnen, Neuladen und einmalige Rückgabe.
+- Browser mit zwei Spieler-Handys: Reparatur zuweisen, unberechtigte Arbeit ablehnen, Erhitzen/Hammer mit zwei Touchpunkten, Unterbrechen und Neuladen nach dem ersten Gelenk, restliche Gelenke, Abschrecken und Nachricht an zeitweise getrennten Besitzer; fremde Abholung ablehnen, richtige Abholung und Materialerhaltung.
+- Lokale Browser-Fixtures starteten mit defekten eingepackten Fallen in der Schmiede. Nur die NPC-Zeit wurde zum Test beschleunigt; normale 40 Sekunden und Verschleiß werden separat durch Regeltests geprüft. Produktion verwendet normale gemeinsame Spielzeit.
+- Werkbank bei 390×844, 844×390 und 320×568 geprüft und fotografiert; Erhitzen links und Hammer rechts in allen drei Ansichten kontrolliert; Portrait/Querformat sowie NPC-Abholung visuell geprüft. Keine Browser-Ausnahmen. Echte Geräte und langfristige Balance stehen noch aus.

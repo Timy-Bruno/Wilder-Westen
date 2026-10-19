@@ -15,7 +15,7 @@ function segmentDistance(a,b,p){const dx=b.x-a.x,dy=b.y-a.y,t=clamp(((p.x-a.x)*d
 function lineClear(a,b){return ![...TREES,...ROCKS].some(o=>segmentDistance(a,b,o)<o.r);}
 function canStand(x,y,r=11){return x>=30&&y>=30&&x<=WORLD.w-30&&y<=WORLD.h-30&&![...TREES,...ROCKS].some(o=>Math.hypot(x-o.x,y-o.y)<o.r+r);}
 function move(entity,dx,dy,r=11){if(canStand(entity.x+dx,entity.y,r))entity.x+=dx;if(canStand(entity.x,entity.y+dy,r))entity.y+=dy;}
-function createField(){return {trap:null,pendingNotice:false,catches:0};}
+function createField(){return {trap:null,pendingNotice:false,catches:0,condition:3,repairId:null};}
 function nearTrail(p){return TRACKS.some(t=>dist(p,t)<=85);}
 function create(field=createField()){return {field,elapsed:0,ammo:6,bait:1,baitSpot:null,sneak:false,aiming:false,focus:0,suspended:false,
  player:{x:180,y:810,dx:0,dy:0,facing:0},targetId:null,cooldown:0,kills:0,shots:0,loot:{meat:0,hide:0},status:'active',
@@ -47,7 +47,7 @@ function control(h,input){
  }
  const trap=h.field.trap,near=trap&&dist(h.player,trap)<=65;
  if(input.type==='trapPlace'){
-  if(trap||!nearTrail(h.player)||!canStand(h.player.x,h.player.y))return false;
+  if(trap||h.field.repairId||h.field.condition<=0||!nearTrail(h.player)||!canStand(h.player.x,h.player.y))return false;
   h.field.trap={x:h.player.x,y:h.player.y,state:'armed',baited:false,progress:0};h.message='Falle am Wildwechsel aufgestellt. Mit Köder geht es schneller. Geh auf Abstand oder erledige etwas in der Stadt.';return true;
  }
  if(input.type==='trapBait'){
@@ -56,15 +56,15 @@ function control(h,input){
  }
  if(input.type==='trapCollect'){
   if(!near||trap.state!=='caught')return false;
-  trap.state='empty';trap.baited=false;trap.progress=0;h.field.pendingNotice=false;h.loot.meat++;h.loot.hide++;h.message='Fang geborgen: 1 Fleisch und 1 Fell. Du kannst die Falle erneut spannen oder aufnehmen.';return true;
+  trap.state=h.field.condition>0?'empty':'broken';trap.baited=false;trap.progress=0;h.field.pendingNotice=false;h.loot.meat++;h.loot.hide++;h.message=h.field.condition>0?'Fang geborgen: 1 Fleisch und 1 Fell. Du kannst die Falle erneut spannen oder aufnehmen.':'Fang geborgen. Die Feder ist verschlissen – nimm die Falle auf und bring sie zur Schmiede.';return true;
  }
  if(input.type==='trapArm'){
-  if(!near||trap.state!=='empty')return false;
+  if(!near||trap.state!=='empty'||h.field.condition<=0||h.field.repairId)return false;
   trap.state='armed';trap.progress=0;h.message='Falle wieder gespannt. Köder einlegen oder auf Abstand gehen.';return true;
  }
  if(input.type==='trapPickup'){
   if(!near||trap.state==='caught')return false;
-  h.field.trap=null;h.field.pendingNotice=false;h.message='Falle eingepackt. Du kannst sie an einem anderen Wildwechsel aufstellen.';return true;
+  h.field.trap=null;h.field.pendingNotice=false;h.message=h.field.condition>0?'Falle eingepackt. Du kannst sie an einem anderen Wildwechsel aufstellen.':'Defekte Falle eingepackt. Bring sie zur Schmiede; die Reparatur braucht 1 Erz und 1 Kohle.';return true;
  }
  if(input.type==='bait'&&h.bait>0){h.bait--;h.baitSpot={x:h.player.x,y:h.player.y,until:h.elapsed+65};h.message='Köder ausgelegt. Geh leise auf Abstand und beobachte den Platz.';return true;}
  return false;
@@ -111,13 +111,13 @@ function tick(h,dt,random=Math.random){
 // Traps use the shared game clock, independently of a particular woodland visit.
 // A quiet wild trail brings small game; deer hunting remains a separate activity.
 function tickField(field,dt,presence=null){
- const t=field.trap;if(!t||t.state!=='armed'||(presence&&dist(presence,t)<130))return false;
+ const t=field.trap;if(!t||field.condition<=0||t.state!=='armed'||(presence&&dist(presence,t)<130))return false;
  t.progress+=clamp(dt,0,.2)/(t.baited?60:120);
  if(t.progress<1)return false;
- t.progress=1;t.state='caught';field.pendingNotice=true;field.catches++;return true;
+ t.progress=1;t.state='caught';field.pendingNotice=true;field.catches++;field.condition=Math.max(0,field.condition-1);return true;
 }
-function fieldSnapshot(field){const t=field?.trap;return {available:!t,trap:t?{x:t.x,y:t.y,state:t.state,baited:t.baited,progress:Math.min(1,t.progress)}:null};}
-function snapshot(h,paused=false){const field=fieldSnapshot(h.field),t=field.trap;return {trap:t?{...t,near:dist(h.player,t)<=65,distance:Math.round(dist(h.player,t)/5),quiet:dist(h.player,t)>=130}:null,canPlaceTrap:!t&&nearTrail(h.player)&&canStand(h.player.x,h.player.y),version:3,world:WORLD,trees:TREES,rocks:ROCKS,tracks:TRACKS,elapsed:h.elapsed,ammo:h.ammo,bait:h.bait,
+function fieldSnapshot(field){const t=field?.trap;return {available:!t&&!field?.repairId&&(field?.condition??3)>0,condition:field?.condition??3,maxCondition:3,repairId:field?.repairId??null,trap:t?{x:t.x,y:t.y,state:t.state,baited:t.baited,progress:Math.min(1,t.progress)}:null};}
+function snapshot(h,paused=false){const field=fieldSnapshot(h.field),t=field.trap;return {gear:{condition:field.condition,maxCondition:3,inRepair:!!field.repairId},trap:t?{...t,near:dist(h.player,t)<=65,distance:Math.round(dist(h.player,t)/5),quiet:dist(h.player,t)>=130}:null,canPlaceTrap:field.available&&nearTrail(h.player)&&canStand(h.player.x,h.player.y),version:3,world:WORLD,trees:TREES,rocks:ROCKS,tracks:TRACKS,elapsed:h.elapsed,ammo:h.ammo,bait:h.bait,
  baitSpot:h.baitSpot&&h.baitSpot.until>h.elapsed?{x:h.baitSpot.x,y:h.baitSpot.y}:null,
  player:{...h.player},sneak:h.sneak,aiming:h.aiming,focus:h.focus,targetId:h.targetId,aim:aimInfo(h),suspended:h.suspended,paused:paused||h.suspended,
  status:h.status,kills:h.kills,loot:{...h.loot},ready:h.elapsed>=h.cooldown,message:h.message,lastShot:h.lastShot?{...h.lastShot}:null,

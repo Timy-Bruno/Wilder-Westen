@@ -73,13 +73,14 @@ s.on('msg',t=>{note(t);vib(40)});
 s.on('alert',a=>{note('🔔 '+a.txt,1);vib(a.sig===1?200:[200,100,200,100,200])});
 const set=(id,html)=>{if(SK[id]!==html){SK[id]=html;$(id).innerHTML=html}};
 s.on('me',m=>{
- const field=m.woodland,trap=field?.trap;$('woodlandCard').hidden=!field;set('woodlandCard',!field?'':trap?'🪤 '+(trap.state==='caught'?'Deine Falle hat gefangen! Kehre in den Wald zurück und berge den Fang.':trap.state==='empty'?'Deine Falle steht leer im Wald. Du kannst sie erneut spannen oder aufnehmen.':'Deine Falle steht im Wald und wartet auf Kleinwild.'):'🪤 1 Leihfalle im Gepäck. Im Wald an Wildspuren aufstellen.');
+ const field=m.woodland,trap=field?.trap,repair=m.workshop?.own;$('woodlandCard').hidden=!field;
+ set('woodlandCard',!field?'':field.repairId?'⚒️ '+(repair?.state==='ready'?'Deine Falle ist fertig. In der Schmiede abholen.':'Deine Falle ist zur Reparatur in der Schmiede.'):trap?'🪤 '+(trap.state==='caught'?'Deine Falle hat gefangen! Im Wald den Fang bergen.':trap.state==='broken'?'Die Falle ist defekt. Im Wald aufnehmen und zur Schmiede bringen.':trap.state==='empty'?'Falle leer im Wald. Erneut spannen oder aufnehmen.':'Falle scharf im Wald. Sie wartet auf Kleinwild.')+' Zustand '+field.condition+'/3.':field.condition?'🪤 Falle im Gepäck · Zustand '+field.condition+'/3. Reparatur bei Bedarf in der Schmiede.':'🪤 Falle defekt im Gepäck. Zur Schmiede bringen · 1 Erz und 1 Kohle.');
  $('ric').textContent=m.icon;$('rn').textContent=m.role;
  ST.forEach(([k])=>{const e=$('st_'+k),v=m.stats[k];e.querySelector('b').textContent=v;e.querySelector('u').style.width=v+'%';e.classList.toggle('low',v<30)});
  set('pack',m.inv.length?m.inv.map(i=>`<div class="it ${i.sell?'sell':''}"><span>${i.icon}</span><b>${i.n}</b><small>${i.name}</small><em>${i.hint}</em></div>`).join(''):'<div class=muted style="grid-column:1/-1">Leer – stelle etwas her oder lass dir etwas geben.</div>');
  set('jobs',m.jobs.map(j=>`<div class=job>⏳ ${j.n}<i><u style="width:${100-j.s/j.d*100}%"></u></i>${j.s}s</div>`).join(''));
  set('give',m.nearby.map(q=>`<div class=gv><p>🤝 Spieler ${q+1} ist in der Nähe – übergeben:</p>${m.inv.map(i=>`<button data-to="${q}" data-k="${i.k}">${i.icon} ${i.name}</button>`).join('')}</div>`).join(''));
- const O=m.orders,ready=O.mine.filter(o=>o.st==='ready').length,n=O.inc.filter(o=>o.st==='open').length+ready;
+ const O=m.orders,ready=O.mine.filter(o=>o.st==='ready').length,n=O.inc.filter(o=>o.st==='open').length+ready+(m.workshop?.incoming.filter(j=>j.state==='open').length||0)+(m.workshop?.own?.state==='ready'?1:0);
  $('badge').hidden=!n;$('badge').textContent=n;
  set('inc',O.inc.length?O.inc.map(o=>`<div class=oc>📋 ${o.n}<br><small>von Spieler ${o.from+1} · ${o.st==='work'?'🔧 in Arbeit':'offen – geh in dein Gebäude'}</small></div>`).join(''):'<div class=muted>Keine Aufträge.</div>');
  set('mine',O.mine.length?O.mine.map(o=>`<div class=oc>${o.st==='ready'?'✅':o.st==='work'?'🔧':'⏳'} ${o.n}<br><small>${o.st==='ready'?'fertig – abholen in: '+o.b:'in: '+o.b+' · '+(o.st==='work'?'wird bearbeitet':'wartet')}</small></div>`).join(''):'<div class=muted>Keine Bestellungen. Geh in ein fremdes Gebäude, um etwas zu bestellen.</div>');
@@ -138,5 +139,5 @@ function mv(e){if(!on)return;const r=j.getBoundingClientRect(),R=r.width/2-30;le
  k.style.transform=`translate(${x}px,${y}px)`;s.emit('input',{dx:x/R,dy:y/R})}
 j.onpointerdown=e=>{on=true;j.setPointerCapture(e.pointerId);mv(e)};j.onpointermove=mv;
 j.onpointerup=j.onpointercancel=()=>{on=false;k.style.transform='';s.emit('input',{dx:0,dy:0})};
-</script><script src="/campaign-phone.js"></script><script src="/hunting.js"></script></body></html>
+</script><script src="/campaign-phone.js"></script><script src="/hunting.js"></script><script src="/repair-phone.js"></script></body></html>
 
