@@ -1,5 +1,7 @@
 const express=require('express'),http=require('http'),os=require('os'),QR=require('qrcode');
 const {Server}=require('socket.io');
+const {randomUUID}=require('crypto');
+const Campaign=require('./campaign');
 const {ITEM,SELL,META,STN,RICON,ROLES}=require('./data');
 const app=express(),srv=http.createServer(app),io=new Server(srv);
 app.get('/manifest.json',(q,r)=>{const sl=Math.max(0,Math.min(7,+q.query.slot||0));
@@ -17,33 +19,38 @@ const near=(p,b,m=35)=>p.x>b.x-m&&p.x<b.x+b.w+m&&p.y>b.y-m&&p.y<b.y+b.h+m;
 const hit=(x,y)=>SOLID.some(b=>x>b.x-12&&x<b.x+b.w+12&&y>b.y-12&&y<b.y+b.h+12);
 const has=(p,r)=>Object.entries(r.i).every(([k,v])=>(p.inv[k]||0)>=v);
 const isSvc=r=>Object.keys(r.i).length>0;
-function lanIP(){for(const l of Object.values(os.networkInterfaces()))for(const a of l)if(a.family==='IPv4'&&!a.internal)return a.address;return 'localhost'}
+function lanIP(){try{for(const l of Object.values(os.networkInterfaces()))for(const a of l)if(a.family==='IPv4'&&!a.internal)return a.address;}catch{}return 'localhost'}
 function lobby(){if(!room)return;io.to('screen').emit('lobby',room.slots.map(p=>({i:p.i,qr:p.qr,on:!!p.sock})))}
 const say=(p,t)=>p&&p.sock&&io.to(p.sock).emit('msg',t);
 io.on('connection',s=>{
- const P=()=>room&&room.slots[s.data.slot];
+ const P=()=>{const p=room&&room.slots[s.data.slot];return p&&p.sock===s.id?p:null};
+ const host=()=>room&&room.hostToken===s.data.hostToken;
+ s.use(([event],next)=>{if(['input','act','craft','fulfill','result','order','collect','deliver','give','bell'].includes(event)&&room&&(room.campaign.paused||(room.campaign.stage!=='prepare'&&!(event==='input'&&room.campaign.stage==='escort'))))return;next()});
+ s.on('screen',token=>{if(!room||token!==room.hostToken)return;s.data.hostToken=token;s.join('screen');lobby();if(room.phase==='play')s.emit('started')});
  s.on('create',async n=>{
+  if(room)return s.emit('err','Es läuft bereits eine Partie. Öffne den ursprünglichen Hauptbildschirm.');
   n=Math.max(1,Math.min(8,n|0));
   const roles=shuffle([...ROLES.keys()]).slice(0,n),h=s.handshake.headers,host=h.host||'',proto=(h['x-forwarded-proto']||'http').split(',')[0],
    base=/^(localhost|127\.)/.test(host)?'http://'+lanIP()+':'+PORT:proto+'://'+host;
-  room={phase:'lobby',stats:{food:60,ammo:60,med:60,morale:60,security:60},slots:[],npcs:[],orders:[],oid:1,bellUntil:0,bell:null};
+  room={hostToken:randomUUID(),campaign:Campaign.createCampaign(n),phase:'lobby',stats:{food:60,ammo:60,med:60,morale:60,security:60},slots:[],npcs:[],orders:[],oid:1,bellUntil:0,bell:null};
   for(let i=0;i<n;i++){const url=base+'/phone.html?slot='+i;
    room.slots.push({i,role:roles[i],x:300+i*55,y:400,dx:0,dy:0,inside:null,cur:null,curOrder:null,jobs:[],inv:{ore:2,coal:1,herbs:2,wood:2,meat:1},
     sock:null,qr:await QR.toDataURL(url,{margin:1,width:200})});}
   for(let i=0;i<6;i++)room.npcs.push({x:200+Math.random()*600,y:200+Math.random()*200,tx:500,ty:380});
-  s.join('screen');lobby();
+  s.data.hostToken=room.hostToken;s.emit('hostToken',room.hostToken);s.join('screen');lobby();
  });
- s.on('start',()=>{if(room){room.phase='play';io.to('screen').emit('started')}});
+ s.on('start',()=>{if(host()&&room.phase==='lobby'){room.phase='play';io.to('screen').emit('started')}});
  s.on('join',i=>{const p=room&&room.slots[i|0];if(!p)return s.emit('err','Kein Spiel gefunden. Erst am großen Bildschirm starten.');
-  p.sock=s.id;s.data.slot=i|0;lobby()});
- s.on('input',v=>{const p=P();if(!p||room.phase!=='play'||p.inside!==null)return;
+  if(p.sock&&p.sock!==s.id){const old=io.sockets.sockets.get(p.sock);if(old)old.disconnect(true);}
+  p.dx=p.dy=0;p.sock=s.id;s.data.slot=i|0;lobby();if(p.cur)s.emit('game',{g:p.cur.g,n:p.cur.n,h:p.cur.h})});
+ s.on('input',v=>{if(!v||typeof v!=='object')return;const p=P();if(!p||room.phase!=='play'||p.inside!==null)return;
   p.dx=Math.max(-1,Math.min(1,+v.dx||0));p.dy=Math.max(-1,Math.min(1,+v.dy||0))});
  s.on('act',()=>{const p=P();if(!p||room.phase!=='play'||p.cur)return;
   if(p.inside!==null){p.inside=null;return}
   const b=BUILD.findIndex(b=>near(p,b));if(b>=0){p.inside=b;p.dx=p.dy=0}});
- s.on('craft',rid=>{const p=P();if(!p||p.inside!==p.role||p.cur)return;
-  const r=ROLES[p.role].r.find(x=>x.id===rid);if(!r||!has(p,r))return;
-  for(const k in r.i)p.inv[k]-=r.i[k];p.cur=r;p.curOrder=null;s.emit('game',{g:r.g,n:r.n,h:r.h})});
+ s.on('craft',rid=>{const p=P();if(!p||p.inside===null||p.cur||(p.inside!==p.role&&room.slots.some(q=>q.role===p.inside)))return;
+  const r=ROLES[p.inside].r.find(x=>x.id===rid);if(!r||!has(p,r))return;
+  for(const k in r.i)p.inv[k]-=r.i[k];p.cur=p.inside===p.role?r:{...r,t:r.t*2};p.curOrder=null;s.emit('game',{g:r.g,n:r.n,h:r.h})});
  s.on('fulfill',oid=>{const p=P(),o=room&&room.orders.find(x=>x.id===oid);
   if(!p||!o||o.to!==p.i||o.st!=='open'||p.inside!==p.role||p.cur)return;
   const r=ROLES[p.role].r.find(x=>x.id===o.rid);o.st='work';p.cur=r;p.curOrder=o;s.emit('game',{g:r.g,n:r.n+' (Auftrag)',h:r.h})});
@@ -69,7 +76,7 @@ io.on('connection',s=>{
   if(!t.length)return say(p,'Nichts zum Abliefern. Rohstoffe müssen erst verarbeitet werden.');
   say(p,'✔ Abgeliefert: '+t.join(', '));
   io.to('screen').emit('fx',Object.entries(g).map(([st,v],i)=>({t:'+'+v+' '+STN[st],x:CHURCH.x+65,y:CHURCH.y-10-i*22})))});
- s.on('give',({to,item})=>{const p=P(),q=room&&room.slots[to|0];
+ s.on('give',(v)=>{if(!v||typeof v!=='object')return;const {to,item}=v;const p=P(),q=room&&room.slots[to|0];
   if(!p||!q||p===q||p.inside!==null||q.inside!==null||!(p.inv[item]>0)||Math.hypot(p.x-q.x,p.y-q.y)>90)return;
   p.inv[item]--;q.inv[item]=(q.inv[item]||0)+1;say(p,'Gegeben: '+ITEM[item]+' an Spieler '+(q.i+1));say(q,'Du hast '+ITEM[item]+' von Spieler '+(p.i+1)+' bekommen!')});
  s.on('bell',sig=>{const p=P();if(!p||p.inside!==null||!near(p,CHURCH)||Date.now()-lastBell<12000)return;
@@ -79,10 +86,26 @@ io.on('connection',s=>{
   room.stats.morale=Math.max(0,Math.min(100,room.stats.morale+(needed?4:-6)));
   room.bellUntil=Date.now()+8000;room.bell={sig,txt,by:p.i,false:!needed};
   for(const q of room.slots)if(q.sock)io.to(q.sock).emit('alert',{sig,txt})});
+ s.on('donate',key=>{const p=P();if(p&&p.inside===null&&near(p,CHURCH)&&Campaign.donate(room.campaign,p,key))say(p,'Für den Treck eingelagert: '+Campaign.GOODS[key])});
+ s.on('depart',()=>{if(!host()||room.phase!=='play')return;
+  if(room.slots.some(p=>p.cur))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');
+  if(!Campaign.startVote(room.campaign))s.emit('err','Mindestens 1 Proviant und 1 Brett an der Kirche einlagern.');
+  for(const p of room.slots)p.dx=p.dy=0;
+ });
+ s.on('routeVote',route=>{const p=P();if(p)Campaign.vote(room.campaign,p,route)});
+ s.on('missionAction',kind=>{const p=P();if(p)Campaign.act(room.campaign,p,kind)});
+ s.on('pause',()=>{if(!host()||room.phase!=='play')return;if(room.slots.some(p=>p.cur))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');room.campaign.paused=!room.campaign.paused;for(const p of room.slots)p.dx=p.dy=0});
+ s.on('retry',()=>{if(host())Campaign.retry(room.campaign)});
  s.on('disconnect',()=>{const p=P();if(p&&p.sock===s.id){p.sock=null;p.dx=p.dy=0;lobby()}});
 });
+let previousTick=Date.now();
 setInterval(()=>{
- if(!room||room.phase!=='play')return;const dt=.05,now=Date.now();
+ const now=Date.now(),wall=now-previousTick;previousTick=now;
+ if(!room||room.phase!=='play')return;const dt=Math.min(.2,wall/1000);
+ if(room.campaign.paused||!room.slots.some(p=>p.sock)){for(const p of room.slots)for(const j of p.jobs)j.t+=wall;return;}
+ Campaign.tick(room.campaign,room.slots,dt);
+ if(room.campaign.stage==='escort'){for(const p of room.slots){for(const j of p.jobs)j.t+=wall;p.x=Math.max(25,Math.min(W-25,p.x+p.dx*190*dt));p.y=Math.max(95,Math.min(H-25,p.y+p.dy*190*dt));}return;}
+ if(room.campaign.stage!=='prepare'){for(const p of room.slots)for(const j of p.jobs)j.t+=wall;return;}
  for(const k in room.stats)room.stats[k]=Math.max(0,room.stats[k]-.15*dt);
  for(const p of room.slots){
   const nx=Math.max(10,Math.min(W-10,p.x+p.dx*180*dt)),ny=Math.max(55,Math.min(H-10,p.y+p.dy*180*dt));
@@ -101,15 +124,15 @@ setInterval(()=>{
 setInterval(()=>{
  if(!room||room.phase!=='play')return;const now=Date.now();
  const low=Object.entries(room.stats).sort((a,b)=>a[1]-b[1])[0];
- io.to('screen').emit('state',{stats:room.stats,npcs:room.npcs,
+ io.to('screen').emit('state',{campaign:Campaign.publicState(room.campaign,room.slots),stats:room.stats,npcs:room.npcs,
   slots:room.slots.map(p=>({i:p.i,x:p.x,y:p.y,hidden:p.inside!==null,on:!!p.sock})),
   occupied:room.slots.filter(p=>p.inside!==null).map(p=>p.inside),
   bell:now<room.bellUntil?room.bell:null,warn:low[1]<30?low[0]:null,builds:BUILD,church:CHURCH});
  for(const p of room.slots){if(!p.sock)continue;const r=ROLES[p.role];
-  const nb=BUILD.findIndex(b=>near(p,b)),mine=p.inside===p.role,inB=p.inside!==null;
-  io.to(p.sock).emit('me',{role:r.n,icon:RICON[p.role],
+  const nb=BUILD.findIndex(b=>near(p,b)),mine=p.inside!==null&&(p.inside===p.role||!room.slots.some(q=>q.role===p.inside)),inB=p.inside!==null;
+  io.to(p.sock).emit('me',{campaign:Campaign.publicState(room.campaign,room.slots),myVote:room.campaign.votes[p.i]||null,position:{x:p.x,y:p.y},slot:p.i,apprentice:mine&&p.inside!==p.role,role:r.n,icon:RICON[p.role],
    inside:inB?BUILD[p.inside].name:null,mine,
-   recipes:mine?r.r.map(x=>({id:x.id,n:x.n,i:fmt(x.i)||'nichts',o:fmt(x.o),t:x.t,ok:has(p,x)&&!p.cur})):[],
+   recipes:mine?ROLES[p.inside].r.map(x=>({id:x.id,n:x.n,i:fmt(x.i)||'nichts',o:fmt(x.o),t:x.t*(p.inside===p.role?1:2),ok:has(p,x)&&!p.cur})):[],
    bld:inB&&!mine?{provider:room.slots.some(q=>q.role===p.inside&&q!==p),
      svc:ROLES[p.inside].r.filter(isSvc).map(x=>({id:x.id,n:x.n,i:fmt(x.i),o:fmt(x.o),t:x.t,ok:has(p,x)})),
      pick:room.orders.filter(o=>o.from===p.i&&o.st==='ready'&&o.bi===p.inside).map(o=>({id:o.id,n:o.n}))}:null,
@@ -123,3 +146,4 @@ setInterval(()=>{
    cd:Math.max(0,Math.ceil((12000-(now-lastBell))/1000))});}
 },100);
 srv.listen(PORT,()=>console.log('\nGroßer Bildschirm: http://localhost:'+PORT+'/screen.html\n'));
+

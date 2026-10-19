@@ -4,7 +4,7 @@
 h1{font-family:Rye,Georgia,serif;font-size:3.2rem;margin:.5em 0 .1em;color:#f4c06a;text-shadow:0 4px 0 #5a3410}
 button{font:inherit;font-weight:bold;font-size:1.4rem;margin:6px;padding:12px 22px;border:0;border-radius:12px;background:linear-gradient(#d98d3a,#b8661a);color:#fff;box-shadow:0 4px 0 #6e3b0c;cursor:pointer}
 #qrs{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin:18px}.q{background:#f3e3c3;color:#2b1d12;padding:10px;border-radius:12px;font-weight:bold;font-size:1.1rem}.q.on{outline:6px solid #6bbf59}
-canvas{width:100%;max-width:1500px;display:block;margin:0 auto}</style></head><body>
+canvas{width:100%;max-width:1500px;display:block;margin:0 auto}</style><link rel="stylesheet" href="/campaign.css"></head><body>
 <div id=lobby><h1>🤠 Wilder Westen</h1><div id=pick>Wie viele Spieler? </div><div id=qrs></div><button id=go style=display:none>Spiel starten</button></div>
 <canvas id=c width=2000 height=1200 hidden></canvas>
 <script src=/socket.io/socket.io.js></script>
@@ -19,7 +19,7 @@ const ST=[['food','🍖','Nahrung'],['ammo','🔫','Munition'],['med','💊','Me
 let S=null,fx=[],dp=[],dn=[];
 s.on('state',d=>{S=d});s.on('fx',a=>a.forEach(f=>fx.push({...f,at:Date.now()})));
 const lerp=(a,b)=>a+(b-a)*.3;
-function frame(){requestAnimationFrame(frame);if(!S)return;const d=S,t=Date.now();
+function frame(){requestAnimationFrame(frame);if(!S)return;const d=S,t=Date.now();if(d.campaign.stage==='escort'){renderConvoy(g,d,t);return;}
  const gr=g.createLinearGradient(0,0,0,600);gr.addColorStop(0,'#e6c88f');gr.addColorStop(1,'#cfa766');g.fillStyle=gr;g.fillRect(0,0,1000,600);
  g.fillStyle='#bf9a5e';g.fillRect(0,165,1000,70);g.fillRect(0,355,1000,70);
  g.strokeStyle='rgba(255,255,255,.3)';g.lineWidth=3;g.setLineDash([18,14]);g.beginPath();g.moveTo(0,200);g.lineTo(1000,200);g.moveTo(0,390);g.lineTo(1000,390);g.stroke();g.setLineDash([]);
@@ -53,4 +53,5 @@ function frame(){requestAnimationFrame(frame);if(!S)return;const d=S,t=Date.now(
  fx=fx.filter(f=>t-f.at<2600);fx.forEach(f=>{const a=t-f.at;g.globalAlpha=1-a/2600;g.fillStyle='#fff6c8';g.strokeStyle='#5a3410';g.lineWidth=4;g.font='bold 22px Georgia';g.strokeText(f.t,f.x,f.y-a*.03);g.fillText(f.t,f.x,f.y-a*.03);g.globalAlpha=1});
 }
 frame();
-</script></body></html>
+</script><script src="/campaign-screen.js"></script></body></html>
+
