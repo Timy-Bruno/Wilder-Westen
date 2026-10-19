@@ -5,10 +5,11 @@ const Campaign=require('./campaign');
 const Hunt=require('./hunt');
 const {ITEM,SELL,META,STN,RICON,ROLES}=require('./data');
 const app=express(),srv=http.createServer(app),io=new Server(srv);
+const WebAssets=require('./web-assets'),CLIENT_BUILD=WebAssets.install(app,__dirname);
 app.get('/manifest.json',(q,r)=>{const sl=Math.max(0,Math.min(7,+q.query.slot||0));
- r.type('application/manifest+json').json({name:'Wilder Westen',short_name:'Wilder Westen',start_url:'/phone.html?slot='+sl,scope:'/',display:'fullscreen',orientation:'any',background_color:'#1a0f07',theme_color:'#120a04',
+ r.set('Cache-Control','no-store, max-age=0');r.type('application/manifest+json').json({name:'Wilder Westen',short_name:'Wilder Westen',start_url:'/phone.html?slot='+sl+'&v='+CLIENT_BUILD,scope:'/',display:'fullscreen',orientation:'any',background_color:'#1a0f07',theme_color:'#120a04',
   icons:[{src:'/icon-192.png',sizes:'192x192',type:'image/png'},{src:'/icon-512.png',sizes:'512x512',type:'image/png'}]})});
-app.use(express.static(__dirname+'/public'));
+app.use(express.static(__dirname+'/public',{setHeaders:WebAssets.cacheHeaders}));
 const PORT=process.env.PORT||3000,W=1000,H=600;
 const fmt=o=>Object.entries(o).map(([k,v])=>META[k][0]+' '+v+'× '+ITEM[k]).join('  +  ');
 const BUILD=ROLES.map((r,i)=>({name:r.b,ic:RICON[i],x:60+(i%4)*230,y:i<4?50:430,w:130,h:100}));
@@ -24,6 +25,7 @@ function lanIP(){try{for(const l of Object.values(os.networkInterfaces()))for(co
 function lobby(){if(!room)return;io.to('screen').emit('lobby',room.slots.map(p=>({i:p.i,qr:p.qr,on:!!p.sock})))}
 const say=(p,t)=>p&&p.sock&&io.to(p.sock).emit('msg',t);
 io.on('connection',s=>{
+ s.emit('appVersion',CLIENT_BUILD);
  const P=()=>{const p=room&&room.slots[s.data.slot];return p&&p.sock===s.id?p:null};
  const host=()=>room&&room.hostToken===s.data.hostToken;
  s.use(([event],next)=>{if(['input','act','craft','fulfill','result','order','collect','deliver','give','bell'].includes(event)&&room&&(room.campaign.paused||(room.campaign.stage!=='prepare'&&!(event==='input'&&room.campaign.stage==='escort'))))return;next()});
@@ -34,7 +36,7 @@ io.on('connection',s=>{
   const roles=shuffle([...ROLES.keys()]).slice(0,n),h=s.handshake.headers,host=h.host||'',proto=(h['x-forwarded-proto']||'http').split(',')[0],
    base=/^(localhost|127\.)/.test(host)?'http://'+lanIP()+':'+PORT:proto+'://'+host;
   room={hostToken:randomUUID(),campaign:Campaign.createCampaign(n),phase:'lobby',stats:{food:60,ammo:60,med:60,morale:60,security:60},slots:[],npcs:[],orders:[],oid:1,bellUntil:0,bell:null};
-  for(let i=0;i<n;i++){const url=base+'/phone.html?slot='+i;
+  for(let i=0;i<n;i++){const url=base+'/phone.html?slot='+i+'&v='+CLIENT_BUILD;
    room.slots.push({i,role:roles[i],x:300+i*55,y:400,dx:0,dy:0,inside:null,cur:null,curOrder:null,jobs:[],inv:{ore:2,coal:1,herbs:2,wood:2,meat:1},
     sock:null,qr:await QR.toDataURL(url,{margin:1,width:200})});}
   for(let i=0;i<6;i++)room.npcs.push({x:200+Math.random()*600,y:200+Math.random()*200,tx:500,ty:380});

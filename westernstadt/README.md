@@ -57,3 +57,9 @@ Die anderen Berufsminispiele bleiben vorläufig. Waffenhandel und Reparaturauftr
 Die Falle fängt Kleinwild unabhängig vom sichtbaren Reh. Bei Fang erscheint eine Nachricht im Spiel; im Rucksack steht der Zustand auch während eines Stadtaufenthalts. Der Kartenmarker zeigt den Fallenplatz. Wieder in der Nähe: „Fang bergen“ bringt einmalig 1 Fleisch und 1 Fell in die Jagdtasche. „Zur Stadt“ übernimmt diese Beute in das Inventar. Danach lässt sich die Falle erneut spannen oder aufnehmen und umsetzen. Ein noch nicht geborgener Fang kann nicht weggeräumt werden.
 
 Fallenstandort und Fang gehören zum Spielerplatz und bleiben bei Rückkehr in die Stadt sowie beim Neuladen innerhalb derselben Partie erhalten. Es gibt weiterhin keine Speicherung über einen Serverneustart hinweg. Benachrichtigungen sind Spielnachrichten, keine Betriebssystem-Pushnachrichten.
+
+## Updates auf Handy und Hauptbildschirm
+
+HTML und Spielskripte werden mit `no-store` ausgeliefert. Lokale CSS-/JS-Dateien bekommen automatisch aus ihrem Inhalt abgeleitete Versionsadressen; ein Update lädt dadurch keine ältere Jagddatei aus dem Browsercache. QR-Codes und die Startadresse der Handy-App enthalten die aktuelle Spielversion. Eine bereits mit diesem Mechanismus geladene Seite erkennt bei erneuter Serververbindung einen Versionswechsel und lädt ihre aktuelle Adresse unter Beibehaltung des Spielerplatzes neu.
+
+Falls eine ältere, vorher geöffnete Handyseite noch keine Update-Erkennung besitzt: Hauptbildschirm mit einer frischen Versionsadresse öffnen und dessen neuen QR-Code scannen. Es ist kein Löschen sämtlicher Browserdaten nötig.

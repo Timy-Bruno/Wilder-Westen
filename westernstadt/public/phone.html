@@ -58,9 +58,10 @@ h3{margin:4px 0 0;font-size:.8rem;letter-spacing:.1em;color:var(--g);text-transf
 </div>
 <div id=game hidden><h2 class=ttl id=gt></h2><p id=gh></p><div id=ga></div></div>
 <div id=toast hidden></div>
-<script src=/socket.io/socket.io.js></script>
+<script src=/socket.io/socket.io.js></script><script src="/app-update.js"></script>
 <script>
 const $=i=>document.getElementById(i),slot=+new URLSearchParams(location.search).get('slot'),s=io(),vib=p=>navigator.vibrate&&navigator.vibrate(p);
+attachGameUpdates(s);
 let tab='map',lastKey='',mt,SK={};
 const ST=[['food','🍖'],['ammo','🔫'],['med','💊'],['morale','🎭'],['security','🛡️']];
 $('stats').innerHTML=ST.map(([k,i])=>`<div class=st id=st_${k}>${i}<b>0</b><i><u></u></i></div>`).join('');

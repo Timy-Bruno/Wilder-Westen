@@ -9,7 +9,7 @@ Nicht geprüft: echte iOS-/Android-Geräte, längere Mehrspieler-Balancetests mi
 
 ## Jagd: begehbarer Wald
 
-- Vierzehn Regeltests für normalisierte Bewegung, Grenzen/Kollisionen, Schleichen, Sichtschutz, Zielauswahl, ruhige und überhastete Schüsse, Reichweite, Fluchtverhalten, Köder, Unterbrechung und getrennte Sitzungen. Zusammen mit den Kapiteltests und Fallenregeln 31 Tests.
+- Vierzehn Regeltests für normalisierte Bewegung, Grenzen/Kollisionen, Schleichen, Sichtschutz, Zielauswahl, ruhige und überhastete Schüsse, Reichweite, Fluchtverhalten, Köder, Unterbrechung und getrennte Sitzungen. Zusammen mit den Kapiteltests und Fallenregeln 33 Tests.
 - Browserprüfung: realer Einstieg über die Jagdhütte, Weg mit dem Joystick, Entdecken und Antippen des Tiers, Zielen, Schuss mit zwei gleichzeitigen Touchkontakten (Zielen halten + Schießen), Beutegutschrift, Pause und Neuladen.
 - Portrait 390×844, Querformat 844×390 und kleines Handy 320×568: Steuerungspositionen geprüft, Screenshots erzeugt; Portrait und Querformat visuell geprüft.
 - Für reproduzierbare Ziel-/Touchtests blieb das Tier in einer lokalen Testkonfiguration stehen; der normale Weg durch den Wald wurde separat mit dem Joystick geprüft. Die Browserprüfung läuft ohne den problematischen Chromium-Einprozessmodus. Echte Zwei-Daumen-Bedienung auf iOS/Android und längere Mehrspielerbalance sind noch nicht geprüft. Zusätzliche sichtbare Tierarten und Waffenhandel sind noch nicht enthalten.
@@ -24,3 +24,8 @@ Zielen sitzt links über dem unveränderten Joystick; Schießen rechts. Regeltes
 - Chromium mit echtem lokalem Server: aufstellen, Köder einlegen, Nahbereich verhindert Fortschritt, Wald verlassen, gemeinsame Pause stoppt die Falle, Fang in der Stadt mit Nachricht und Rucksackanzeige, Neuladen, Waldbesuch mit derselben Falle, bergen, doppelte Sammelanfrage ablehnen, erneut spannen, einpacken, neu aufstellen und korrekte Inventargutschrift nach Rückkehr.
 - In dieser lokalen Browser-Testkonfiguration lag der Einstieg am Wildwechsel; nur der Fallenzeitgeber wurde beschleunigt. Die Regeltests prüfen die normalen Fangzeiten. Die Produktionsversion nutzt normale gemeinsame Spielzeit.
 - Layouts 390×844, 844×390 und 320×568 einschließlich Fallenansicht und unverändertem Joystick geprüft; Screenshots erzeugt. Reale Handys und längere Balanceprüfungen stehen aus.
+
+## Veraltete Handyoberfläche nach Veröffentlichung
+
+- Zwei HTTP-Tests prüfen nicht speicherbare HTML-/Skriptantworten, versionierte lokale Ressourcen, unveränderte externe/dynamische URLs, neue Skriptadresse bei geänderter Datei und eine frische HTML-Antwort statt 304 für den alten Seitenstand.
+- Chromium-Regression: alten unversionierten Jagdcode mit langem Cachezeitraum laden und dessen Cachetreffer nachweisen; neue Handyseite öffnen und linke Zieltaste/Fallenknopf trotz dieses alten Cacheeintrags prüfen. QR-/Manifestadressen müssen Version und richtigen Spielerplatz enthalten; ein gemeldeter Versionswechsel muss ohne Schleife neu laden und den Spielerplatz erhalten.

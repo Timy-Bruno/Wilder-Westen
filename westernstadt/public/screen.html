@@ -7,9 +7,10 @@ button{font:inherit;font-weight:bold;font-size:1.4rem;margin:6px;padding:12px 22
 canvas{width:100%;max-width:1500px;display:block;margin:0 auto}</style><link rel="stylesheet" href="/campaign.css"></head><body>
 <div id=lobby><h1>🤠 Wilder Westen</h1><div id=pick>Wie viele Spieler? </div><div id=qrs></div><button id=go style=display:none>Spiel starten</button></div>
 <canvas id=c width=2000 height=1200 hidden></canvas>
-<script src=/socket.io/socket.io.js></script>
+<script src=/socket.io/socket.io.js></script><script src="/app-update.js"></script>
 <script>
 const s=io(),$=i=>document.getElementById(i),cv=$('c'),g=cv.getContext('2d');
+attachGameUpdates(s);
 let view={scale:2,x:0,y:0,w:2000,h:1200};
 function resizePlayfield(){const w=innerWidth,h=innerHeight,dpr=Math.min(devicePixelRatio||1,2);cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);const scale=Math.min(w/1000,h/600)*dpr;view={scale,x:(cv.width-1000*scale)/2,y:(cv.height-600*scale)/2,w:cv.width,h:cv.height};}
 addEventListener('resize',resizePlayfield);resizePlayfield();
