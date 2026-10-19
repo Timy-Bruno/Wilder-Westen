@@ -51,7 +51,7 @@ h3{margin:4px 0 0;font-size:.8rem;letter-spacing:.1em;color:var(--g);text-transf
   <div id=city hidden><div id=cityActions><button id=act></button><div id=bells hidden><button data-s=1>🔔 Mangel</button><button data-s=2>🔔 Angriff</button><button data-s=3>🔔 Feuer</button></div><button id=deliver hidden></button></div><div id=joy><div id=knob></div></div></div>
   <div id=in hidden><h2 class=ttl id=bn></h2><div class=rc id=rec></div><button id=leave>Gebäude verlassen</button></div>
  </section>
- <section class=v id=v_pack hidden><div id=give style="width:100%"></div><h3>🎒 Rucksack</h3><div id=pack></div><div id=jobs style="width:100%;display:flex;flex-direction:column;gap:6px"></div></section>
+ <section class=v id=v_pack hidden><div id=give style="width:100%"></div><h3>🎒 Rucksack</h3><div id=pack></div><div id=woodlandCard hidden style="width:100%;padding:12px;border:1px solid #bda36e;border-radius:10px;background:#2b2418;color:#efe0b3"></div><div id=jobs style="width:100%;display:flex;flex-direction:column;gap:6px"></div></section>
  <section class=v id=v_ord hidden><h3>📥 Eingehende Aufträge</h3><div id=inc style="width:100%;display:flex;flex-direction:column;gap:6px"></div><h3>📤 Meine Bestellungen</h3><div id=mine style="width:100%;display:flex;flex-direction:column;gap:6px"></div></section>
 </main>
 <nav id=tabs><button data-t=map class=on>🗺️<small>Karte</small></button><button data-t=pack>🎒<small>Rucksack</small></button><button data-t=ord>📋<small>Aufträge</small><em id=badge hidden></em></button></nav>
@@ -72,6 +72,7 @@ s.on('msg',t=>{note(t);vib(40)});
 s.on('alert',a=>{note('🔔 '+a.txt,1);vib(a.sig===1?200:[200,100,200,100,200])});
 const set=(id,html)=>{if(SK[id]!==html){SK[id]=html;$(id).innerHTML=html}};
 s.on('me',m=>{
+ const field=m.woodland,trap=field?.trap;$('woodlandCard').hidden=!field;set('woodlandCard',!field?'':trap?'🪤 '+(trap.state==='caught'?'Deine Falle hat gefangen! Kehre in den Wald zurück und berge den Fang.':trap.state==='empty'?'Deine Falle steht leer im Wald. Du kannst sie erneut spannen oder aufnehmen.':'Deine Falle steht im Wald und wartet auf Kleinwild.'):'🪤 1 Leihfalle im Gepäck. Im Wald an Wildspuren aufstellen.');
  $('ric').textContent=m.icon;$('rn').textContent=m.role;
  ST.forEach(([k])=>{const e=$('st_'+k),v=m.stats[k];e.querySelector('b').textContent=v;e.querySelector('u').style.width=v+'%';e.classList.toggle('low',v<30)});
  set('pack',m.inv.length?m.inv.map(i=>`<div class="it ${i.sell?'sell':''}"><span>${i.icon}</span><b>${i.n}</b><small>${i.name}</small><em>${i.hint}</em></div>`).join(''):'<div class=muted style="grid-column:1/-1">Leer – stelle etwas her oder lass dir etwas geben.</div>');

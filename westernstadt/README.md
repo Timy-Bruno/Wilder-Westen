@@ -48,4 +48,12 @@ Ein sichtbares Tier antippen, „Zielen“ links über dem Joystick mit dem link
 
 Der erste Waldausflug enthält ein Tier, sechs Patronen und kein Zeitlimit. Nach einem Treffer oder mit leerer Waffe kann man weiterlaufen und den übrigen Köder auslegen; der Ausflug endet erst mit „Zur Stadt“. „Zur Stadt“ beendet ihn und legt vorhandene Beute genau einmal in den Rucksack. Treffer, Bewegung, Sicht, Munition und Beute prüft der Server. Versteckte Tiere werden nicht an das Handy übertragen. Neuladen desselben Handy-Links stellt Position, Munition und Beute wieder her, solange der Server läuft; gehaltene Eingaben werden bei Unterbrechungen zurückgesetzt.
 
-Die anderen Berufsminispiele bleiben vorläufig. Fallen, Waffenhandel und Reparaturaufträge folgen später.
+Die anderen Berufsminispiele bleiben vorläufig. Waffenhandel und Reparaturaufträge folgen später.
+
+## Fallen
+
+Über „Falle“ öffnet sich im Wald eine kleine Werkzeugansicht. Jeder Spieler erhält für den Prototyp eine wiederverwendbare Leihfalle. In der Nähe von Wildspuren kann sie am tatsächlichen Standort aufgestellt werden. Optional einen Köder einlegen, dann Abstand halten oder zur Stadt zurückkehren. In mindestens 26 Spielmetern Abstand beginnt die ruhige Wartezeit: mit Köder ungefähr eine Minute, ohne ungefähr zwei Minuten gemeinsamer Spielzeit. Pausen und das Fehlen aller verbundenen Handys halten die gemeinsame Simulation an.
+
+Die Falle fängt Kleinwild unabhängig vom sichtbaren Reh. Bei Fang erscheint eine Nachricht im Spiel; im Rucksack steht der Zustand auch während eines Stadtaufenthalts. Der Kartenmarker zeigt den Fallenplatz. Wieder in der Nähe: „Fang bergen“ bringt einmalig 1 Fleisch und 1 Fell in die Jagdtasche. „Zur Stadt“ übernimmt diese Beute in das Inventar. Danach lässt sich die Falle erneut spannen oder aufnehmen und umsetzen. Ein noch nicht geborgener Fang kann nicht weggeräumt werden.
+
+Fallenstandort und Fang gehören zum Spielerplatz und bleiben bei Rückkehr in die Stadt sowie beim Neuladen innerhalb derselben Partie erhalten. Es gibt weiterhin keine Speicherung über einen Serverneustart hinweg. Benachrichtigungen sind Spielnachrichten, keine Betriebssystem-Pushnachrichten.
