@@ -1,7 +1,7 @@
 // Inhalte des Spiels: hier können später Waren, Rezepte und Rollen ergänzt werden.
 const ITEM={ore:'Erz',coal:'Kohle',bar:'Eisenbarren',ammo:'Munition',meat:'Fleisch',hide:'Fell',herbs:'Kräuter',med:'Medizin',wood:'Holz',planks:'Bretter',fence:'Zaun',food:'Essen',whiskey:'Whiskey',guard:'Wache'};
 const SELL={ammo:['ammo',6],med:['med',6],food:['food',6],whiskey:['morale',6],fence:['security',8],guard:['security',8]};
-const META={ore:['⛏️','Für den Schmied'],coal:['🪨','Für den Schmied'],bar:['🔩','Für Munition (Schmied)'],ammo:['🔫','→ Stadt: Munition'],meat:['🥩','Für den Saloon-Wirt'],hide:['🦌','Noch ohne Verwendung'],herbs:['🌿','Für Doc & Saloon'],med:['💊','→ Stadt: Medizin'],wood:['🪵','Für den Baumeister'],planks:['🪚','Für den Baumeister'],fence:['🚧','→ Stadt: Sicherheit'],food:['🍲','→ Stadt: Nahrung'],whiskey:['🥃','→ Stadt: Moral'],guard:['💂','→ Stadt: Sicherheit']};
+const META={ore:['⛏️','Für den Schmied'],coal:['🪨','Für den Schmied'],bar:['🔩','Für Munition (Schmied)'],ammo:['🔫','→ Stadt: Munition'],meat:['🥩','Für den Saloon-Wirt'],hide:['🦌','Für späteren Handel'],herbs:['🌿','Für Doc & Saloon'],med:['💊','→ Stadt: Medizin'],wood:['🪵','Für den Baumeister'],planks:['🪚','Für den Baumeister'],fence:['🚧','→ Stadt: Sicherheit'],food:['🍲','→ Stadt: Nahrung'],whiskey:['🥃','→ Stadt: Moral'],guard:['💂','→ Stadt: Sicherheit']};
 const STN={food:'Nahrung',ammo:'Munition',med:'Medizin',morale:'Moral',security:'Sicherheit'};
 const RICON=['⚒️','⚕️','⭐','💰','🥃','🏹','🧨','🔨'];
 // Rezepte: i = Zutaten, o = Ergebnis, t = Dauer in Sekunden. Rezepte mit Zutaten können andere Spieler bestellen.
@@ -20,7 +20,7 @@ const ROLES=[
   {id:'stew',n:'Eintopf kochen',g:'timing',h:'Nicht anbrennen lassen!',i:{meat:1},o:{food:3},t:15},
   {id:'whis',n:'Whiskey brennen',g:'memory',h:'Merke dir die Mischung!',i:{herbs:1},o:{whiskey:2},t:20}]},
  {n:'Jäger',b:'Jagdhütte',r:[
-  {id:'hunt',n:'Jagen',g:'stealth',h:'Nur bewegen, wenn das Tier wegschaut!',i:{},o:{meat:2,hide:1},t:10},
+  {id:'hunt',n:'Im Wald jagen',g:'hunt',h:'Tiere beobachten, anschleichen und selbst zielen.',i:{},o:{meat:2,hide:1},t:0},
   {id:'gather',n:'Kräuter suchen',g:'hotcold',h:'Wo wachsen die Kräuter?',i:{},o:{herbs:2},t:10}]},
  {n:'Sprengmeister',b:'Mine',r:[
   {id:'blast',n:'Erz sprengen',g:'hotcold',h:'Wo liegt die Erzader?',i:{},o:{ore:3},t:15},
@@ -29,3 +29,4 @@ const ROLES=[
   {id:'saw',n:'Bretter sägen',g:'timing',h:'Säge im richtigen Moment!',i:{wood:2},o:{planks:2},t:12},
   {id:'fence',n:'Zaun bauen',g:'memory',h:'Merke dir den Bauplan!',i:{planks:3},o:{fence:1},t:20}]}];
 module.exports={ITEM,SELL,META,STN,RICON,ROLES};
+

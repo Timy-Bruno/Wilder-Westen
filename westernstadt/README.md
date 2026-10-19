@@ -22,7 +22,7 @@ Hauptbildschirm: `http://localhost:3000/screen.html`. Spielerzahl wählen, QR-Co
 5. Auf dem Hauptbildschirm den Wagen begleiten; auf den Handys Joystick, Schießen und Reparatur benutzen. Im Schutzkreis fährt der Wagen. In Reichweite trifft ein Schuss den nächsten Banditen. Ohne eingelagerte Munition sind zwei statt eines Treffers nötig. Reparatur verbraucht ein Brett, Medizin wird bei kritischem Schaden automatisch verwendet. Proviant wird abschnittsweise verbraucht und erhöht das Reisetempo.
 6. Ankunft = Kapitel gewonnen. Wagen zerstört = erneuter Versuch möglich. Restinventare und übrige Vorräte bleiben erhalten. Weitere Kapitel sind noch nicht implementiert.
 
-Pause und Fortsetzen erfolgen am Hauptbildschirm. Bei laufendem Minispiel ist Pause gesperrt. Ohne verbundene Handys ruht die Simulation ebenfalls. Das ursprüngliche Hauptbildschirm-Browserprofil merkt sich seinen Hostzugang; neu laden verbindet wieder. Gleicher Handy-Link übernimmt denselben Spielerplatz und trennt eine ältere Verbindung.
+Pause und Fortsetzen erfolgen am Hauptbildschirm. Die Jagd lässt sich gemeinsam pausieren; bei den übrigen laufenden Minispielen ist Pause gesperrt. Ohne verbundene Handys ruht die Simulation ebenfalls. Das ursprüngliche Hauptbildschirm-Browserprofil merkt sich seinen Hostzugang; neu laden verbindet wieder. Gleicher Handy-Link übernimmt denselben Spielerplatz und trennt eine ältere Verbindung.
 
 ## Tests
 
@@ -40,4 +40,8 @@ Eine gemeinsame Partie pro Serverprozess. Speicherung nur im Arbeitsspeicher; ei
 
 Die Karte füllt den Browserbereich. Alle Gebäude bleiben sichtbar, Figuren behalten ihre Proportionen. Kapitelinfos öffnen sich unten über „Auftrag“ als schließbare Einblendung, ohne die Karte zu verkleinern. Pause und Browser-Vollbild sind separat erreichbar. Mit Escape lässt sich die Einblendung schließen.
 
-Die Berufsminispiele sind noch Platzhalter. Geplant sind eigenständige Tätigkeiten pro Beruf, beispielsweise Tiere beobachten und anvisieren bei der Jagd statt wiederkehrender Regler-, Timing- und Merkaufgaben.
+## Jagd auf dem Handy
+
+In der Jagdhütte „Im Wald jagen“ wählen. In der 2D-Lichtung Tiere beobachten, zum Zielen ziehen und mit „Schießen“ abdrücken. Anschleichen gedrückt halten, wenn die Tiere grasen; wachsame Tiere bemerken die Annäherung. „Anvisieren“ vergrößert die Sicht, ein Köder lockt Tiere an. Bäume und Felsen können Schüsse abfangen. Pro Ausflug: 90 Sekunden, sechs Patronen und höchstens zwei Tiere. „Zurück“ bringt die erlegte Beute in den Rucksack. Treffer, Munition und Beute prüft der Server. Neuladen desselben Handy-Links stellt eine laufende Jagd wieder her, solange der Server läuft.
+
+Die anderen Berufsminispiele bleiben vorläufig. Fallen, Waffenhandel und Reparaturaufträge folgen später.
