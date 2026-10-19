@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict'),Shop=require('../shop'),Hunt=require('../hunt');
-const player=()=>({inside:3,gold:12,inv:{meat:2,hide:2}});
+const player=()=>({inside:3,interior:{x:400,y:300,menu:true},gold:12,inv:{meat:2,hide:2}});
 test('purchases debit fixed prices and supply the next woodland visit',()=>{const p=player();assert.ok(Shop.buy(p,'cartridges'));assert.equal(p.gold,8);assert.equal(Hunt.create(p.woodland).ammo,12);assert.ok(Shop.buy(p,'bait'));assert.equal(Hunt.create(p.woodland).bait,3);});
 test('invalid, remote and unaffordable trades leave balances unchanged',()=>{const p=player();for(const id of [null,{},'__proto__','unknown','rifle'])assert.equal(Shop.buy(p,id),false);p.inside=0;assert.equal(Shop.buy(p,'ore'),false);assert.equal(Shop.sell(p,'meat'),false);assert.equal(p.gold,12);assert.deepEqual(p.inv,{meat:2,hide:2});});
 test('sale is one item and cannot be repeated after stock runs out',()=>{const p=player();assert.ok(Shop.sell(p,'hide'));assert.ok(Shop.sell(p,'hide'));assert.equal(Shop.sell(p,'hide'),false);assert.equal(Shop.sell(p,'wood'),false);assert.equal(p.gold,18);assert.equal(p.inv.hide,0);});
