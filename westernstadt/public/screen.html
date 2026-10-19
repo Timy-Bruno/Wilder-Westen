@@ -9,7 +9,10 @@ canvas{width:100%;max-width:1500px;display:block;margin:0 auto}</style><link rel
 <canvas id=c width=2000 height=1200 hidden></canvas>
 <script src=/socket.io/socket.io.js></script>
 <script>
-const s=io(),$=i=>document.getElementById(i),cv=$('c'),g=cv.getContext('2d');g.scale(2,2);
+const s=io(),$=i=>document.getElementById(i),cv=$('c'),g=cv.getContext('2d');
+let view={scale:2,x:0,y:0,w:2000,h:1200};
+function resizePlayfield(){const w=innerWidth,h=innerHeight,dpr=Math.min(devicePixelRatio||1,2);cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);const scale=Math.min(w/1000,h/600)*dpr;view={scale,x:(cv.width-1000*scale)/2,y:(cv.height-600*scale)/2,w:cv.width,h:cv.height};}
+addEventListener('resize',resizePlayfield);resizePlayfield();
 for(let n=1;n<=8;n++){const b=document.createElement('button');b.textContent=n;b.onclick=()=>{s.emit('create',n);$('pick').style.display='none'};$('pick').append(b)}
 s.on('lobby',l=>{$('qrs').innerHTML=l.map(p=>`<div class="q ${p.on?'on':''}">Spieler ${p.i+1}<br><img src="${p.qr}"><br>${p.on?'✔ verbunden':'scannen'}</div>`).join('');$('go').style.display=l.some(p=>p.on)?'':'none'});
 $('go').onclick=()=>s.emit('start');
@@ -19,7 +22,9 @@ const ST=[['food','🍖','Nahrung'],['ammo','🔫','Munition'],['med','💊','Me
 let S=null,fx=[],dp=[],dn=[];
 s.on('state',d=>{S=d});s.on('fx',a=>a.forEach(f=>fx.push({...f,at:Date.now()})));
 const lerp=(a,b)=>a+(b-a)*.3;
-function frame(){requestAnimationFrame(frame);if(!S)return;const d=S,t=Date.now();if(d.campaign.stage==='escort'){renderConvoy(g,d,t);return;}
+function frame(){requestAnimationFrame(frame);if(!S)return;const d=S,t=Date.now();
+ g.setTransform(1,0,0,1,0,0);g.fillStyle=d.campaign.stage==='escort'?'#b17b50':'#d3ad70';g.fillRect(0,0,cv.width,cv.height);g.setTransform(view.scale,0,0,view.scale,view.x,view.y);
+ if(d.campaign.stage==='escort'){renderConvoy(g,d,t);return;}
  const gr=g.createLinearGradient(0,0,0,600);gr.addColorStop(0,'#e6c88f');gr.addColorStop(1,'#cfa766');g.fillStyle=gr;g.fillRect(0,0,1000,600);
  g.fillStyle='#bf9a5e';g.fillRect(0,165,1000,70);g.fillRect(0,355,1000,70);
  g.strokeStyle='rgba(255,255,255,.3)';g.lineWidth=3;g.setLineDash([18,14]);g.beginPath();g.moveTo(0,200);g.lineTo(1000,200);g.moveTo(0,390);g.lineTo(1000,390);g.stroke();g.setLineDash([]);

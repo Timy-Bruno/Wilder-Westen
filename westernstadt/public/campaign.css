@@ -7,4 +7,15 @@
 @media(orientation:landscape) and (max-height:550px){#missionPhone{gap:4px;padding:8px 18px}#missionPhone h2{font-size:19px;margin:2px}#missionPhone .brief{margin:2px}#missionPhone .controls{padding:0;max-width:650px}#missionPhone .actions{flex-direction:row}#missionPhone .actions button{min-height:55px}#missionPhone .route-pick{padding:8px}#missionPhone .mission-top{max-width:650px}}
 #missionPhone #joy{width:clamp(110px,36vw,160px);height:clamp(110px,36vw,160px)}
 @media(orientation:landscape) and (max-height:550px){#missionPhone #joy{width:120px;height:120px}#missionPhone .mission-top p{margin:3px}}
-body.game-active{height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden}body.game-active .campaign-panel{flex:none;width:calc(100% - 24px);box-sizing:border-box}body.game-active canvas{flex:1;min-height:0;height:0;width:100%;object-fit:contain}
+/* The playfield always owns the viewport; menus never participate in its layout. */
+body.game-active{height:100dvh;min-height:0;overflow:hidden}
+body.game-active canvas{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;margin:0;display:block;background:#d3ad70}
+body.game-active .campaign-panel{position:fixed;left:12px;bottom:72px;z-index:5;width:min(540px,calc(100vw - 24px));max-width:none;max-height:calc(100dvh - 150px);overflow-y:auto;margin:0;padding:16px;box-sizing:border-box;box-shadow:0 12px 45px #0008}
+body.game-active .campaign-panel[hidden],#chapterDock[hidden]{display:none}
+.campaign-panel .drawer-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.campaign-panel .drawer-heading button{padding:5px 10px;font-size:13px;box-shadow:none;background:#5d4430}.campaign-panel .row{gap:10px}.campaign-panel .goods{gap:6px}.campaign-panel .good{padding:5px 8px}
+#chapterDock{position:fixed;left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));z-index:6;display:flex;gap:8px;align-items:center;pointer-events:none}
+#chapterDock button{pointer-events:auto;min-width:0;margin:0;padding:10px 14px;border:1px solid #b38b55;border-radius:9px;background:#281c13ed;color:#f5dab0;box-shadow:0 3px 12px #0005;font:600 14px/1.3 system-ui,sans-serif;cursor:pointer;min-height:42px}
+#chapterDock button:focus-visible{outline:3px solid #ffe1a4;outline-offset:3px}#chapterToggle[aria-expanded=true]{background:#674725}#screenFullscreen{margin-left:auto!important}#quickPause.is-paused{border-color:#e2bb65;color:#ffe1a4;background:#5b3e21}
+@media(max-width:600px){#chapterDock{gap:6px}#chapterDock button{font-size:12px;padding:9px 10px}body.game-active .campaign-panel{bottom:66px}.campaign-panel .route-cards{grid-template-columns:1fr}}
+
+canvas[hidden]{display:none!important}

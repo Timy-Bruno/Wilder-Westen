@@ -1,21 +1,36 @@
 /* Public chapter HUD. No private inventories or roles are sent here. */
 const chapter=document.createElement('section');chapter.className='campaign-panel';chapter.hidden=true;document.querySelector('canvas').before(chapter);
-let chapterKey='',hostNotice='';
+let chapterKey='',hostNotice='',detailsOpen=false,lastChapterStage=null;
+const chapterDock=document.createElement('nav');chapterDock.id='chapterDock';chapterDock.hidden=true;
+chapterDock.innerHTML='<button id="chapterToggle" aria-expanded="false" aria-controls="chapterDetails">Kapitel 1 · Auftrag ▴</button><button id="quickPause">Pause</button><button id="screenFullscreen">⛶ Vollbild</button>';
+document.body.append(chapterDock);chapter.id='chapterDetails';
+const chapterToggle=document.getElementById('chapterToggle'),quickPause=document.getElementById('quickPause');
+function showChapter(open){detailsOpen=open;chapter.hidden=!open;chapterToggle.setAttribute('aria-expanded',String(open));}
+chapterToggle.onclick=()=>showChapter(!detailsOpen);
+quickPause.onclick=()=>s.emit('pause');
+const fullscreenButton=document.getElementById('screenFullscreen');
+if(!document.documentElement.requestFullscreen)fullscreenButton.hidden=true;
+fullscreenButton.onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch{hostNotice='Vollbild ist in diesem Browser nicht verfügbar.';chapterKey='';showChapter(true)}};
+document.addEventListener('fullscreenchange',()=>{fullscreenButton.textContent=document.fullscreenElement?'⛶ Verkleinern':'⛶ Vollbild'});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')showChapter(false)});
 function chapterHUD(c){
- chapter.hidden=false;const names={food:'Proviant',ammo:'✦ Munition',med:'✚ Medizin',planks:'▤ Bretter'};
+ chapterDock.hidden=false;chapter.hidden=!detailsOpen;const names={food:'Proviant',ammo:'✦ Munition',med:'✚ Medizin',planks:'▤ Bretter'};
  const titles={prepare:'Der erste Versorgungstreck',vote:'Welchen Weg nehmen wir?',escort:'Gemeinsam nach Hause',won:'Eine neue Heimat',lost:'Noch ist die Stadt nicht verloren'};
  const text={prepare:'Stellt Vorräte her und lagert sie an der Kirche ein. Mindestens 1 Proviant und 1 Brett sind nötig; mehr Vorräte helfen unterwegs.',vote:'Stimmt auf euren Handys ab. Mehrheit entscheidet; bei Gleichstand gilt der sicherere Höhenweg.',escort:'Bleibt im hellen Schutzkreis, damit der Wagen vorankommt. Banditen anvisieren: in ihre Nähe laufen und schießen.',won:c.result,lost:c.result};
+ if(c.stage!==lastChapterStage){lastChapterStage=c.stage;showChapter(['vote','won','lost'].includes(c.stage));}
+ chapterToggle.textContent=c.stage==='escort'?`Treck · ${Math.round(c.progress*100)}% · Auftrag ▴`:'Kapitel 1 · Auftrag ▴';
+ quickPause.textContent=c.paused?'Weiter spielen':'Pause';quickPause.classList.toggle('is-paused',c.paused);quickPause.hidden=['won','lost'].includes(c.stage);
  const key=JSON.stringify([c.stage,c.paused,c.attempt,c.supplies,c.target,c.remaining,c.votes,c.voters,c.hp,Math.round(c.progress*100),c.escorted,c.result,c.contributions,hostNotice]);if(key===chapterKey)return;chapterKey=key;
- chapter.innerHTML=`<div class="row"><div class="grow"><div class="eyebrow">Kapitel 01 · Eine neue Heimat · Versuch ${c.attempt}</div><h2>${titles[c.stage]}${c.paused?' · PAUSE':''}</h2><p>${text[c.stage]}</p></div><div class="row">${c.stage==='prepare'?`<button data-command="depart" ${c.paused||c.supplies.food<1||c.supplies.planks<1?'disabled':''}>Route wählen & aufbrechen →</button>`:''}${['prepare','vote','escort'].includes(c.stage)?`<button class="secondary" data-command="pause">${c.paused?'Weiter spielen':'Pause'}</button>`:''}${['won','lost'].includes(c.stage)?`<button data-command="retry">${c.stage==='won'?'Kapitel erneut spielen':'Neuen Versuch vorbereiten'}</button>`:''}</div></div>
+ chapter.innerHTML=`<div class="drawer-heading"><span class="eyebrow">Auftrag & Vorbereitung</span><button data-close aria-label="Auftrag schließen">Schließen ✕</button></div><div class="row"><div class="grow"><div class="eyebrow">Kapitel 01 · Eine neue Heimat · Versuch ${c.attempt}</div><h2>${titles[c.stage]}${c.paused?' · PAUSE':''}</h2><p>${text[c.stage]}</p></div><div class="row">${c.stage==='prepare'?`<button data-command="depart" ${c.paused||c.supplies.food<1||c.supplies.planks<1?'disabled':''}>Route wählen & aufbrechen →</button>`:''}${['prepare','vote','escort'].includes(c.stage)?`<button class="secondary" data-command="pause">${c.paused?'Weiter spielen':'Pause'}</button>`:''}${['won','lost'].includes(c.stage)?`<button data-command="retry">${c.stage==='won'?'Kapitel erneut spielen':'Neuen Versuch vorbereiten'}</button>`:''}</div></div>
  <div class="goods">${Object.entries(names).map(([k,n])=>`<span class="good ${c.supplies[k]>=c.target?'ready':''}">${n} <b>${c.supplies[k]}</b>${c.stage==='prepare'?' / '+c.target:''}</span>`).join('')}${c.stage==='escort'?`<span class="good">Wagen ${c.hp}%</span><span class="good">Strecke ${Math.round(c.progress*100)}%</span><span class="good">${c.escorted?'Begleitung in Reichweite':'Wartet auf Begleitung'}</span>`:''}${c.stage==='vote'?`<span class="good">${c.votes}/${c.voters} Stimmen · ${c.remaining}s</span>`:''}</div>
  ${c.stage==='prepare'?'<p><small>Unbesetzte Werkstätten: selbst mit Aushilfe arbeiten, doppelte Herstellungszeit. Munition verstärkt Schüsse, Medizin heilt den Wagen automatisch, Bretter dienen zur Reparatur.</small></p>':''}
  ${c.stage==='vote'?`<div class="route-cards">${Object.values(c.routes).map(r=>`<div class="route-card"><b>${r.name}</b><p>${r.description}</p><small>Etwa ${r.seconds} Sekunden bei Begleitung</small></div>`).join('')}</div>`:''}
  ${['won','lost'].includes(c.stage)?`<p class="result">${c.stage==='won'?'✓ Kapitel 1 abgeschlossen. Weitere Kapitel folgen.':'Ein neuer Anlauf behält eure übrigen Vorräte und Gegenstände.'}</p><p>${c.contributions.map(r=>`Spieler ${r.i+1}: ${r.supplies} Vorräte · ${r.shots} Schüsse · ${r.repairs} Reparaturen`).join(' &nbsp; | &nbsp; ')}</p>`:''}<p id="hostMessage">${hostNotice}</p>`;
 }
-chapter.onclick=e=>{const b=e.target.closest('[data-command]');if(b&&!b.disabled)s.emit(b.dataset.command)};
+chapter.onclick=e=>{if(e.target.closest('[data-close]'))return showChapter(false);const b=e.target.closest('[data-command]');if(b&&!b.disabled)s.emit(b.dataset.command)};
 s.on('hostToken',token=>localStorage.setItem('western-host-token',token));
 s.on('connect',()=>{const token=localStorage.getItem('western-host-token');if(token)s.emit('screen',token)});
-s.on('err',message=>{hostNotice=message;setTimeout(()=>{hostNotice='';chapterKey=''},6000);const e=document.getElementById('hostMessage');if(e)e.textContent=message;else alert(message)});
+s.on('err',message=>{showChapter(true);hostNotice=message;setTimeout(()=>{hostNotice='';chapterKey=''},6000);const e=document.getElementById('hostMessage');if(e)e.textContent=message;else alert(message)});
 s.on('state',d=>{document.body.classList.add('game-active');chapterHUD(d.campaign);document.getElementById('lobby').hidden=true;cv.hidden=false});
 function renderConvoy(g,d,t){
  const c=d.campaign,scroll=c.progress*2300;

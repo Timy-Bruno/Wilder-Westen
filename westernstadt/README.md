@@ -17,7 +17,7 @@ Hauptbildschirm: `http://localhost:3000/screen.html`. Spielerzahl wählen, QR-Co
 
 1. Nahrung im Saloon und Bretter in der Zimmerei herstellen. Munition und Medizin sind optionale Vorbereitung. Unbesetzte Berufe können mit langsamer NPC-Aushilfe selbst ausgeübt werden.
 2. An der Kirche auf dem Handy „Kapitel 1“ öffnen und Vorräte einlagern. Die normale Ablieferung für Stadtwerte ist davon getrennt.
-3. Am Hauptbildschirm „Route wählen & aufbrechen“ anklicken. Mindestens ein Proviant und ein Brett nötig; laufende Minispiele zuerst abschließen.
+3. Am Hauptbildschirm unten „Kapitel 1 · Auftrag“ öffnen und „Route wählen & aufbrechen“ anklicken. Mindestens ein Proviant und ein Brett nötig; laufende Minispiele zuerst abschließen.
 4. Auf den Handys abstimmen: Höhenweg (90 Sekunden, seltenere Banditen) oder Schlucht (60 Sekunden, häufigere Banditen). Mehrheit der verbundenen Spieler entscheidet; Gleichstand oder keine Stimmen: Höhenweg.
 5. Auf dem Hauptbildschirm den Wagen begleiten; auf den Handys Joystick, Schießen und Reparatur benutzen. Im Schutzkreis fährt der Wagen. In Reichweite trifft ein Schuss den nächsten Banditen. Ohne eingelagerte Munition sind zwei statt eines Treffers nötig. Reparatur verbraucht ein Brett, Medizin wird bei kritischem Schaden automatisch verwendet. Proviant wird abschnittsweise verbraucht und erhöht das Reisetempo.
 6. Ankunft = Kapitel gewonnen. Wagen zerstört = erneuter Versuch möglich. Restinventare und übrige Vorräte bleiben erhalten. Weitere Kapitel sind noch nicht implementiert.
@@ -35,3 +35,9 @@ Die Kapitelregeln liegen getrennt in `campaign.js`, die öffentlichen und privat
 ## Aktuelle Grenzen
 
 Eine gemeinsame Partie pro Serverprozess. Speicherung nur im Arbeitsspeicher; ein Neustart verliert die Partie. Neon ist nicht erforderlich und noch nicht angebunden. Spielerplätze haben weiterhin einfache Links ohne Konto/PIN. Stadtgrafik und ursprüngliche Berufsspiele bleiben vorläufig; das neue Kapitel ist ein spielbarer Prototyp. Auf Render wird `main` automatisch veröffentlicht; diesen Entwicklungszweig erst nach Prüfung zusammenführen.
+
+## Hauptbildschirm
+
+Die Karte füllt den Browserbereich. Alle Gebäude bleiben sichtbar, Figuren behalten ihre Proportionen. Kapitelinfos öffnen sich unten über „Auftrag“ als schließbare Einblendung, ohne die Karte zu verkleinern. Pause und Browser-Vollbild sind separat erreichbar. Mit Escape lässt sich die Einblendung schließen.
+
+Die Berufsminispiele sind noch Platzhalter. Geplant sind eigenständige Tätigkeiten pro Beruf, beispielsweise Tiere beobachten und anvisieren bei der Jagd statt wiederkehrender Regler-, Timing- und Merkaufgaben.
