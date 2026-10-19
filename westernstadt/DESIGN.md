@@ -14,3 +14,6 @@ Der Laden dient als erste Referenz. Die anderen Räume werden beim Ausbau an die
 - Statische Raumzeichnungen werden zwischengespeichert; Figuren und Bewegung separat dargestellt. Licht flackert nicht unruhig. Grafik entscheidet weder über Kollisionen noch über Treffer oder Warenbestände.
 
 Die Zeichnungen des Ladens entstehen direkt in Canvas. Referenzen dürfen die Richtung vorgeben; die Spielgrafiken werden eigenständig gezeichnet.
+
+## Körper statt flacher Vorderansichten
+Möbel zeigen eine breite, perspektivisch versetzte Oberseite, eine vertikale Front und eine dunklere Seitenfläche. Kanten, Eckpunkte, Licht und Schatten müssen zusammenpassen. Gegenstände liegen sichtbar auf ihrer Trägerfläche. Textur allein ersetzt keine räumliche Silhouette. Der Laden wird als erste Außenfassade mit passender, automatisch durchlaufbarer Tür umgesetzt. Hinweise dürfen Bedienelemente zeitweise überlagern, müssen aber jederzeit antippbar oder wegwischbar sein.

@@ -6,7 +6,7 @@ const ROOM={w:800,h:620,spawn:{x:400,y:535},door:{x:350,y:570,w:100,h:30},solids
  {x:165,y:460,w:65,h:65,kind:'barrels'},{x:585,y:450,w:65,h:65,kind:'crates'}
 ]};
 function create(){return {...ROOM.spawn,dx:0,dy:0,menu:false,facing:Math.PI*1.5};}
-function stand(x,y){return x>=30&&x<=770&&y>=105&&y<=580&&!ROOM.solids.some(r=>x>r.x-12&&x<r.x+r.w+12&&y>r.y-12&&y<r.y+r.h+12);}
+function stand(x,y){return x>=30&&x<=770&&y>=105&&y<=580&&(y<=565||Math.abs(x-400)<=36)&&!ROOM.solids.some(r=>x>r.x-12&&x<r.x+r.w+12&&y>r.y-12&&y<r.y+r.h+12);}
 function nearCounter(r){return !!r&&r.x>=230&&r.x<=570&&r.y>=267&&r.y<=340;}
 function nearDoor(r){return !!r&&Math.hypot(r.x-400,r.y-577)<=75;}
 function canTrade(p){return p.inside===3&&p.interior?.menu===true&&nearCounter(p.interior)&&!p.cur&&!p.hunt&&!p.forge;}

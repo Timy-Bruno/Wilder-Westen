@@ -9,7 +9,7 @@ Nicht geprüft: echte iOS-/Android-Geräte, längere Mehrspieler-Balancetests mi
 
 ## Jagd: begehbarer Wald
 
-- Vierzehn Regeltests für normalisierte Bewegung, Grenzen/Kollisionen, Schleichen, Sichtschutz, Zielauswahl, ruhige und überhastete Schüsse, Reichweite, Fluchtverhalten, Köder, Unterbrechung und getrennte Sitzungen. Zusammen mit den Kapiteltests und Fallenregeln 62 Tests.
+- Vierzehn Regeltests für normalisierte Bewegung, Grenzen/Kollisionen, Schleichen, Sichtschutz, Zielauswahl, ruhige und überhastete Schüsse, Reichweite, Fluchtverhalten, Köder, Unterbrechung und getrennte Sitzungen. Zusammen mit den Kapiteltests und Fallenregeln 68 Tests.
 - Browserprüfung: realer Einstieg über die Jagdhütte, Weg mit dem Joystick, Entdecken und Antippen des Tiers, Zielen, Schuss mit zwei gleichzeitigen Touchkontakten (Zielen halten + Schießen), Beutegutschrift, Pause und Neuladen.
 - Portrait 390×844, Querformat 844×390 und kleines Handy 320×568: Steuerungspositionen geprüft, Screenshots erzeugt; Portrait und Querformat visuell geprüft.
 - Für reproduzierbare Ziel-/Touchtests blieb das Tier in einer lokalen Testkonfiguration stehen; der normale Weg durch den Wald wurde separat mit dem Joystick geprüft. Die Browserprüfung läuft ohne den problematischen Chromium-Einprozessmodus. Echte Zwei-Daumen-Bedienung auf iOS/Android und längere Mehrspielerbalance sind noch nicht geprüft. Zusätzliche sichtbare Tierarten und weitere Waffen sind noch nicht enthalten.
@@ -63,4 +63,10 @@ Zielen sitzt links über dem unveränderten Joystick; Schießen rechts. Regeltes
 ## Grafiküberarbeitung des Ladens
 - Neue eigenständige Canvas-Zeichnungen: Holzmaserung/versetzte Dielen, Glas und Blechwaren, Säcke, Beschläge, Katalog/Kasse, Fensterlicht, Laternen, Kontakt- und Umgebungsschatten. Statische Zeichnungen werden in Raumkoordinaten gepuffert.
 - Figuren größer, detaillierter und nach Laufrichtung gezeichnet. Händler-Oberkörper separat über der Theke zusammengesetzt und seitlich versetzt, damit eine Kundschaft an der Theke ihn nicht vollständig verdeckt. Eingang und Thekenansicht visuell kontrolliert.
-- Lokaler Zwei-Handy-Test erneut bestanden: Eintritt, Mitspieler, Bewegung, Thekenhandel, Nebenauftragsabgabe, Wiederverbinden, Pause und Verlassen. Ansichten in 390×844, 844×390, 320×568 und 667×375 fotografiert; keine JavaScript-Fehler. Grafikänderung betrifft den Laden; das Spiel besitzt weiterhin 62 Regeltests.
+- Lokaler Zwei-Handy-Test erneut bestanden: Eintritt, Mitspieler, Bewegung, Thekenhandel, Nebenauftragsabgabe, Wiederverbinden, Pause und Verlassen. Ansichten in 390×844, 844×390, 320×568 und 667×375 fotografiert; keine JavaScript-Fehler. Grafikänderung betrifft den Laden; das Spiel besitzt weiterhin 68 Regeltests.
+
+## Türschwellen, wegwischbare Hinweise und Möbelkörper
+- Sechs neue Regeltests: Richtungs-/Schwellenprüfung vor der Ladentür, diagonaler Kreuzungspunkt, Innenausgang, Bewegung nach Übergang gestoppt, kein sofortiger Rückwechsel und geschlossene untere Wand neben dem Durchgang. Insgesamt 68 Tests.
+- Lokaler Zwei-Handy-Browsertest mit realem Touch-Swipe per CDP: Wegwischen, Antippen, × und Tastatur schließen Hinweise; ein neuer Hinweis während einer alten Geste bleibt erhalten.
+- Automatischer Eintritt per Stadt-Joystick, Ausgang per Raum-Joystick, erneuter Eintritt und Ausgang, kein unbeabsichtigtes Zurückspringen, Handel, Nebenauftragsabgabe, Neuladen und Pause geprüft. Keine JavaScript-Fehler.
+- Möbelkörper innen in vier Handyformaten und Fassade auf dem Hauptbildschirm fotografiert und visuell geprüft. Keine Änderungen an den anderen Gebäudezugängen.

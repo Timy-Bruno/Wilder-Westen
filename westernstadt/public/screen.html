@@ -7,7 +7,7 @@ button{font:inherit;font-weight:bold;font-size:1.4rem;margin:6px;padding:12px 22
 canvas{width:100%;max-width:1500px;display:block;margin:0 auto}</style><link rel="stylesheet" href="/campaign.css"></head><body>
 <div id=lobby><h1>🤠 Wilder Westen</h1><div id=pick>Wie viele Spieler? </div><div id=qrs></div><button id=go style=display:none>Spiel starten</button></div>
 <canvas id=c width=2000 height=1200 hidden></canvas>
-<script src=/socket.io/socket.io.js></script><script src="/app-update.js"></script>
+<script src=/socket.io/socket.io.js></script><script src="/app-update.js"></script><script src="/city-shop.js"></script>
 <script>
 const s=io(),$=i=>document.getElementById(i),cv=$('c'),g=cv.getContext('2d');
 attachGameUpdates(s);
@@ -30,7 +30,7 @@ function frame(){requestAnimationFrame(frame);if(!S)return;const d=S,t=Date.now(
  g.fillStyle='#bf9a5e';g.fillRect(0,165,1000,70);g.fillRect(0,355,1000,70);
  g.strokeStyle='rgba(255,255,255,.3)';g.lineWidth=3;g.setLineDash([18,14]);g.beginPath();g.moveTo(0,200);g.lineTo(1000,200);g.moveTo(0,390);g.lineTo(1000,390);g.stroke();g.setLineDash([]);
  g.textAlign='center';g.font='28px serif';[[30,300],[965,300],[260,300],[760,310],[30,575],[965,575],[480,590]].forEach(c=>g.fillText('🌵',c[0],c[1]));
- d.builds.forEach((b,i)=>{const occ=d.occupied.includes(i),top=i<4;
+ d.builds.forEach((b,i)=>{const occ=d.occupied.includes(i),top=i<4;if(i===3){CityShop.draw(g,b,occ);return;}
   g.fillStyle='rgba(0,0,0,.2)';g.fillRect(b.x+7,b.y+9,b.w,b.h);
   g.fillStyle=occ?'#4a2f15':BC[i%4];g.fillRect(b.x,b.y,b.w,b.h);
   g.strokeStyle='rgba(0,0,0,.13)';g.lineWidth=1;for(let k=1;k<6;k++){g.beginPath();g.moveTo(b.x,b.y+k*16);g.lineTo(b.x+b.w,b.y+k*16);g.stroke()}

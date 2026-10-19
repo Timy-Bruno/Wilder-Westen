@@ -87,9 +87,16 @@ Nach Erfüllung wird der Aushang nach 90 Sekunden aktiver Vorbereitungs-Spielzei
 ### Erster begehbarer Innenraum: Laden
 Der Laden ist als erster Raum in schräger 2D-Draufsicht begehbar. Eingang und Ausgang liegen unten, die Verkaufstheke oben. Regale, Fässer, Kisten und eine Wareninsel geben dem Raum eine eigene Einrichtung; Möbel besitzen serverseitige Kollisionen. Andere verbundene Spieler im Laden werden mit angezeigt.
 
-Mit dem festen Joystick um die Wareninsel zur Theke gehen und „Theke benutzen“ wählen. Dort lassen sich der Katalog, Händleraufgaben und die Abgabe des Laden-Nebenauftrags öffnen. „Zurück“ schließt das Thekenmenü. Zur Tür zurückgehen und „Zur Stadt“ wählen. Rucksack und Aufträge bleiben über die beiden oberen Knöpfe erreichbar. Einkäufe, Verkäufe und Laden-Abgaben benötigen die geöffnete Theke und den passenden Standort. Neuladen stellt dieselbe Raumposition wieder her; Bewegung und Thekenmenü werden dabei zurückgesetzt.
+Auf dem Hauptbildschirm mit dem Stadt-Joystick von vorne durch die Ladentür laufen: Beim Überschreiten der Schwelle wechselt das Handy automatisch in den Innenraum. Mit dem festen Joystick um die Wareninsel zur Theke gehen und „Theke benutzen“ wählen. Dort lassen sich der Katalog, Händleraufgaben und die Abgabe des Laden-Nebenauftrags öffnen. „Zurück“ schließt das Thekenmenü. Zur unteren Tür zurücklaufen und durch die Schwelle gehen: Der Ausgang führt automatisch vor den Laden. Ein Eintritts- oder Ausgangsknopf ist für den Laden nicht nötig. Rucksack und Aufträge bleiben über die beiden oberen Knöpfe erreichbar. Einkäufe, Verkäufe und Laden-Abgaben benötigen die geöffnete Theke und den passenden Standort. Neuladen stellt dieselbe Raumposition wieder her; Bewegung und Thekenmenü werden dabei zurückgesetzt.
 
 Schmiede, Saloon und weitere Gebäude sollen später ebenfalls begehbare Innenräume erhalten, passend zu ihrem Beruf eingerichtet. Katalog, Werkbank und andere Aufgaben öffnen dann an ihrem passenden Arbeitsplatz. Für diese anderen Gebäude gelten vorerst die bisherigen Menüs.
 
 ### Grafikreferenz
 Der Laden setzt den ersten ausführlicheren Grafikstandard für weitere Innenräume. Materialien, Licht/Schatten, Figurenlesbarkeit, Interaktionspunkte und Handyprüfung sind in `DESIGN.md` festgehalten. `public/shop-art.js` zeichnet und puffert die statischen Raum- und Möbelzeichnungen; die Figuren bleiben getrennt animiert. Der Händler wird mit sichtbarem Gesicht und Oberkörper über der Theke dargestellt. Andere Spielbereiche werden schrittweise angepasst.
+
+### Türen, Hinweise und Körperflächen
+Der Laden erhält als erstes Gebäude eine Außenfassade mit Holzveranda, Fenstern und klar sichtbarer Tür. Der automatische Eintritt gilt nur an dieser Öffnung und beim Hineinlaufen; seitlicher Kontakt mit der Hauswand reicht nicht. Nach dem Ausgang steht die Figur mit gestoppter Bewegung vor der Tür. Die anderen Gebäude behalten vorerst ihre bisherigen Eingabeknöpfe.
+
+Hinweise lassen sich in jede Richtung wegwischen, durch Antippen, über das Schließen-× oder mit Escape/Enter schließen. Sie verschwinden weiterhin nach 6,5 Sekunden von selbst. Neue Hinweise ersetzen den alten Inhalt; eine bereits begonnene Wischgeste darf keinen danach eintreffenden Hinweis schließen.
+
+Theke, Wareninsel und Kiste zeigen getrennte Oberseiten, Fronten und dunklere Seiten; Regale besitzen sichtbare obere und seitliche Flächen. Die Raumansicht bleibt ein gezeichneter 2D-Raum.

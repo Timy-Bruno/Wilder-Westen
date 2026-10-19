@@ -38,25 +38,34 @@ window.ShopArt=(()=>{
  // Contact shadows and border framing ground every object.
  fill(0,79,13,408,grad(0,0,13,0,'#32261b','#6c4b2c'));fill(787,79,13,408,'#3b2b1d');wood(0,ground(609),800,8,'#6d5032','#392b20');
  }
+ function volume(x,sy,w,depth,z){
+ const front=sy+depth-z;
+ // Distinct top, dark right side and vertical front share the same ground footprint.
+ path([[x+w-14,sy-z],[x+w,front],[x+w,sy+depth],[x+w-14,sy]],'#49331f',1,true,grad(x+w-14,sy-z,14,depth+z,'#6f482a','#3c2c20'));
+ path([[x+12,front],[x+w,front],[x+w,sy+depth],[x+12,sy+depth]],'#634226',1,true,grad(x,front,0,z,'#956533','#5c3c23'));
+ path([[x,sy-z],[x+w-14,sy-z],[x+w,front],[x+12,front]],'#6b4829',1.5,true,grad(x,sy-z,0,depth,'#d2ab70','#ab7c44'));
+ path([[x,sy-z],[x+12,front],[x+w,front]],'#e9c993',2);path([[x+13,front+5],[x+w-3,front+5]],'#443120',3);
+ return front;
+ }
  function furniture(o){const {x,y,w,h,kind}=o,sy=ground(y),dh=h*.78;
  shadow(x-6,sy+dh-10,w+12,32,.5);
  if(kind==='shelf'){
  wood(x,sy-57,w,dh+57,'#805a35','#473422');fill(x+7,sy-49,w-15,dh+43,'#30271e');for(let row=0;row<4;row++){const yy=sy-43+row*51;fill(x+8,yy,w-18,43,grad(0,yy,0,43,'#29251e','#4b3b27'));for(let j=0;j<4;j++){const xx=x+12+j*16;if((row+j)%4===0)tin(xx,yy+21,12,18,['#9c6d46','#638378'][row%2]);else if(row===2&&j>1){wood(xx,yy+17,13,24,'#a59b72','#6f6949');path([[xx+2,yy+24],[xx+11,yy+24]],'#d5c8a1',2);}else bottle(xx,yy+7+(j%2)*4,31-(j%2)*4,['#9eac7d','#b78d5d','#708b78','#b4a382'][j]);}wood(x+4,yy+41,w-9,6,'#b29258','#75502d');for(const xx of [x+10,x+w-12])nail(xx,yy+44);}
- wood(x-3,sy-61,w+6,8,'#b4945e','#67492a');wood(x,sy+dh-36,w,36,'#7f5d36','#503b24');round(x+9,sy+dh-28,w-21,19,1,'#6c5032','#97764b');fill(x+8,sy+dh,w-15,5,'#372c1e');return;}
+ path([[x+w-9,sy-57],[x+w+7,sy-48],[x+w+7,sy+dh],[x+w-9,sy+dh-8]],'#463420',1,true,'#483222');path([[x-3,sy-67],[x+w-10,sy-67],[x+w+7,sy-57],[x+12,sy-57]],'#6b4c2c',1,true,'#d2ad70');path([[x+12,sy-57],[x+w+7,sy-57]],'#f1d19a',2);wood(x,sy+dh-36,w,36,'#7f5d36','#503b24');round(x+9,sy+dh-28,w-21,19,1,'#6c5032','#97764b');fill(x+8,sy+dh,w-15,5,'#372c1e');return;}
  if(kind==='counter'){
- // Lower front leaves the surface readable; merchant upper body is drawn over it separately.
- wood(x,sy-29,w,dh+29,'#916334','#513921');for(let i=0;i<7;i++){const xx=x+12+i*56;round(xx,sy+16,46,40,2,grad(xx,sy,0,50,'#a77a45','#77502d'),'#ba9155');round(xx+5,sy+22,36,27,1,'#805c35','#b78b51');oval(xx+23,sy+36,3,2,'#c6a461');}
- round(x-5,sy-39,w+10,55,3,grad(x,sy-39,0,55,'#d1a76b','#8d6234'),'#553b23');grain(x+2,sy-35,w-4,45,7);path([[x-3,sy+10],[x+w+3,sy+10]],'#e1bd7e',2);fill(x,sy+dh-4,w,7,'#3d2b1e');
+ const front=volume(x,sy,w,dh,52);for(let i=0;i<7;i++){const xx=x+21+i*54;round(xx,front+9,43,33,2,grad(xx,front,0,38,'#ad7c43','#76502d'),'#d2a461');round(xx+5,front+14,33,21,1,'#80592f','#ba8d50');oval(xx+21,front+26,3,2,'#e0bd7b');}
+ for(let i=0;i<4;i++)path([[x+5+i*2,sy-44+i*12],[x+w-16+i*2,sy-44+i*12]],'#6f4c2944',1);grain(x+14,sy-43,w-34,34,7);fill(x+12,sy+dh-4,w-13,6,'#352719');
  // Open leather catalog, loose order slips, inkwell and mug.
  round(x+34,sy-31,61,32,2,'#423c2b','#d3ba80');path([[x+39,sy-27],[x+63,sy-25],[x+63,sy-4],[x+39,sy-7]],'#d7c59e',1,true,'#e8d9b2');path([[x+65,sy-25],[x+89,sy-28],[x+89,sy-7],[x+65,sy-4]],'#d7c59e',1,true,'#dbccaa');for(let i=0;i<4;i++)path([[x+69,sy-21+i*4],[x+84,sy-23+i*4]],'#8b7a58',.6);text('KATALOG',x+65,sy+7,6,'#4d3824');
  round(x+122,sy-25,26,15,1,'#ded0a5');path([[x+126,sy-20],[x+143,sy-20],[x+127,sy-15],[x+138,sy-15]],'#958466',.8);oval(x+168,sy-17,7,4,'#3b4035');path([[x+169,sy-18],[x+176,sy-32]],'#b29e6e',2);
  // Antique brass register on the right.
  round(x+w-98,sy-22,66,30,3,grad(x,sy-22,0,30,'#a99556','#605b32'),'#433f2b');round(x+w-91,sy-45,48,30,5,grad(x,sy-45,0,30,'#c5ad6c','#777041'),'#4a482f');round(x+w-85,sy-38,35,9,1,'#283b32','#d9c18a');text('12.00',x+w-67,sy-31,7,'#e6d9a8');for(let r=0;r<2;r++)for(let i=0;i<6;i++)oval(x+w-87+i*8,sy-20+r*7,2.7,2,'#e4d2a5','#5c5638');round(x+w-77,sy+1,27,4,2,'#bba569');return;}
  if(kind==='display'){
- wood(x,sy-28,w,dh+27,'#845c36','#4d3924');for(let i=0;i<3;i++){wood(x+6+i*47,sy-22,42,dh+16,'#ad8250','#755333',i);nail(x+12+i*47,sy-16);nail(x+42+i*47,sy+dh-14);}sack(x+9,sy-58,39,43);sack(x+54,sy-53,38,38,'#9b9b73');sack(x+100,sy-60,39,45,'#b69c71');return;}
+ const front=volume(x,sy,w,dh,33);for(let i=0;i<3;i++){const xx=x+20+i*43;wood(xx,front+9,34,19,'#a77943','#68452a',i);nail(xx+4,front+13);}for(let i=0;i<3;i++)path([[x+4+i*3,sy-25+i*12],[x+w-15+i*3,sy-25+i*12]],'#754f2d55');sack(x+14,sy-65,39,43);sack(x+59,sy-58,38,38,'#9b9b73');round(x+103,sy-40,34,18,3,'#6c8b83','#40564c');path([[x+110,sy-39],[x+112,sy-22],[x+129,sy-39],[x+131,sy-22]],'#d3bd88',2);tin(x+109,sy-18,17,16,'#aa7951');return;}
  if(kind==='barrels'){barrel(x,sy-21,32,48);barrel(x+33,sy-11,32,46);return;}
- // Stacked shipping crate, rope and a folded canvas bundle.
- wood(x,sy-34,w,dh+32,'#ad8250','#68492c');for(let i=0;i<3;i++){wood(x+4+i*19,sy-30,17,dh+23,'#bc955f','#8a6139',i);nail(x+10+i*19,sy-25);}wood(x-2,sy-37,w+4,7,'#c39b62','#805b33');path([[x+7,sy-26],[x+w-10,sy+dh-7],[x+7,sy+dh-7],[x+w-10,sy-26]],'#614729',4);path([[x+7,sy-27],[x+w-10,sy+dh-8]],'#d5b47b',1);round(x+9,sy-55,w-20,19,4,'#88907b','#485a50');path([[x+20,sy-55],[x+20,sy-36],[x+46,sy-55],[x+46,sy-36]],'#c0aa78',2);
+ // Shipping crate with a broad top and two upright faces.
+ const front=volume(x,sy,w,dh,43);for(let i=0;i<3;i++)path([[x+4+i*3,sy-34+i*15],[x+w-14+i*3,sy-34+i*15]],'#89633b',1);path([[x+19,front+10],[x+w-8,sy+dh-8],[x+19,sy+dh-8],[x+w-8,front+10]],'#4f3823',4);path([[x+19,front+9],[x+w-8,sy+dh-9]],'#d8b77b',1);for(const xx of [x+20,x+w-9])for(const yy of [front+10,sy+dh-8])nail(xx,yy);round(x+9,sy-55,w-24,19,4,'#889b87','#485a50');path([[x+20,sy-55],[x+20,sy-36],[x+41,sy-55],[x+41,sy-36]],'#dcc695',2);
+
  }
  function person(p,color,walk=false,phase=0,npc=false){const x=p.x,y=ground(p.y),step=walk?Math.sin(phase)*4:0,back=!npc&&Math.sin(p.facing||0)<-.45,side=!npc&&Math.abs(Math.cos(p.facing||0))>.8;shadow(x-17,y-3,34,10,.45);
  for(const [xx,ss] of [[x-9,step],[x+3,-step]]){round(xx,y-21+ss,7,20,2,'#3d3d37');round(xx-2,y-5+ss,11,6,2,'#3b2a22');path([[xx,y-4+ss],[xx+6,y-4+ss]],'#836247',1);}
@@ -69,5 +78,5 @@ window.ShopArt=(()=>{
  if(npc){for(const xx of [x-6,x+5]){g.strokeStyle='#a89770';g.lineWidth=1;g.beginPath();g.arc(xx,y-62,4,0,Math.PI*2);g.stroke()}path([[x-2,y-62],[x+1,y-62]],'#a89770');}else if(!back){for(let i=0;i<2;i++)oval(x+5,y-39+i*8,1,1,'#d3b376');}
  }
  function cached(key,ox,oy,w,h,paint){if(!cache.has(key)){const c=document.createElement('canvas');c.width=Math.ceil(w*2);c.height=Math.ceil(h*2);const previous=g;g=c.getContext('2d');g.scale(2,2);g.translate(-ox,-oy);paint();g=previous;cache.set(key,{c,ox,oy,w,h});}const a=cache.get(key);g.drawImage(a.c,a.ox,a.oy,a.w,a.h)}
- return {palette:P,base(ctx){g=ctx;cached('base',-20,-30,840,550,base)},furniture(ctx,o){g=ctx;cached('f-'+o.kind+'-'+o.x,o.x-24,ground(o.y)-100,o.w+48,o.h*.78+145,()=>furniture(o))},person(ctx,p,color,walk,phase){g=ctx;person(p,color,walk,phase)},merchant(ctx){g=ctx;g.save();g.beginPath();g.rect(300,25,200,ground(180)+13-25);g.clip();person({x:445,y:230,facing:Math.PI/2},'#527c70',false,0,true);g.restore();oval(428,ground(180)+5,5,3,'#dbb085');oval(462,ground(180)+5,5,3,'#dbb085');},vignette(ctx,w,h){const q=ctx.createRadialGradient(w*.5,h*.45,Math.min(w,h)*.15,w*.5,h*.45,Math.max(w,h)*.75);q.addColorStop(0,'#00000000');q.addColorStop(1,'#0e0d0b55');ctx.fillStyle=q;ctx.fillRect(0,0,w,h)}};
+ return {palette:P,base(ctx){g=ctx;cached('base',-20,-30,840,550,base)},furniture(ctx,o){g=ctx;cached('f-'+o.kind+'-'+o.x,o.x-24,ground(o.y)-100,o.w+48,o.h*.78+145,()=>furniture(o))},person(ctx,p,color,walk,phase){g=ctx;person(p,color,walk,phase)},merchant(ctx){g=ctx;g.save();g.beginPath();g.rect(300,25,200,ground(180)+8-25);g.clip();person({x:445,y:230,facing:Math.PI/2},'#527c70',false,0,true);g.restore();oval(428,ground(180)+3,5,3,'#dbb085');oval(462,ground(180)+3,5,3,'#dbb085');},vignette(ctx,w,h){const q=ctx.createRadialGradient(w*.5,h*.45,Math.min(w,h)*.15,w*.5,h*.45,Math.max(w,h)*.75);q.addColorStop(0,'#00000000');q.addColorStop(1,'#0e0d0b55');ctx.fillStyle=q;ctx.fillRect(0,0,w,h)}};
 })();

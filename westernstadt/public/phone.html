@@ -30,7 +30,7 @@ h3{margin:4px 0 0;font-size:.8rem;letter-spacing:.1em;color:var(--g);text-transf
 .gv{width:100%;background:var(--w);border-radius:12px;padding:8px}.gv p{margin:0 0 6px;font-size:.85rem}.gv button{min-width:0;padding:8px 10px;font-size:.9rem;margin:2px}
 .job{display:flex;align-items:center;gap:8px;background:#2a1a0d;border-radius:10px;padding:6px 10px;width:100%;font-size:.82rem}.job i{flex:1;height:6px;background:#555;border-radius:3px;overflow:hidden}.job u{display:block;height:100%;background:var(--g)}
 .oc{width:100%;background:var(--w);border:1px solid var(--b);border-radius:10px;padding:8px 10px;font-size:.9rem}.muted{opacity:.6;width:100%;text-align:center;font-size:.85rem}
-#toast{position:fixed;left:12px;right:12px;top:max(10px,env(safe-area-inset-top));background:#f4c06a;color:#2b1d12;border-radius:12px;padding:12px;text-align:center;font-weight:bold;box-shadow:0 4px 14px #000a;z-index:30}#toast.al{background:#c0392b;color:#fff}
+#toast{position:fixed;left:12px;right:12px;top:max(10px,env(safe-area-inset-top));background:#f4c06a;color:#2b1d12;border-radius:12px;padding:12px;text-align:center;font-weight:bold;box-shadow:0 4px 14px #000a;z-index:30}#toast{display:flex;align-items:center;gap:12px;touch-action:none;cursor:pointer}#toast .noticeText{flex:1}#toast button{min-width:36px;min-height:36px;padding:0;font:24px Georgia;border:1px solid #5c3d1d55;background:#7b531622;color:inherit;box-shadow:none;border-radius:50%;flex:none}#toast.al{background:#c0392b;color:#fff}
 #game{position:fixed;inset:0;z-index:20;background:radial-gradient(120% 70% at 50% 0,#4a2f18,#1a0f07);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:10px;text-align:center;touch-action:none}
 .ttl{font-family:Rye,Georgia,serif;color:var(--g);margin:0}[hidden]{display:none!important}
 @media (orientation:landscape){#app{grid-template-columns:1fr 76px;grid-template-rows:auto 1fr;grid-template-areas:"h h" "m n"}nav{flex-direction:column;border-top:0;border-left:3px solid var(--b)}nav button{flex:1}nav em{right:6px}
@@ -58,7 +58,7 @@ h3{margin:4px 0 0;font-size:.8rem;letter-spacing:.1em;color:var(--g);text-transf
 </div>
 <div id=game hidden><h2 class=ttl id=gt></h2><p id=gh></p><div id=ga></div></div>
 <div id=toast hidden></div>
-<script src=/socket.io/socket.io.js></script><script src="/app-update.js"></script>
+<script src=/socket.io/socket.io.js></script><script src="/app-update.js"></script><script src="/notices.js"></script>
 <script>
 const $=i=>document.getElementById(i),slot=+new URLSearchParams(location.search).get('slot'),s=io(),vib=p=>navigator.vibrate&&navigator.vibrate(p);
 attachGameUpdates(s);
@@ -67,7 +67,7 @@ const ST=[['food','🍖'],['ammo','🔫'],['med','💊'],['morale','🎭'],['sec
 $('stats').innerHTML=ST.map(([k,i])=>`<div class=st id=st_${k}>${i}<b>0</b><i><u></u></i></div>`).join('');
 function showTab(){['map','pack','ord'].forEach(t=>$('v_'+t).hidden=t!==tab);document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab))}
 $('tabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;tab=b.dataset.t;showTab();s.emit('input',{dx:0,dy:0})};
-const note=(t,al)=>{const e=$('toast');e.textContent=t;e.className=al?'al':'';e.hidden=false;clearTimeout(mt);mt=setTimeout(()=>e.hidden=true,6500)};
+const note=GameNotices.install($('toast'));
 s.on('connect',()=>s.emit('join',slot));s.on('err',t=>$('rn').textContent=t);
 s.on('msg',t=>{note(t);vib(40)});
 s.on('alert',a=>{note('🔔 '+a.txt,1);vib(a.sig===1?200:[200,100,200,100,200])});
@@ -85,7 +85,7 @@ s.on('me',m=>{
  set('inc',O.inc.length?O.inc.map(o=>`<div class=oc>📋 ${o.n}<br><small>von Spieler ${o.from+1} · ${o.st==='work'?'🔧 in Arbeit':'offen – geh in dein Gebäude'}</small></div>`).join(''):'<div class=muted>Keine Aufträge.</div>');
  set('mine',O.mine.length?O.mine.map(o=>`<div class=oc>${o.st==='ready'?'✅':o.st==='work'?'🔧':'⏳'} ${o.n}<br><small>${o.st==='ready'?'fertig – abholen in: '+o.b:'in: '+o.b+' · '+(o.st==='work'?'wird bearbeitet':'wartet')}</small></div>`).join(''):'<div class=muted>Keine Bestellungen. Geh in ein fremdes Gebäude, um etwas zu bestellen.</div>');
  $('city').hidden=!!m.inside;$('in').hidden=!m.inside;
- if(!m.inside){const a=$('act'),sell=m.inv.filter(i=>i.sell);a.disabled=!m.near||m.near==='Kirche';a.textContent=!m.near?'🚶 Lauf zu einem Gebäude':m.near==='Kirche'?'⛪ Am Glockenturm':'🚪 Betreten: '+m.near;
+ if(!m.inside){const a=$('act'),sell=m.inv.filter(i=>i.sell);a.disabled=!m.near||m.near==='Kirche'||m.near==='Laden';a.textContent=!m.near?'🚶 Lauf zu einem Gebäude':m.near==='Kirche'?'⛪ Am Glockenturm':m.near==='Laden'?'Durch die Ladentür laufen':'🚪 Betreten: '+m.near;
   $('bells').hidden=$('deliver').hidden=m.near!=='Kirche';[...$('bells').children].forEach(b=>b.disabled=m.cd>0);
   const d=$('deliver');d.disabled=!sell.length;d.textContent=sell.length?'📦 Abliefern: '+sell.map(i=>i.n+'× '+i.name).join(', '):'📦 Nichts abzuliefern (erst verarbeiten)'}
  else{$('bn').textContent=m.inside;let h='';
