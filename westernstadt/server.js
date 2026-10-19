@@ -5,6 +5,10 @@ app.use(express.static(__dirname+'/public'));
 const PORT=process.env.PORT||3000,W=1000,H=600;
 const ITEM={ore:'Erz',coal:'Kohle',bar:'Eisenbarren',ammo:'Munition',meat:'Fleisch',hide:'Fell',herbs:'Kräuter',med:'Medizin',wood:'Holz',planks:'Bretter',fence:'Zaun',food:'Essen',whiskey:'Whiskey',guard:'Wache'};
 const SELL={ammo:['ammo',6],med:['med',6],food:['food',6],whiskey:['morale',6],fence:['security',8],guard:['security',8]};
+const META={ore:['⛏️','Für den Schmied'],coal:['🪨','Für den Schmied'],bar:['🔩','Für Munition (Schmied)'],ammo:['🔫','→ Stadt: Munition'],meat:['🥩','Für den Saloon-Wirt'],hide:['🦌','Noch ohne Verwendung'],herbs:['🌿','Für Doc & Saloon'],med:['💊','→ Stadt: Medizin'],wood:['🪵','Für den Baumeister'],planks:['🪚','Für den Baumeister'],fence:['🚧','→ Stadt: Sicherheit'],food:['🍲','→ Stadt: Nahrung'],whiskey:['🥃','→ Stadt: Moral'],guard:['💂','→ Stadt: Sicherheit']};
+const STN={food:'Nahrung',ammo:'Munition',med:'Medizin',morale:'Moral',security:'Sicherheit'};
+const RICON=['⚒️','⚕️','⭐','💰','🥃','🏹','🧨','🔨'];
+const fmt=o=>Object.entries(o).map(([k,v])=>META[k][0]+' '+v+'× '+ITEM[k]).join('  +  ');
 const ROLES=[
  {n:'Schmied',b:'Schmiede',r:[
   {id:'smelt',n:'Eisen schmelzen',g:'timing',h:'Stoppe im richtigen Moment!',i:{ore:2,coal:1},o:{bar:1},t:15},
@@ -28,7 +32,7 @@ const ROLES=[
  {n:'Baumeister',b:'Zimmerei',r:[
   {id:'saw',n:'Bretter sägen',g:'timing',h:'Säge im richtigen Moment!',i:{wood:2},o:{planks:2},t:12},
   {id:'fence',n:'Zaun bauen',g:'memory',h:'Merke dir den Bauplan!',i:{planks:3},o:{fence:1},t:20}]}];
-const BUILD=ROLES.map((r,i)=>({name:r.b,x:60+(i%4)*230,y:i<4?50:430,w:130,h:100}));
+const BUILD=ROLES.map((r,i)=>({name:r.b,ic:RICON[i],x:60+(i%4)*230,y:i<4?50:430,w:130,h:100}));
 const CHURCH={name:'Kirche',x:435,y:240,w:130,h:110};
 const SOLID=[...BUILD,CHURCH];
 let room=null,lastBell=0;
@@ -66,11 +70,13 @@ io.on('connection',s=>{
  s.on('result',sc=>{const p=P();if(!p||!p.cur)return;const r=p.cur;p.cur=null;sc=Math.max(0,Math.min(1,+sc||0));
   if(sc<.35)return say(p,'❌ Misslungen! Das Material ist verloren.');
   const out={...r.o},bonus=sc>=.8;if(bonus){const k=Object.keys(out)[0];out[k]++}
-  p.jobs.push({n:r.n,t:Date.now()+r.t*1000,out});
+  p.jobs.push({n:r.n,d:r.t,t:Date.now()+r.t*1000,out});
   say(p,(bonus?'⭐ Perfekt, Bonus! ':'✔ Gelungen. ')+'Fertig in '+r.t+' Sekunden – du kannst derweil etwas anderes tun.')});
- s.on('deliver',()=>{const p=P();if(!p||p.inside!==null||!near(p,CHURCH))return;const t=[];
-  for(const k in SELL){const n=p.inv[k]||0;if(n){const [st,v]=SELL[k];room.stats[st]=Math.min(100,room.stats[st]+n*v);p.inv[k]=0;t.push(n+'× '+ITEM[k])}}
-  say(p,t.length?'Abgeliefert: '+t.join(', '):'Du hast nichts zum Abliefern.')});
+ s.on('deliver',()=>{const p=P();if(!p||p.inside!==null||!near(p,CHURCH))return;const t=[],g={};
+  for(const k in SELL){const n=p.inv[k]||0;if(n){const [st,v]=SELL[k];room.stats[st]=Math.min(100,room.stats[st]+n*v);g[st]=(g[st]||0)+n*v;p.inv[k]=0;t.push(n+'× '+ITEM[k])}}
+  if(!t.length)return say(p,'Nichts zum Abliefern. Rohstoffe müssen erst verarbeitet werden.');
+  say(p,'✔ Abgeliefert: '+t.join(', '));
+  io.to('screen').emit('fx',Object.entries(g).map(([st,v],i)=>({t:'+'+v+' '+STN[st],x:CHURCH.x+65,y:CHURCH.y-10-i*22})))});
  s.on('give',({to,item})=>{const p=P(),q=room&&room.slots[to|0];
   if(!p||!q||p===q||p.inside!==null||q.inside!==null||!(p.inv[item]>0)||Math.hypot(p.x-q.x,p.y-q.y)>90)return;
   p.inv[item]--;q.inv[item]=(q.inv[item]||0)+1;say(p,'Gegeben: '+ITEM[item]+' an Spieler '+(q.i+1));say(q,'Du hast '+ITEM[item]+' von Spieler '+(p.i+1)+' bekommen!')});
@@ -108,13 +114,13 @@ setInterval(()=>{
   const nb=BUILD.findIndex(b=>near(p,b)),mine=p.inside===p.role;
   io.to(p.sock).emit('me',{role:r.n,
    inside:p.inside!==null?BUILD[p.inside].name:null,mine,
-   recipes:mine?r.r.map(x=>({id:x.id,n:x.n,i:Object.entries(x.i).map(([k,v])=>v+'× '+ITEM[k]).join(' + ')||'nichts',
-     o:Object.entries(x.o).map(([k,v])=>v+'× '+ITEM[k]).join(' + '),t:x.t,ok:has(p,x)&&!p.cur})):[],
+   recipes:mine?r.r.map(x=>({id:x.id,n:x.n,i:fmt(x.i)||'nichts',
+     o:fmt(x.o),t:x.t,ok:has(p,x)&&!p.cur})):[],
    near:p.inside===null?(near(p,CHURCH)?'Kirche':nb>=0?BUILD[nb].name:null):null,
    nearby:p.inside===null?room.slots.filter(q=>q!==p&&q.inside===null&&Math.hypot(p.x-q.x,p.y-q.y)<=90).map(q=>q.i):[],
-   inv:Object.fromEntries(Object.entries(p.inv).filter(([,v])=>v>0).map(([k,v])=>[ITEM[k],v])),
+   icon:RICON[p.role],inv:Object.keys(p.inv).filter(k=>p.inv[k]>0).map(k=>({k,n:p.inv[k],name:ITEM[k],icon:META[k][0],hint:META[k][1],sell:!!SELL[k]})),
    invKeys:Object.keys(p.inv).filter(k=>p.inv[k]>0),
-   jobs:p.jobs.map(j=>({n:j.n,s:Math.max(0,Math.ceil((j.t-now)/1000))})),
+   jobs:p.jobs.map(j=>({n:j.n,d:j.d,s:Math.max(0,Math.ceil((j.t-now)/1000))})),
    stats:Object.fromEntries(Object.entries(room.stats).map(([k,v])=>[k,Math.round(v)])),
    cd:Math.max(0,Math.ceil((12000-(now-lastBell))/1000))});}
 },100);
