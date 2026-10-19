@@ -20,7 +20,7 @@ const ROLES=[
   {id:'stew',n:'Eintopf kochen',g:'timing',h:'Nicht anbrennen lassen!',i:{meat:1},o:{food:3},t:15},
   {id:'whis',n:'Whiskey brennen',g:'memory',h:'Merke dir die Mischung!',i:{herbs:1},o:{whiskey:2},t:20}]},
  {n:'Jäger',b:'Jagdhütte',r:[
-  {id:'hunt',n:'Im Wald jagen',g:'hunt',h:'Tiere beobachten, anschleichen und selbst zielen.',i:{},o:{meat:2,hide:1},t:0},
+  {id:'hunt',n:'Im Wald jagen',g:'hunt',h:'Wildspuren folgen, leise anschleichen und ruhig zielen.',i:{},o:{meat:2,hide:1},t:0},
   {id:'gather',n:'Kräuter suchen',g:'hotcold',h:'Wo wachsen die Kräuter?',i:{},o:{herbs:2},t:10}]},
  {n:'Sprengmeister',b:'Mine',r:[
   {id:'blast',n:'Erz sprengen',g:'hotcold',h:'Wo liegt die Erzader?',i:{},o:{ore:3},t:15},

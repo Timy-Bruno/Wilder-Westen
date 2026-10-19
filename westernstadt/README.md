@@ -42,6 +42,10 @@ Die Karte füllt den Browserbereich. Alle Gebäude bleiben sichtbar, Figuren beh
 
 ## Jagd auf dem Handy
 
-In der Jagdhütte „Im Wald jagen“ wählen. In der 2D-Lichtung Tiere beobachten, zum Zielen ziehen und mit „Schießen“ abdrücken. Anschleichen gedrückt halten, wenn die Tiere grasen; wachsame Tiere bemerken die Annäherung. „Anvisieren“ vergrößert die Sicht, ein Köder lockt Tiere an. Bäume und Felsen können Schüsse abfangen. Pro Ausflug: 90 Sekunden, sechs Patronen und höchstens zwei Tiere. „Zurück“ bringt die erlegte Beute in den Rucksack. Treffer, Munition und Beute prüft der Server. Neuladen desselben Handy-Links stellt eine laufende Jagd wieder her, solange der Server läuft.
+In der Jagdhütte „Im Wald jagen“ wählen. Der Ausflug öffnet einen begehbaren Wald schräg von oben mit eigener Kamera. Joystick links zum Bewegen, „Schleichen“ rechts schaltet langsame und leise Bewegung ein. Am Computer gehen auch Pfeiltasten/WASD; bei gehaltenem Zielen löst die Leertaste den Schuss aus. Wildspuren führen vom Start zur Lichtung; die kleine Karte zeigt den Pfad und den eigenen Standort, keine versteckten Tiere.
+
+Ein sichtbares Tier antippen, „Zielen“ mit einem Daumen gedrückt halten und mit dem anderen „Schießen“ wählen. Beim Zielen bleibt die Figur stehen. Der helle Zielpunkt wird nach etwa zwei Sekunden ruhiger. Er muss beim Schuss auf dem Tier liegen; es gibt keinen zusätzlichen Zufallswurf. Entfernung und Bewegung erschweren das Zielen. Reichweite 60 Spielmeter; Baumstämme und Felsen blockieren Sicht und Schüsse. Laufen in der Nähe und zu dichtes Anschleichen schrecken Tiere auf. Ein Köder wird am tatsächlichen Standort ausgelegt und lockt ein Tier in der Nähe an.
+
+Der erste Waldausflug hat ein Tier als Ziel, sechs Patronen und kein Zeitlimit. „Zur Stadt“ beendet ihn und legt vorhandene Beute genau einmal in den Rucksack. Treffer, Bewegung, Sicht, Munition und Beute prüft der Server. Versteckte Tiere werden nicht an das Handy übertragen. Neuladen desselben Handy-Links stellt Position, Munition und Beute wieder her, solange der Server läuft; gehaltene Eingaben werden bei Unterbrechungen zurückgesetzt.
 
 Die anderen Berufsminispiele bleiben vorläufig. Fallen, Waffenhandel und Reparaturaufträge folgen später.
