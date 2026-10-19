@@ -80,7 +80,7 @@ s.on('me',m=>{
  set('pack',m.inv.length?m.inv.map(i=>`<div class="it ${i.sell?'sell':''}"><span>${i.icon}</span><b>${i.n}</b><small>${i.name}</small><em>${i.hint}</em></div>`).join(''):'<div class=muted style="grid-column:1/-1">Leer – stelle etwas her oder lass dir etwas geben.</div>');
  set('jobs',m.jobs.map(j=>`<div class=job>⏳ ${j.n}<i><u style="width:${100-j.s/j.d*100}%"></u></i>${j.s}s</div>`).join(''));
  set('give',m.nearby.map(q=>`<div class=gv><p>🤝 Spieler ${q+1} ist in der Nähe – übergeben:</p>${m.inv.map(i=>`<button data-to="${q}" data-k="${i.k}">${i.icon} ${i.name}</button>`).join('')}</div>`).join(''));
- const O=m.orders,ready=O.mine.filter(o=>o.st==='ready').length,n=O.inc.filter(o=>o.st==='open').length+ready+(m.workshop?.incoming.filter(j=>j.state==='open').length||0)+(m.workshop?.own?.state==='ready'?1:0);
+ const O=m.orders,ready=O.mine.filter(o=>o.st==='ready').length,n=O.inc.filter(o=>o.st==='open').length+ready+(m.workshop?.incoming.filter(j=>j.state==='open').length||0)+(m.workshop?.own?.state==='ready'?1:0)+(m.townTasks?.entries.some(j=>j.owned&&j.ready)?1:0);
  $('badge').hidden=!n;$('badge').textContent=n;
  set('inc',O.inc.length?O.inc.map(o=>`<div class=oc>📋 ${o.n}<br><small>von Spieler ${o.from+1} · ${o.st==='work'?'🔧 in Arbeit':'offen – geh in dein Gebäude'}</small></div>`).join(''):'<div class=muted>Keine Aufträge.</div>');
  set('mine',O.mine.length?O.mine.map(o=>`<div class=oc>${o.st==='ready'?'✅':o.st==='work'?'🔧':'⏳'} ${o.n}<br><small>${o.st==='ready'?'fertig – abholen in: '+o.b:'in: '+o.b+' · '+(o.st==='work'?'wird bearbeitet':'wartet')}</small></div>`).join(''):'<div class=muted>Keine Bestellungen. Geh in ein fremdes Gebäude, um etwas zu bestellen.</div>');
@@ -139,5 +139,5 @@ function mv(e){if(!on)return;const r=j.getBoundingClientRect(),R=r.width/2-30;le
  k.style.transform=`translate(${x}px,${y}px)`;s.emit('input',{dx:x/R,dy:y/R})}
 j.onpointerdown=e=>{on=true;j.setPointerCapture(e.pointerId);mv(e)};j.onpointermove=mv;
 j.onpointerup=j.onpointercancel=()=>{on=false;k.style.transform='';s.emit('input',{dx:0,dy:0})};
-</script><script src="/campaign-phone.js"></script><script src="/hunting.js"></script><script src="/repair-phone.js"></script><script src="/shop-phone.js"></script></body></html>
+</script><script src="/campaign-phone.js"></script><script src="/hunting.js"></script><script src="/repair-phone.js"></script><script src="/shop-phone.js"></script><script src="/town-tasks-phone.js"></script></body></html>
 

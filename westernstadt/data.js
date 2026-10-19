@@ -1,7 +1,7 @@
 // Inhalte des Spiels: hier können später Waren, Rezepte und Rollen ergänzt werden.
 const ITEM={ore:'Erz',coal:'Kohle',bar:'Eisenbarren',ammo:'Munition',meat:'Fleisch',hide:'Fell',herbs:'Kräuter',med:'Medizin',wood:'Holz',planks:'Bretter',fence:'Zaun',food:'Essen',whiskey:'Whiskey',guard:'Wache'};
 const SELL={ammo:['ammo',6],med:['med',6],food:['food',6],whiskey:['morale',6],fence:['security',8],guard:['security',8]};
-const META={ore:['⛏️','Für den Schmied'],coal:['🪨','Für den Schmied'],bar:['🔩','Für Munition (Schmied)'],ammo:['🔫','→ Stadt: Munition'],meat:['🥩','Für den Saloon-Wirt'],hide:['🦌','Für späteren Handel'],herbs:['🌿','Für Doc & Saloon'],med:['💊','→ Stadt: Medizin'],wood:['🪵','Für den Baumeister'],planks:['🪚','Für den Baumeister'],fence:['🚧','→ Stadt: Sicherheit'],food:['🍲','→ Stadt: Nahrung'],whiskey:['🥃','→ Stadt: Moral'],guard:['💂','→ Stadt: Sicherheit']};
+const META={ore:['⛏️','Für den Schmied'],coal:['🪨','Für den Schmied'],bar:['🔩','Für Munition (Schmied)'],ammo:['🔫','→ Stadt: Munition'],meat:['🥩','Für den Saloon-Wirt'],hide:['🦌','Für Laden und Stadtgesuche'],herbs:['🌿','Für Doc & Saloon'],med:['💊','→ Stadt: Medizin'],wood:['🪵','Für den Baumeister'],planks:['🪚','Für den Baumeister'],fence:['🚧','→ Stadt: Sicherheit'],food:['🍲','→ Stadt: Nahrung'],whiskey:['🥃','→ Stadt: Moral'],guard:['💂','→ Stadt: Sicherheit']};
 const STN={food:'Nahrung',ammo:'Munition',med:'Medizin',morale:'Moral',security:'Sicherheit'};
 const RICON=['⚒️','⚕️','⭐','💰','🥃','🏹','🧨','🔨'];
 // Rezepte: i = Zutaten, o = Ergebnis, t = Dauer in Sekunden. Rezepte mit Zutaten können andere Spieler bestellen.

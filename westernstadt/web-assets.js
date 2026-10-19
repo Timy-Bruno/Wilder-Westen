@@ -4,7 +4,7 @@ const digest=content=>createHash('sha256').update(content).digest('hex').slice(0
 function install(app,root){
  const publicDir=path.join(root,'public'),files=fs.readdirSync(publicDir).filter(f=>/\.(?:html|js|css)$/.test(f)).sort();
  const buildHash=createHash('sha256');
- for(const file of ['server.js','hunt.js','campaign.js','data.js','web-assets.js','repairs.js','shop.js'])buildHash.update(file).update(fs.readFileSync(path.join(root,file)));
+ for(const file of ['server.js','hunt.js','campaign.js','data.js','web-assets.js','repairs.js','shop.js','town-tasks.js'])buildHash.update(file).update(fs.readFileSync(path.join(root,file)));
  for(const file of files)buildHash.update(file).update(fs.readFileSync(path.join(publicDir,file)));
  const version=buildHash.digest('hex').slice(0,16);
  for(const page of ['phone.html','screen.html']){

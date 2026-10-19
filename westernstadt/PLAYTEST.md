@@ -9,7 +9,7 @@ Nicht geprüft: echte iOS-/Android-Geräte, längere Mehrspieler-Balancetests mi
 
 ## Jagd: begehbarer Wald
 
-- Vierzehn Regeltests für normalisierte Bewegung, Grenzen/Kollisionen, Schleichen, Sichtschutz, Zielauswahl, ruhige und überhastete Schüsse, Reichweite, Fluchtverhalten, Köder, Unterbrechung und getrennte Sitzungen. Zusammen mit den Kapiteltests und Fallenregeln 49 Tests.
+- Vierzehn Regeltests für normalisierte Bewegung, Grenzen/Kollisionen, Schleichen, Sichtschutz, Zielauswahl, ruhige und überhastete Schüsse, Reichweite, Fluchtverhalten, Köder, Unterbrechung und getrennte Sitzungen. Zusammen mit den Kapiteltests und Fallenregeln 57 Tests.
 - Browserprüfung: realer Einstieg über die Jagdhütte, Weg mit dem Joystick, Entdecken und Antippen des Tiers, Zielen, Schuss mit zwei gleichzeitigen Touchkontakten (Zielen halten + Schießen), Beutegutschrift, Pause und Neuladen.
 - Portrait 390×844, Querformat 844×390 und kleines Handy 320×568: Steuerungspositionen geprüft, Screenshots erzeugt; Portrait und Querformat visuell geprüft.
 - Für reproduzierbare Ziel-/Touchtests blieb das Tier in einer lokalen Testkonfiguration stehen; der normale Weg durch den Wald wurde separat mit dem Joystick geprüft. Die Browserprüfung läuft ohne den problematischen Chromium-Einprozessmodus. Echte Zwei-Daumen-Bedienung auf iOS/Android und längere Mehrspielerbalance sind noch nicht geprüft. Zusätzliche sichtbare Tierarten und weitere Waffen sind noch nicht enthalten.
@@ -48,3 +48,8 @@ Zielen sitzt links über dem unveränderten Joystick; Schießen rechts. Regeltes
 - Querformat als Doppelseite: Zeichnung/Beschreibung links, Waren und Kauf rechts. Kompakte Kopf- und Fußzeile; beide Seitenspalten sind bei langen Listen separat scrollbar.
 - Eigene SVG-Gewehrgravur ersetzt das Werkzeug-Emoji. Keine externen Bildabhängigkeiten.
 - Lokale Browserprüfung aller vier Seiten in 390×844, 844×390, 320×568 und 667×375: keine horizontale Überbreite, mindestens 120 Pixel Inhaltshöhe, getrennte Spalten im Querformat, Fußleiste innerhalb des Bildschirms. Kauf-/Verkaufsablauf einschließlich Neuladen erneut geprüft.
+
+## Stadtgesuche
+- Acht Regeltests: konkurrierende Reservierungen, ein Gesuch pro Person, korrekter Besitzer und Abgabeort, wirklicher Warenbestand, atomare Mehrwarenabgabe, einmalige Gold-/Stadtbelohnung, kostenloses Freigeben und neue IDs beim Wiederveröffentlichen.
+- Lokaler Zwei-Handy-Browsertest mit echtem Server: Reservierung für andere sichtbar, Freigabe und Übernahme, Wiederaufnahme nach Neuladen, fremde/entfernte Abgabe abgewiesen, Abgabe und wiederholtes Paket ohne Doppelbelohnung, Bedienung während Pause gesperrt.
+- Auftragstafel in 390×844, 844×390, 320×568 und 667×375 sowie direkte Saloon-Abgabe im Querformat fotografiert/geprüft; keine horizontale Überbreite, Abgabe und Gebäudeausgang erreichbar, keine JavaScript-Fehler. Teststart im Laden mit Beute und einmaliger Wechsel in den Saloon ausschließlich per lokaler Testkonfiguration; keine Testbefehle im Produkt.
