@@ -90,3 +90,6 @@ Der Laden ist als erster Raum in schräger 2D-Draufsicht begehbar. Eingang und A
 Mit dem festen Joystick um die Wareninsel zur Theke gehen und „Theke benutzen“ wählen. Dort lassen sich der Katalog, Händleraufgaben und die Abgabe des Laden-Nebenauftrags öffnen. „Zurück“ schließt das Thekenmenü. Zur Tür zurückgehen und „Zur Stadt“ wählen. Rucksack und Aufträge bleiben über die beiden oberen Knöpfe erreichbar. Einkäufe, Verkäufe und Laden-Abgaben benötigen die geöffnete Theke und den passenden Standort. Neuladen stellt dieselbe Raumposition wieder her; Bewegung und Thekenmenü werden dabei zurückgesetzt.
 
 Schmiede, Saloon und weitere Gebäude sollen später ebenfalls begehbare Innenräume erhalten, passend zu ihrem Beruf eingerichtet. Katalog, Werkbank und andere Aufgaben öffnen dann an ihrem passenden Arbeitsplatz. Für diese anderen Gebäude gelten vorerst die bisherigen Menüs.
+
+### Grafikreferenz
+Der Laden setzt den ersten ausführlicheren Grafikstandard für weitere Innenräume. Materialien, Licht/Schatten, Figurenlesbarkeit, Interaktionspunkte und Handyprüfung sind in `DESIGN.md` festgehalten. `public/shop-art.js` zeichnet und puffert die statischen Raum- und Möbelzeichnungen; die Figuren bleiben getrennt animiert. Der Händler wird mit sichtbarem Gesicht und Oberkörper über der Theke dargestellt. Andere Spielbereiche werden schrittweise angepasst.
