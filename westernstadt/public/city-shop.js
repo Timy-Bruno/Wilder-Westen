@@ -4,6 +4,11 @@ window.CityShop={draw(g,b,occupied){const {x,y,w,h}=b,cx=x+w/2,bottom=y+h;g.save
  poly([[x+8,y+12],[x+w+10,y+18],[x+w+12,bottom+18],[x+10,bottom+14]],'#573d2844');
  // Raised timber boardwalk and front steps clearly point toward the doorway.
  rect(x-7,bottom-3,w+14,20,'#795333');for(let i=0;i<4;i++){rect(x-7,bottom-3+i*5,w+14,4,i%2?'#ba915a':'#aa7e48');line([[x+3,bottom+i*5],[x+w-4,bottom+i*5]],'#d4b17b55');}rect(cx-27,bottom+17,54,6,'#7a5939');rect(cx-30,bottom+21,60,5,'#ad8855');
+ // Straight street alignment; roof depth rises toward the back without rotating the footprint.
+ poly([[x-4,y+14],[x+8,y-14],[x+w-8,y-14],[x+w+4,y+14]],'#6f5240');
+ for(let yy=y-10;yy<y+14;yy+=5)line([[x+6,yy],[x+w-6,yy]],'#aa8260',1);
+ line([[x+8,y-14],[x+w-8,y-14]],'#d2ad78',3);
+ rect(x+w-29,y-27,12,21,'#795643');rect(x+w-31,y-29,16,5,'#b39169');
  rect(x,y+12,w,h-12,'#976b40');poly([[x+w-10,y+12],[x+w,y+17],[x+w,bottom],[x+w-10,bottom-4]],'#604329');
  for(let yy=y+20;yy<bottom;yy+=9){rect(x+2,yy,w-14,7,(yy-y)%18?'#a47c4c':'#926a3e');line([[x+6,yy+2],[x+w-17,yy+2]],'#d4ac7055');}
  // False front, projecting cornice and inset hand-painted sign.
@@ -15,4 +20,3 @@ window.CityShop={draw(g,b,occupied){const {x,y,w,h}=b,cx=x+w/2,bottom=y+h;g.save
  // The entrance stays open even while other players are inside.
  g.font='9px Georgia';g.fillStyle='#3d3224';g.fillText('EINGANG',cx,bottom+11);g.restore();}};
 
-const flatCityShop=window.CityShop;window.CityShop={draw(g,b,occupied){if(window.ShopWorld){try{const a=ShopWorld.exterior(),scale=.37;g.drawImage(a.image,b.x+b.w/2-a.anchor.x*scale,b.y+b.h-a.anchor.y*scale,a.image.width*scale,a.image.height*scale);return}catch(e){console.warn("Shop exterior fallback",e)}}flatCityShop.draw(g,b,occupied)}};

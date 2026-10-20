@@ -78,3 +78,7 @@ Zielen sitzt links über dem unveränderten Joystick; Schießen rechts. Regeltes
 - WebGL-Kontext gezielt verloren und wiederhergestellt: Canvas-Ersatzansicht und Rückkehr in den 3D-Modus geprüft. Beim Wechsel werden gehaltene Bewegungen gestoppt.
 - Laufzeit lokal mit gzip/identity getestet: beide Varianten ergeben denselben Modulinhalt, gepinnte URLs sind cachebar. Minifizierte Three.js-Module werden vom eigenen Server geliefert.
 - Zwei Projektionstests und ein Regressionstest für eine übersprungene Türschwelle ergänzen die bisherigen Prüfungen: insgesamt 71 bestandene Regeltests. Die Schwelle wird vor einer durch die Raumgrenze abgewiesenen Bewegung geprüft, damit die Figur nicht knapp davor hängen bleibt.
+
+
+## Gerade 2D-Ansicht mit Möbelvolumen
+Browserprüfung: automatischer Ein- und Austritt, zwei Spieler, Hindernisse, Katalogkauf, Wiederverbinden, Nebenaufträge und Pause erfolgreich. Vier Fenstergrößen 390×844, 844×390, 320×568 und 667×375; keine JavaScript-Fehler. Screenshots der geraden Canvas-Darstellung und der Dachfassade geprüft. 71 Regeltests bestanden. WebGL wird für diesen Stil nicht geladen.

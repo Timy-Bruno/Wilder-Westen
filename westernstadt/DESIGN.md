@@ -20,3 +20,7 @@ Möbel zeigen eine breite, perspektivisch versetzte Oberseite, eine vertikale Fr
 
 ## Gemeinsame Raumkoordinaten
 X/Z bilden den Spielboden ab, Y die Höhe. Die Kamera bleibt fest schräg; sie lässt sich nicht frei drehen. Jede Arbeitsfläche und jedes Regal besitzt ein räumliches Volumen. Die Joystickrichtung wird aus dem Kamerablick auf die Serverkoordinaten umgerechnet. Ein- und Ausgang, Warenbestände und Kollisionen bleiben serverseitig. Die Außenansicht des Ladens wird aus einem räumlichen Modell mit Dach und Veranda gezeichnet; die übrige Stadt behält vorerst ihre bisherige Ansicht.
+
+
+## Aktuelle Stilentscheidung: gerade 2D-Ansicht mit räumlichen Möbeln
+Der schräge WebGL-Diorama-Versuch wird nicht weiter als aktive Darstellung verwendet. Stadt und Laden bleiben parallel zu den Bildschirmachsen. Die Canvas-Kamera im Laden folgt der Figur sanft wie zuvor. Möbel erhalten helle Oberseiten, dunklere senkrechte Fronten und Bodenschatten; der Händler wird an seinem Bodenstandpunkt hinter der Theke vor der Theke gezeichnet. Der Laden außen erhält ein sichtbares Dach und einen erhöhten Vorbau ohne gedrehten Grundriss. Die experimentellen WebGL-Module bleiben ungenutzt und werden nicht geladen.
