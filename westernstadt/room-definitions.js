@@ -3,7 +3,7 @@ const names=['Schmiede','Arztpraxis','Sheriff-Büro','Handelskontor','Saloon','J
 const station=(id,label,x,y,kind,recipes=[],w=150,h=65)=>({id,label,x,y,w,h,kind,recipes,reach:{x:x-12,y:y+h+13,w:w+24,h:65}});
 const prop=(kind,x,y,w,h)=>({kind,x,y,w,h});
 const npc=(name,x,y,color='#607568')=>({name,x,y,color});
-const make=(id,stations,props,theme,npcs=[])=>({id,name:names[id],w:800,h:620,spawn:{x:400,y:535},door:{x:350,y:570,w:100,h:30},theme,npcs,stations,solids:[...stations.filter(s=>!s.passage).map(({x,y,w,h,kind})=>({x,y,w,h,kind})),...props]});
+const make=(id,stations,props,theme,npcs=[])=>({id,name:names[id],w:800,h:620,spawn:{x:400,y:535},door:{x:350,y:570,w:100,h:30},theme,npcs:npcs.map((n,i)=>({...n,character:require('./character').npc(id,i+id)})),stations,solids:[...stations.filter(s=>!s.passage).map(({x,y,w,h,kind})=>({x,y,w,h,kind})),...props]});
 const stair=(id,x,y)=>({...station(id,id==='up'?'Treppe zum Casino':'Treppe zum Saloon',x,y,'stairs',[],105,120),passage:true,reach:{x:x-5,y:y+75,w:115,h:70}});
 const rooms=[
  make(0,[station('smelt','Esse',100,165,'forge',['smelt'],175,95),station('cast','Gusstisch',465,155,'casting',['cast'],205,75),station('repairs','Fallenwerkbank',100,370,'anvil',[],175,80),station('service','Annahme & Abholung',475,355,'repairdesk',[],220,75)], [prop('toolrack',320,115,90,75),prop('orebin',310,365,65,70),prop('coalbin',655,115,65,90)],'smith',[npc('Martha · Annahme',590,333,'#648173')]),
@@ -14,5 +14,5 @@ const rooms=[
  make(6,[station('blast','Sprengbank',90,190,'mining',['blast'],190,80),station('coal','Kohleflöz',505,330,'coal',['coal'],210,85),station('service','Vorarbeiter',110,405,'desk',[],170,65)], [prop('mineentrance',450,125,230,110),prop('minecart',315,310,100,95),prop('orebin',300,135,85,75)],'mine',[npc('Vorarbeiter',195,383,'#9c8055')]),
  make(7,[station('saw','Sägebank',110,165,'saw',['saw'],280,85),station('fence','Montagebank',450,350,'fence',['fence'],235,80),station('service','Bauaufträge',100,410,'desk',[],165,60)], [prop('lumber',510,125,190,100),prop('blueprints',100,295,115,65),prop('toolrack',290,335,75,70)],'carpenter',[npc('Zimmermann',182,388,'#ad8b57')])
 ];
-const casino=make(4,[station('poker','Texas Hold’em',95,220,'poker',[],250,110),station('blackjack','Blackjack',445,200,'blackjack',[],230,110),stair('down',665,400)],[prop('sofa',100,420,200,65),prop('salooncabinet',365,125,240,35)],'casino',[npc('Poker · Jack',220,198,'#8d695b'),npc('Croupier',560,178,'#ddd1b1')]);casino.npcs=casino.npcs.map(n=>({...n,seated:true}));casino.name='Saloon · Casino';casino.floor=1;
+const casino=make(4,[station('poker','Texas Hold’em',95,220,'poker',[],250,110),station('blackjack','Blackjack',445,200,'blackjack',[],230,110),stair('down',665,400)],[prop('salooncabinet',365,125,240,35)],'casino',[npc('Poker · Jack',220,198,'#8d695b'),npc('Croupier',560,178,'#ddd1b1')]);casino.npcs=casino.npcs.map(n=>({...n,seated:true}));casino.name='Saloon · Casino';casino.floor=1;
 module.exports={rooms,names,casino};

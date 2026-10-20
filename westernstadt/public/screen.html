@@ -34,7 +34,7 @@ function frame(){requestAnimationFrame(frame);if(!S)return;const d=S,t=Date.now(
  const c=d.church,r=d.bell;CityBuildings.church(g,c);
  if(r){g.strokeStyle='rgba(244,192,106,'+(.6-(t%900)/1500)+')';g.lineWidth=4;g.beginPath();g.arc(c.x+c.w/2,c.y+15,30+(t%900)/12,0,7);g.stroke();}
  renderTownEvent(g,d,t);
- d.npcs.forEach((n,i)=>{const p=dn[i]=dn[i]||{x:n.x,y:n.y};p.x=lerp(p.x,n.x);p.y=lerp(p.y,n.y);g.font='20px serif';g.fillText('🧑‍🌾',p.x,p.y+7)});
+ d.npcs.forEach((n,i)=>{const p=dn[i]=dn[i]||{x:n.x,y:n.y};p.x=lerp(p.x,n.x);p.y=lerp(p.y,n.y);CharacterArt.draw(g,p.x,p.y,n.character,{scale:.68,walk:Math.hypot(n.x-p.x,n.y-p.y)>.5,phase:t/130+i})});
  d.slots.forEach(q=>{const p=dp[q.i]=dp[q.i]||{x:q.x,y:q.y};p.x=lerp(p.x,q.x);p.y=lerp(p.y,q.y);if(q.hidden)return;
   CharacterArt.draw(g,p.x,p.y,q.character,{scale:.72,label:q.i+1,walk:Math.hypot(q.x-p.x,q.y-p.y)>.5,phase:t/110});});
  g.fillStyle='rgba(20,10,4,.92)';g.fillRect(0,0,1000,46);

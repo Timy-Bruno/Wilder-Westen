@@ -17,10 +17,10 @@ function canStand(x,y,r=11){return x>=30&&y>=30&&x<=WORLD.w-30&&y<=WORLD.h-30&&!
 function move(entity,dx,dy,r=11){if(canStand(entity.x+dx,entity.y,r))entity.x+=dx;if(canStand(entity.x,entity.y+dy,r))entity.y+=dy;}
 function createField(){return {trap:null,pendingNotice:false,catches:0,condition:3,repairId:null,ammo:6,bait:1,rifleLevel:1};}
 function nearTrail(p){return TRACKS.some(t=>dist(p,t)<=85);}
-function create(field=createField()){return {field,elapsed:0,ammo:field.ammo??6,bait:field.bait??1,baitSpot:null,sneak:false,aiming:false,focus:0,suspended:false,
+function create(field=createField(),options={}){return {hunter:!!options.hunter,carryLimit:options.hunter?3:1,field,elapsed:0,ammo:field.ammo??6,bait:field.bait??1,baitSpot:null,sneak:false,aiming:false,focus:0,suspended:false,
  player:{x:180,y:810,dx:0,dy:0,facing:0},targetId:null,cooldown:0,kills:0,shots:0,loot:{meat:0,hide:0},status:'active',
  message:'Folge den Wildspuren nach Nordosten. Leise bewegen, dann ein sichtbares Tier antippen.',
- animals:[{id:1,x:650,y:405,dir:1,mode:'graze',until:8,tx:705,ty:430,alive:true,fade:0}],lastShot:null};}
+ animals:[{id:1,x:650,y:405,dir:1,mode:'graze',until:8,tx:705,ty:430,alive:true,fade:0},...(options.hunter!==undefined?[{id:2,x:1050,y:240,dir:-1,mode:'graze',until:14,tx:1100,ty:260,alive:true,fade:0},{id:3,x:220,y:130,dir:1,mode:'graze',until:20,tx:240,ty:175,alive:true,fade:0}]:[])],lastShot:null};}
 function visible(h,a){return a.alive&&dist(h.player,a)<=370&&lineClear(h.player,a);}
 function selected(h){return h.animals.find(a=>a.id===h.targetId&&visible(h,a));}
 function aimInfo(h){const a=selected(h);if(!a)return null;const distance=dist(h.player,a),moving=a.mode==='walk'||a.mode==='flee';
@@ -71,11 +71,12 @@ function control(h,input){
 }
 function shoot(h){
  const aim=aimInfo(h),a=selected(h);
+ if(h.kills>=(h.carryLimit||1)){h.message='Deine Jagdbeute ist voll. Du kannst Fallen betreuen oder die Beute zur Stadt bringen.';return false;}
  if(h.status!=='active'||h.suspended||!h.aiming||!aim||!aim.inRange||h.ammo<=0||h.elapsed<h.cooldown)return false;
  h.ammo--;h.field.ammo=h.ammo;h.shots++;h.cooldown=h.elapsed+1.2;
  const hit=Math.hypot(aim.x-a.x,aim.y-a.y)<=17;
  h.lastShot={at:h.elapsed,x:aim.x,y:aim.y,fromX:h.player.x,fromY:h.player.y,hit};
- if(hit){a.alive=false;a.fade=1;h.kills++;h.loot.meat+=2;h.loot.hide++;h.message='Weidmannsheil! Beute gesichert. Du kannst weiter erkunden und Köder auslegen oder zur Stadt zurückkehren.';}
+ if(hit){a.alive=false;a.fade=1;h.kills++;h.loot.meat+=2;h.loot.hide++;h.message=h.kills>=(h.carryLimit||1)?'Beute gesichert. Deine Tragkraft ist ausgeschöpft; Fallen und Köder bleiben nutzbar.':'Weidmannsheil! Beute gesichert. Du kannst noch weitere Tiere erlegen.';}
  else{a.mode='flee';a.until=h.elapsed+5;h.message='Vorbei! Das Tier flieht. Folge seiner Spur und versuche es später erneut.';}
  h.aiming=false;h.focus=0;
  if(h.ammo===0){h.message='Keine Patronen mehr. Du kannst weiter erkunden und Köder auslegen. Zur Stadt kehrst du selbst zurück.';}
@@ -88,7 +89,7 @@ function tick(h,dt,random=Math.random){
  const target=selected(h);if(h.aiming&&target){p.facing=Math.atan2(target.y-p.y,target.x-p.x);h.focus=Math.min(1,h.focus+dt/(h.field.weapon==='revolver'?2.5:h.field.rifleLevel>=2?1.6:2.2));}else h.focus=0;
  for(const a of h.animals){
   if(!a.alive)continue;
-  const d=dist(p,a),noticed=lineClear(p,a)&&(d<48||(walking&&!h.aiming&&d<(h.sneak?65:170))||(a.mode==='watch'&&d<(h.sneak?90:125)));
+  const d=dist(p,a),noticed=lineClear(p,a)&&(d<(h.hunter?32:48)||(walking&&!h.aiming&&d<(h.sneak?65:170)*(h.hunter?.65:1))||(a.mode==='watch'&&d<(h.sneak?90:125)*(h.hunter?.65:1)));
   if(noticed&&a.mode!=='flee'){a.mode='flee';a.until=h.elapsed+5;h.message='Das Tier hat dich bemerkt! Geh auf Abstand und bewege dich leise.';}
   if(a.mode==='flee'){
    const dx=a.x-p.x,dy=a.y-p.y,n=Math.hypot(dx,dy)||1;move(a,dx/n*150*dt,dy/n*150*dt);a.dir=dx<0?-1:1;
@@ -117,7 +118,7 @@ function tickField(field,dt,presence=null){
  t.progress=1;t.state='caught';field.pendingNotice=true;field.catches++;field.condition=Math.max(0,field.condition-1);return true;
 }
 function fieldSnapshot(field){const t=field?.trap;return {available:!t&&!field?.repairId&&(field?.condition??3)>0,condition:field?.condition??3,maxCondition:3,repairId:field?.repairId??null,trap:t?{x:t.x,y:t.y,state:t.state,baited:t.baited,progress:Math.min(1,t.progress)}:null};}
-function snapshot(h,paused=false){const field=fieldSnapshot(h.field),t=field.trap;return {appearance:h.appearance,weapon:h.field.weapon||'rifle',gear:{condition:field.condition,maxCondition:3,inRepair:!!field.repairId},trap:t?{...t,near:dist(h.player,t)<=65,distance:Math.round(dist(h.player,t)/5),quiet:dist(h.player,t)>=130}:null,canPlaceTrap:field.available&&nearTrail(h.player)&&canStand(h.player.x,h.player.y),version:3,world:WORLD,trees:TREES,rocks:ROCKS,tracks:TRACKS,elapsed:h.elapsed,ammo:h.ammo,bait:h.bait,
+function snapshot(h,paused=false){const field=fieldSnapshot(h.field),t=field.trap;return {carryLimit:h.carryLimit||1,hunter:!!h.hunter,appearance:h.appearance,weapon:h.field.weapon||'rifle',gear:{condition:field.condition,maxCondition:3,inRepair:!!field.repairId},trap:t?{...t,near:dist(h.player,t)<=65,distance:Math.round(dist(h.player,t)/5),quiet:dist(h.player,t)>=130}:null,canPlaceTrap:field.available&&nearTrail(h.player)&&canStand(h.player.x,h.player.y),version:3,world:WORLD,trees:TREES,rocks:ROCKS,tracks:TRACKS,elapsed:h.elapsed,ammo:h.ammo,bait:h.bait,
  baitSpot:h.baitSpot&&h.baitSpot.until>h.elapsed?{x:h.baitSpot.x,y:h.baitSpot.y}:null,
  player:{...h.player},sneak:h.sneak,aiming:h.aiming,focus:h.focus,targetId:h.targetId,aim:aimInfo(h),suspended:h.suspended,paused:paused||h.suspended,
  status:h.status,kills:h.kills,loot:{...h.loot},ready:h.elapsed>=h.cooldown,message:h.message,lastShot:h.lastShot?{...h.lastShot}:null,

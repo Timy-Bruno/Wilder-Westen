@@ -3,6 +3,7 @@ const {Server}=require('socket.io');
 const {randomUUID}=require('crypto');
 const Campaign=require('./campaign');
 const Character=require('./character');
+const Professions=require('./professions');
 const Hunt=require('./hunt');
 const Repairs=require('./repairs');
 const Shop=require('./shop');
@@ -60,7 +61,7 @@ io.on('connection',s=>{
   for(let i=0;i<n;i++){const url=base+'/phone.html?slot='+i+'&v='+CLIENT_BUILD;
    room.slots.push({i,role:roles[i],x:300+i*55,y:400,dx:0,dy:0,inside:null,cur:null,curOrder:null,jobs:[],gold:12,inv:{ore:2,coal:1,herbs:2,wood:2,meat:1},
     sock:null,qr:await QR.toDataURL(url,{margin:1,width:200})});}
-  for(let i=0;i<6;i++)room.npcs.push({x:200+Math.random()*600,y:200+Math.random()*200,tx:500,ty:380});
+  for(let i=0;i<6;i++)room.npcs.push({name:['Abel','Rosa','Elias','Mae','Jonas','Clara'][i],character:Character.npc(i,i+1),x:200+Math.random()*600,y:200+Math.random()*200,tx:500,ty:380});
   s.data.hostToken=room.hostToken;s.emit('hostToken',room.hostToken);s.join('screen');lobby();
  });
  s.on('start',()=>{if(manage()&&room.phase==='lobby'){room.phase='play';io.to('screen').emit('started')}});
@@ -72,13 +73,13 @@ io.on('connection',s=>{
  s.on('act',()=>{const p=P();if(!p||room.phase!=='play'||p.cur||p.forge)return;
   if(p.inside!==null){if(p.interior)return;p.inside=null;p.interior=null;return}
   const b=BUILD.findIndex(b=>near(p,b));if(b>=0&&b!==3)Doors.enter(p,b)});
- s.on('craft',rid=>{const p=P();if(p?.interior&&!Interior.canWork(p,rid))return;if(!p||p.inside===null||p.cur||p.forge||(p.inside!==p.role&&room.slots.some(q=>q.role===p.inside)))return;
+ s.on('craft',rid=>{const p=P();if(p?.interior&&!Interior.canWork(p,rid))return;if(!p||p.inside===null||p.cur||p.forge||(p.inside!==p.role&&p.inside!==5&&room.slots.some(q=>q.role===p.inside)))return;
   const r=ROLES[p.inside].r.find(x=>x.id===rid);if(!r||!has(p,r))return;
-  for(const k in r.i)p.inv[k]-=r.i[k];p.cur=p.inside===p.role?r:{...r,t:r.t*2};p.curOrder=null;if(r.g==='hunt'){p.woodland=p.woodland||Hunt.createField();p.woodland.weapon=Character.ensure(p).equipped;p.hunt=Hunt.create(p.woodland);p.hunt.appearance=Character.view(p);p.dx=p.dy=0;s.emit('huntState',Hunt.snapshot(p.hunt));}else if(r.g==='medicine'){Interior.stop(p.interior);p.medWork=MedicineWork.create();s.emit('medicineState',MedicineWork.snapshot(p.medWork));}else if(['smelt','cast'].includes(r.g)){Interior.stop(p.interior);p.smithWork=SmithWork.create(r.g);s.emit('smithState',SmithWork.snapshot(p.smithWork));}else s.emit('game',{g:r.g,n:r.n,h:r.h})});
+  for(const k in r.i)p.inv[k]-=r.i[k];p.cur=Professions.recipe(p,r,p.inside===p.role);p.curOrder=null;if(r.g==='hunt'){p.woodland=p.woodland||Hunt.createField();p.woodland.weapon=Character.ensure(p).equipped;p.hunt=Hunt.create(p.woodland,{hunter:p.role===5});p.hunt.appearance=Character.view(p);p.dx=p.dy=0;s.emit('huntState',Hunt.snapshot(p.hunt));}else if(r.g==='medicine'){Interior.stop(p.interior);p.medWork=MedicineWork.create();s.emit('medicineState',MedicineWork.snapshot(p.medWork));}else if(['smelt','cast'].includes(r.g)){Interior.stop(p.interior);p.smithWork=SmithWork.create(r.g);s.emit('smithState',SmithWork.snapshot(p.smithWork));}else s.emit('game',{g:r.g,n:r.n,h:r.h})});
  s.on('fulfill',oid=>{const p=P(),o=room&&room.orders.find(x=>x.id===oid);
   if(p?.interior&&!Interior.canWork(p))return;
   if(!p||p.forge||!o||o.to!==p.i||o.st!=='open'||p.inside!==p.role||p.cur)return;
-  const r=ROLES[p.role].r.find(x=>x.id===o.rid);if(p.interior&&!Interior.canWork(p,r.id))return;o.st='work';p.cur=r;p.curOrder=o;if(r.g==='medicine'){Interior.stop(p.interior);p.medWork=MedicineWork.create();s.emit('medicineState',MedicineWork.snapshot(p.medWork));}else if(['smelt','cast'].includes(r.g)){p.smithWork=SmithWork.create(r.g);Interior.stop(p.interior);s.emit('smithState',SmithWork.snapshot(p.smithWork));}else s.emit('game',{g:r.g,n:r.n+' (Auftrag)',h:r.h})});
+  const r=ROLES[p.role].r.find(x=>x.id===o.rid);if(p.interior&&!Interior.canWork(p,r.id))return;o.st='work';p.cur=Professions.recipe(p,r);p.curOrder=o;if(r.g==='medicine'){Interior.stop(p.interior);p.medWork=MedicineWork.create();s.emit('medicineState',MedicineWork.snapshot(p.medWork));}else if(['smelt','cast'].includes(r.g)){p.smithWork=SmithWork.create(r.g);Interior.stop(p.interior);s.emit('smithState',SmithWork.snapshot(p.smithWork));}else s.emit('game',{g:r.g,n:r.n+' (Auftrag)',h:r.h})});
  s.on('result',sc=>{const p=P();if(!p||!p.cur||p.hunt||p.smithWork||p.medWork)return;completeWork(p,sc)});
  s.on('order',rid=>{const p=P();if(p?.interior&&!Interior.canWork(p))return;if(!p||p.inside===null||p.inside===p.role||p.cur||(p.inside===3&&!Interior.canTrade(p)))return;
   const prov=room.slots.find(q=>q.role===p.inside&&q!==p),r=ROLES[p.inside].r.find(x=>x.id===rid);
@@ -189,10 +190,10 @@ setInterval(()=>{
   occupied:room.slots.filter(p=>p.inside!==null).map(p=>p.inside),
   bell:now<room.bellUntil?room.bell:null,warn:low[1]<30?low[0]:null,builds:BUILD,church:CHURCH});
  for(const p of room.slots){if(!p.sock)continue;if(p.medWork)io.to(p.sock).emit('medicineState',MedicineWork.snapshot(p.medWork,room.campaign.paused));if(p.smithWork)io.to(p.sock).emit('smithState',SmithWork.snapshot(p.smithWork,room.campaign.paused));if(p.hunt)io.to(p.sock).emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));if(p.forge)io.to(p.sock).emit('repairState',Repairs.snapshot(room,p,room.campaign.paused));const r=ROLES[p.role];
-  const nb=BUILD.findIndex(b=>near(p,b)),mine=p.inside!==null&&(p.inside===p.role||!room.slots.some(q=>q.role===p.inside)),inB=p.inside!==null;
-  io.to(p.sock).emit('me',{character:Character.view(p),wardrobe:{shirts:Character.SHIRTS,hats:Character.HATS},casino:PokerTable.view(room,p)||Casino.view(p),interior:Interior.snapshot(p,room.slots),townTasks:TownTasks.view(room.townTasks,p),gold:p.gold,shop:Shop.view(p),workshop:Repairs.view(room,p),woodland:p.woodland?Hunt.fieldSnapshot(p.woodland):null,campaign:Campaign.publicState(room.campaign,room.slots),myVote:room.campaign.votes[p.i]||null,position:{x:p.x,y:p.y},slot:p.i,apprentice:mine&&p.inside!==p.role,role:r.n,icon:RICON[p.role],
+  const nb=BUILD.findIndex(b=>near(p,b)),mine=p.inside!==null&&(p.inside===p.role||p.inside===5||!room.slots.some(q=>q.role===p.inside)),inB=p.inside!==null;
+  io.to(p.sock).emit('me',{professionBenefit:Professions.descriptions[p.role],character:Character.view(p),wardrobe:{shirts:Character.SHIRTS,hats:Character.HATS},casino:PokerTable.view(room,p)||Casino.view(p),interior:Interior.snapshot(p,room.slots),townTasks:TownTasks.view(room.townTasks,p),gold:p.gold,shop:Shop.view(p),workshop:Repairs.view(room,p),woodland:p.woodland?Hunt.fieldSnapshot(p.woodland):null,campaign:Campaign.publicState(room.campaign,room.slots),myVote:room.campaign.votes[p.i]||null,position:{x:p.x,y:p.y},slot:p.i,apprentice:mine&&p.inside!==p.role,role:r.n,icon:RICON[p.role],
    inside:inB?BUILD[p.inside].name:null,mine,
-   recipes:mine?ROLES[p.inside].r.filter(x=>!p.interior||Interior.canWork(p,x.id)).map(x=>({id:x.id,n:x.n,i:fmt(x.i)||'nichts',o:x.g==='hunt'?'Eigene Jagd · Beute sofort im Rucksack':fmt(x.o),t:x.t*(p.inside===p.role?1:2),ok:has(p,x)&&!p.cur})):[],
+   recipes:mine?ROLES[p.inside].r.filter(x=>!p.interior||Interior.canWork(p,x.id)).map(x=>({id:x.id,n:x.n,i:fmt(x.i)||'nichts',o:x.g==='hunt'?'Eigene Jagd · Beute sofort im Rucksack':fmt(Professions.recipe(p,x,p.inside===p.role).o),t:Professions.recipe(p,x,p.inside===p.role).t,ok:has(p,x)&&!p.cur})):[],
    bld:inB&&!mine?{provider:room.slots.some(q=>q.role===p.inside&&q!==p),
      svc:ROLES[p.inside].r.filter(isSvc).map(x=>({id:x.id,n:x.n,i:fmt(x.i),o:fmt(x.o),t:x.t,ok:has(p,x)})),
      pick:room.orders.filter(o=>o.from===p.i&&o.st==='ready'&&o.bi===p.inside).map(o=>({id:o.id,n:o.n}))}:null,

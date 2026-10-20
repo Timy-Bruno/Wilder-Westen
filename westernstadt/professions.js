@@ -1,0 +1,4 @@
+const descriptions=['Schmied: Eisen und Munition 25 % schneller fertigen.','Doc: Eine zusätzliche Portion Medizin pro Herstellung.','Sheriff: Eine zusätzliche Wache pro Dienstplan.','Händler: 20 % Einkaufsrabatt, auf ganze Goldstücke abgerundet.','Saloon-Wirt: Eine zusätzliche Portion Essen oder Whiskey.','Jäger: Drei Tiere pro Ausflug; Wild bemerkt dich erst aus geringerer Distanz.','Sprengmeister: Ein zusätzlicher Rohstoff beim Erz- und Kohleabbau.','Zimmermann: Bretter und Zäune 25 % schneller fertigen.'];
+function recipe(p,r,own=true){if(!own)return {...r,t:r.t*2};const out={...r.o};if([1,2,4,6].includes(p.role)){const k=Object.keys(out)[0];if(k)out[k]++;}return {...r,o:out,t:[0,7].includes(p.role)?r.t*.75:r.t};}
+function price(p,price){return p.role===3?Math.max(1,Math.floor(price*.8)):price;}
+module.exports={descriptions,recipe,price};
