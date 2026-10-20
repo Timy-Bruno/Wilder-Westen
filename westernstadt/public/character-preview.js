@@ -8,8 +8,9 @@
  let scene='shop',old=false,zoom=false,auto=false,ready=false,drag=null,dx=0,dy=0,last=0,phase=0,autoTime=0;
  const player={x:400,y:330,facing:Math.PI/2},keys=new Set();let cam={x:400,y:250};
  const stop=()=>{dx=dy=0;drag=null;keys.clear();$('knob').style.transform='';};
- const setAuto=v=>{auto=v;$('auto').setAttribute('aria-pressed',String(v));$('auto').textContent=v?'Laufprobe stoppen':'Laufprobe starten';};
+ const setAuto=v=>{auto=v;$('auto').setAttribute('aria-pressed',String(v));$('auto').textContent=v?'Anhalten':'Laufprobe';};
  const reset=next=>{stop();setAuto(false);scene=next;player.x=scene==='shop'?400:620;player.y=scene==='shop'?330:315;player.facing=Math.PI/2;cam={x:400,y:250};for(const id of ['shop','city'])$(id).setAttribute('aria-pressed',String(scene===id));};
+ $('profession').onchange=e=>{hunter.style=e.target.value;document.querySelector('.title strong').textContent=e.target.selectedOptions[0].textContent+' · Stilprobe';};
  $('shop').onclick=()=>reset('shop');$('city').onclick=()=>reset('city');
  $('compare').onclick=()=>{old=!old;$('compare').setAttribute('aria-pressed',String(old));$('compare').textContent=old?'Neuen Entwurf ansehen':'Vorher ansehen';};
  $('zoom').onclick=()=>{zoom=!zoom;$('zoom').setAttribute('aria-pressed',String(zoom));$('zoom').textContent=zoom?'Originalgröße':'Näher ansehen';};
@@ -20,7 +21,7 @@
  addEventListener('keydown',e=>{if(moves[e.key]&&!/BUTTON|INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();setAuto(false);keys.add(e.key);}});addEventListener('keyup',e=>keys.delete(e.key));addEventListener('blur',()=>{stop();setAuto(false);});document.addEventListener('visibilitychange',()=>{stop();setAuto(false);});
  function stand(x,y){if(scene==='shop')return x>=30&&x<=770&&y>=105&&y<=565&&!solids.some(b=>x>b.x-12&&x<b.x+b.w+12&&y>b.y-12&&y<b.y+b.h+12);return x>=20&&x<=980&&y>=175&&y<=405&&!(x>423&&x<577&&y>228&&y<362);}
  const py=y=>scene==='shop'?y*.78:y;
- function avatar(x,y,scale,walk){if(!old&&ready)HunterSprite.draw(g,x,y,{scale,walk,phase,facing:player.facing});else CharacterArt.draw(g,x,y,hunter,{scale,walk,phase});}
+ function avatar(x,y,scale,walk){CharacterArt.draw(g,x,y,hunter,{scale,walk,phase,facing:player.facing,legacy:old});}
  function draw(now){requestAnimationFrame(draw);const dt=Math.min(.05,Math.max(0,(now-last)/1000||0));last=now;
   let vx=dx,vy=dy;if(keys.size){vx=vy=0;for(const key of keys){vx+=moves[key][0];vy+=moves[key][1];}const n=Math.max(1,Math.hypot(vx,vy));vx/=n;vy/=n;}
   if(auto){autoTime+=dt;const i=Math.floor(autoTime/1.2)%4;[vx,vy]=[[1,0],[0,1],[-1,0],[0,-1]][i];}
@@ -40,6 +41,6 @@
   }g.restore();
   document.body.dataset.scene=scene;document.body.dataset.direction=Math.abs(Math.cos(player.facing))>.65?(Math.cos(player.facing)<0?'left':'right'):(Math.sin(player.facing)<0?'up':'down');document.body.dataset.walking=String(walking);
  }
- HunterSprite.ready.then(()=>{ready=true;document.body.dataset.ready='true';$('status').textContent='Erste Figur in Spielgröße';}).catch(()=>{$('status').textContent='Bild nicht geladen';$('notice').hidden=false;$('notice').textContent='Die neue Figur konnte nicht geladen werden. Bitte lade die Seite erneut.';});
+ CharacterSprites.ready.then(()=>{if(CharacterSprites.failed.length)throw new Error('Missing character assets');ready=true;document.body.dataset.ready='true';$('status').textContent='Acht Berufe im neuen Stil';}).catch(()=>{$('status').textContent='Bild nicht geladen';$('notice').hidden=false;$('notice').textContent='Die neue Figur konnte nicht geladen werden. Bitte lade die Seite erneut.';});
  requestAnimationFrame(draw);
 })();

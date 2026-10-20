@@ -7,7 +7,7 @@ button{font:inherit;font-weight:bold;font-size:1.4rem;margin:6px;padding:12px 22
 canvas{width:100%;max-width:1500px;display:block;margin:0 auto}</style><link rel="stylesheet" href="/campaign.css"></head><body>
 <div id=lobby><h1>🤠 Wilder Westen</h1><div id=pick>Wie viele Spieler? </div><div id=qrs></div><button id=go style=display:none>Spiel starten</button></div>
 <canvas id=c width=2000 height=1200 hidden></canvas>
-<script src=/socket.io/socket.io.js></script><script src="/app-update.js"></script><script src="/character-art.js"></script><script src="/city-shop.js"></script><script src="/city-buildings.js"></script>
+<script src=/socket.io/socket.io.js></script><script src="/app-update.js"></script><script src="/character-sprites.js"></script><script src="/character-art.js"></script><script src="/city-shop.js"></script><script src="/city-buildings.js"></script>
 <script>
 const s=io(),$=i=>document.getElementById(i),cv=$('c'),g=cv.getContext('2d');
 attachGameUpdates(s);
@@ -34,9 +34,9 @@ function frame(){requestAnimationFrame(frame);if(!S)return;const d=S,t=Date.now(
  const c=d.church,r=d.bell;CityBuildings.church(g,c);
  if(r){g.strokeStyle='rgba(244,192,106,'+(.6-(t%900)/1500)+')';g.lineWidth=4;g.beginPath();g.arc(c.x+c.w/2,c.y+15,30+(t%900)/12,0,7);g.stroke();}
  renderTownEvent(g,d,t);
- d.npcs.forEach((n,i)=>{const p=dn[i]=dn[i]||{x:n.x,y:n.y};p.x=lerp(p.x,n.x);p.y=lerp(p.y,n.y);CharacterArt.draw(g,p.x,p.y,n.character,{scale:.68,walk:Math.hypot(n.x-p.x,n.y-p.y)>.5,phase:t/130+i})});
- d.slots.forEach(q=>{const p=dp[q.i]=dp[q.i]||{x:q.x,y:q.y};p.x=lerp(p.x,q.x);p.y=lerp(p.y,q.y);if(q.hidden)return;
-  CharacterArt.draw(g,p.x,p.y,q.character,{scale:.72,label:q.i+1,walk:Math.hypot(q.x-p.x,q.y-p.y)>.5,phase:t/110});});
+ d.npcs.forEach((n,i)=>{const p=dn[i]=dn[i]||{x:n.x,y:n.y};if(Math.hypot(n.x-p.x,n.y-p.y)>.5)p.facing=Math.atan2(n.y-p.y,n.x-p.x);p.x=lerp(p.x,n.x);p.y=lerp(p.y,n.y);CharacterArt.draw(g,p.x,p.y,n.character,{scale:.68,walk:Math.hypot(n.x-p.x,n.y-p.y)>.5,phase:t/130+i,facing:p.facing})});
+ d.slots.forEach(q=>{const p=dp[q.i]=dp[q.i]||{x:q.x,y:q.y};if(Math.hypot(q.x-p.x,q.y-p.y)>.5)p.facing=Math.atan2(q.y-p.y,q.x-p.x);p.x=lerp(p.x,q.x);p.y=lerp(p.y,q.y);if(q.hidden)return;
+  CharacterArt.draw(g,p.x,p.y,q.character,{scale:.72,label:q.i+1,walk:Math.hypot(q.x-p.x,q.y-p.y)>.5,phase:t/110,facing:p.facing});});
  g.fillStyle='rgba(20,10,4,.92)';g.fillRect(0,0,1000,46);
  ST.forEach(([k,ic,n],i)=>{const x=12+i*198,v=d.stats[k],low=v<30;g.textAlign='left';g.font='20px serif';g.fillStyle='#fff';g.fillText(ic,x,28);
   g.font='bold 13px Georgia';g.fillStyle=low&&t%800<400?'#ff7b6b':'#f3e3c3';g.fillText(n+'  '+Math.round(v),x+28,18);

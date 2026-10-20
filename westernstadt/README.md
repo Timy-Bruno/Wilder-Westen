@@ -149,4 +149,4 @@ Poker zeigt die konkrete beste Fünf-Karten-Hand und Beikarten. Die Karten der K
 
 ### Figuren-Stilprobe
 
-`/character-preview.html` zeigt den ersten illustrierten Jäger im Stadt- und Ladenumfeld. Joystick oder Pfeiltasten bewegen ihn; Vergleich und Vergrößerung helfen bei der Stilentscheidung. Die Probe benötigt keine laufende Partie. Details: [ART-DIRECTION.md](ART-DIRECTION.md).
+`/character-preview.html` zeigt die acht illustrierten Berufe im Stadt- und Ladenumfeld. Joystick oder Pfeiltasten bewegen ihn; Vergleich und Vergrößerung helfen bei der Stilentscheidung. Der neue Figurenstil ist auch im Hauptspiel eingebaut. Die Probe benötigt keine laufende Partie. Details: [ART-DIRECTION.md](ART-DIRECTION.md).

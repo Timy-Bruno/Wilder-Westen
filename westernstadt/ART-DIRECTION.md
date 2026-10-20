@@ -1,21 +1,29 @@
-# Jäger: erste bewegliche Stilprobe
+# Figurenstandard: illustrierte Western-RPG-Figuren
 
-Der Nutzer hat die olivgrüne Westernkleidung und die kompaktere, Pokémon-inspirierte Gestaltung als Richtung bestätigt. Gerade Weltachsen, leicht erhöhte Kamera, klare Konturen und ein 2D-Spiel mit räumlich gezeichneten Möbeln bleiben der Maßstab.
+Bestätigt wurde die kompakte, Pokémon-inspirierte 2D-Gestaltung des Jägers mit detaillierter Westernkleidung, klaren Konturen und leichter Aufsicht. Gerade Weltachsen und die vorhandene Kamera bleiben bestehen.
 
-## Ansehen
+## Im Spiel
 
-`/character-preview.html` zeigt den Jäger vor den tatsächlich ausgelieferten Stadtfassaden und der Ladeneinrichtung. Stadt und Laden verwenden ihre bisherigen Größenfaktoren (.72 bzw. 1.3) sowie die bisherige Ladenkamera. Joystick/Pfeiltasten bewegen die Figur, Laufprobe läuft einen kleinen Rundgang, Vorher vergleicht die alte Canvas-Figur. Näher ansehen vergrößert die Darstellung ausdrücklich für die Beurteilung der Details.
+Alle acht Berufe besitzen jetzt eigene transparente Bildsätze: Schmied mit Lederschürze, Doc mit Mantel/Brille/Stethoskop, Sheriff mit Stern und geflochtenem Haar, Händler mit Zylinder und Weste, Saloon-Wirt mit burgunderroter Weste/Fliege, Jäger mit Mantel/Federhut, Sprengmeister mit Grubenlampe und Zimmermann mit kurzer Werkzeugschürze.
 
-Es handelt sich um eine lokale visuelle Probe ohne Verbindung zum Spielzustand. Das Outfit ist ein fester Jägerentwurf. Dynamische Kleidungsfarben, andere Berufe, Waffenhaltung und Sitzbilder sind noch keine Bestandteile dieses neuen Bildsatzes. Vor einer Umstellung aller Spielfiguren müssen diese Varianten und die Laufbewegungen weiter abgestimmt werden. Die erste generierte Folge enthält teils ähnliche Laufposen; sie ist ein Stil- und Einbindungstest, kein fertiger Animationsstandard.
+`public/character-sprites.js` zeichnet die Figuren über denselben Bodenpunkt. `public/character-art.js` bleibt die gemeinsame Schnittstelle in Stadt, Innenräumen, Jagd, Treck, Rucksack und Casino. Auch Stadt-/Raum-NPCs, Wagenfahrer und Banditen nutzen die neue Illustration. Fehlende Bilder fallen auf die bisherige Canvas-Figur zurück; nachgeladenes Bildmaterial aktualisiert auch Rucksack und Casino-Porträts.
 
-## Asset
+Hemd- und Hutfarben bleiben serverseitig geprüft und im bestehenden Charakterzustand gespeichert. Haut-/Haarfarben und Berufskostüm sorgen für stabile Varianten; die Ansichten verwenden denselben Datensatz. Farbänderungen werden über begrenzte Farbbereiche mit erhaltener Schattierung angewendet. 24 gepufferte Farb-Atlanten und 48 Casino-Porträts begrenzen den mobilen Speicherbedarf.
 
-- `public/assets/characters/hunter-v1.webp`: transparentes 512×512-Atlas, 4×4 Bilder à 128 Pixel, etwa 84 KiB.
-- Zeilen: vorne, links, rechts, hinten. Spalten: Ruhe, Laufpose, Mittelpose, Laufpose.
-- Gemeinsamer Maßstab für alle Bilder; Fußanker (64,124). Metadaten und Quellrahmen in `hunter-v1.json`.
-- `public/hunter-sprite.js`: Zeichnen am gemeinsamen Fußanker; Schatten separat. Die Probe verwendet den vorhandenen Boden-/Möbel-Tiefensortierer.
-- Erzeugt mit integrierter Bildgenerierung anhand des ausgewählten Jägerbildes; technisch über Alpha-Grenzen zugeschnitten, mit einem gemeinsamen Faktor skaliert und als WebP verpackt. Keine künstliche Skalierung pro Einzelbild.
+Laufrichtung und Laufbilder werden auch für Mitspieler in Räumen übertragen. Stadt und Treck merken die letzte Bewegungsrichtung. Gewehr und Revolver besitzen unterschiedliche Formen und folgen der benutzten Waffe und Zielrichtung. Die Sitzdarstellung verwendet Ober- und Unterkörper aus demselben Bildsatz mit Stuhl und verkürzter Beinstellung.
 
-## Verwendeter Generierungs-Prompt
+## Ausprobieren
 
-> Use case: identity-preserve. Asset: production 2D top-down RPG hunter animation atlas based on the approved hunter reference. Convert the reference to a clean small-game sprite, same olive duster, green feathered cowboy hat, brown beard, cream shirt, brown vest, leather bandolier, holster and boots. Keep the charming compact Pokemon-inspired proportions, clear dark outlines, limited cel shading, readable silhouette, orthographic view slightly from above with parallel world axes. Deliver exactly SIXTEEN full body sprites in an evenly spaced 4 COLUMN by 4 ROW grid on a transparent canvas, no labels or scenery. Every cell identical size, feet baseline same relative position, same character scale throughout, entire bodies including hat feather inside cells with padding. ROW 1 faces DOWN toward viewer; ROW 2 faces LEFT in profile; ROW 3 faces RIGHT in profile; ROW 4 faces UP showing back of coat and hat. Each row COLUMN 1 neutral idle feet together, COLUMN 2 walk left foot forward right foot back with opposite arm swing, COLUMN 3 passing pose feet centered, COLUMN 4 walk right foot forward left foot back with opposite arm swing. Exactly 4 frames per direction, whole atlas at once. Preserve same face, outfit proportions and palette across all 16 cells. Empty hands, holstered revolver only, no rifle. No ground shadows, no background, no poster, no borders, no text. Crisp compact hand-painted cartoon RPG sprites, simplify tiny texture from reference so outfit reads at 64 pixels tall. Do not draw full size concept art portraits.
+`/character-preview.html` bietet alle acht Berufe, alte/neue Darstellung, Stadt/Laden, Vergrößerung, Laufprobe und Joystick/Pfeiltasten. Die Vorschau verändert keine Partie. Standardgrößen: Stadt .72 und Laden 1.3, wie im Spiel.
+
+## Assets und Herkunft
+
+Acht WebP-Atlanten unter `public/assets/characters/`, jeweils 512×512, 4×4 Bilder à 128 Pixel. Zeilen: vorne, links, rechts, hinten. Spalten: Ruhe- und Laufbilder. Fußanker (64,124), gemeinsame Skalierung innerhalb eines Bildsatzes. Die Metadaten stehen in den jeweiligen JSON-Dateien. Gesamte Bildgröße ungefähr 600 KiB.
+
+Erstellt mit integrierter Bildgenerierung auf Grundlage des bestätigten Jägers. Generierungsvorgaben für die sieben neuen Berufe: `public/assets/characters/GENERATION.md`. Technische Verpackung: `tools/normalize-character-atlas.cjs`; benötigt Playwright und optional `CHROMIUM_PATH` für ein vorhandenes Chromium. Keine generierten Entwürfe werden nur von einem temporären Pfad im Spiel referenziert.
+
+Die Jäger-Vorgabe war: kompakter erwachsener Westernjäger, olivgrüner Mantel, Federhut, braune Weste und Bandolier, leere Hände, Revolver im Holster; vier Blickrichtungen mit Ruhe-/Laufbildern, klare Konturen, transparente Fläche, leichte orthografische Aufsicht, keine Kulisse oder Beschriftung.
+
+## Nächste grafische Ausbaustufen
+
+Die Laufbilder sind erste generierte Folgen und enthalten teils ähnliche Schrittstellungen. Aufwendige eigenständige Nachlade-, Arbeits- und Sitzanimationen sowie frei auswählbare Gesichtsformen sind weitere Ausbaustufen. Aktuell bleiben die berufsspezifischen Gesichter und Proportionen innerhalb ihrer jeweiligen Figur stabil. Neue kaufbare Kleidungsformen benötigen passende Bild-/Maskenvarianten; die vorhandene Farbwahl funktioniert bereits in den Spielansichten.
