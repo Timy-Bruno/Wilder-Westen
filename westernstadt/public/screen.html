@@ -49,5 +49,5 @@ function frame(){requestAnimationFrame(frame);if(!S)return;const d=S,t=Date.now(
  fx=fx.filter(f=>t-f.at<2600);fx.forEach(f=>{const a=t-f.at;g.globalAlpha=1-a/2600;g.fillStyle='#fff6c8';g.strokeStyle='#5a3410';g.lineWidth=4;g.font='bold 22px Georgia';g.strokeText(f.t,f.x,f.y-a*.03);g.fillText(f.t,f.x,f.y-a*.03);g.globalAlpha=1});
 }
 frame();
-</script><script src="/campaign-screen.js"></script></body></html>
+</script><script src="/convoy-art.js"></script><script src="/campaign-screen.js"></script></body></html>
 
