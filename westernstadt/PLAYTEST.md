@@ -82,3 +82,7 @@ Zielen sitzt links über dem unveränderten Joystick; Schießen rechts. Regeltes
 
 ## Gerade 2D-Ansicht mit Möbelvolumen
 Browserprüfung: automatischer Ein- und Austritt, zwei Spieler, Hindernisse, Katalogkauf, Wiederverbinden, Nebenaufträge und Pause erfolgreich. Vier Fenstergrößen 390×844, 844×390, 320×568 und 667×375; keine JavaScript-Fehler. Screenshots der geraden Canvas-Darstellung und der Dachfassade geprüft. 71 Regeltests bestanden. WebGL wird für diesen Stil nicht geladen.
+
+
+## Begehbare Räume für acht Berufshäuser
+76 Regeltests bestanden, darunter getrennte Raum-Snapshots, begehbare Startpunkte/Arbeitsplätze aller Grundrisse, Rezeptbindung, Tür der unteren Häuserreihe und Annahme/Werkbank-Bindung der Reparaturen. Browserprüfung: sieben neue Innenräume jeweils in 390×844 und 844×390; alle Arbeitsplatzmenüs enthalten ihre passenden Rezepte; Arbeit vor Öffnen des Arbeitsplatzes abgewiesen. Fallenabgabe und Übernahme an der Werkbank, Bewegung und Wiederladen in der Schmiede erfolgreich; keine JavaScript-Fehler. Bestehender Ladenablauf mit Kauf, Aufgaben, Türübergängen und vier Handyformaten ebenfalls erfolgreich geprüft. Testaufstellungen ausschließlich in einem lokalen, zur Laufzeit erweiterten Server; keine Testzugänge im veröffentlichten Server.

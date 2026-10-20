@@ -18,7 +18,7 @@ window.ShopArt=(()=>{
  function sack(x,y,w,h,c='#bfa67b'){shadow(x,y+h-3,w,7);g.beginPath();g.moveTo(x+w*.3,y+7);g.quadraticCurveTo(x-8,y+h*.8,x+3,y+h);g.quadraticCurveTo(x+w*.5,y+h+5,x+w-3,y+h);g.quadraticCurveTo(x+w+8,y+h*.75,x+w*.7,y+7);g.closePath();g.fillStyle=grad(x,y,w,h,'#d4be92',c);g.fill();path([[x+w*.25,y+7],[x+w*.75,y+7]],'#715e40',3);path([[x+w*.34,y+4],[x+w*.25,y-3],[x+w*.5,y+2],[x+w*.7,y-3]],'#a18a62',2);oval(x+w*.5,y+h*.58,w*.3,h*.2,'#6a624a77');text('FLOUR',x+w*.5,y+h*.64,6,'#eee0b7');path([[x+7,y+h*.55],[x+4,y+h*.85]],'#876c4944')}
  function tin(x,y,w,h,c){round(x,y,w,h,2,grad(x,y,w,h,c,'#686048'));oval(x+w/2,y,w/2,2,'#c8b58b');oval(x+w/2,y+h,w/2,2,'#776c51');fill(x+2,y+5,w-4,h-8,'#e4cfa1bb');path([[x+3,y+8],[x+w-3,y+8]],'#7b5c3c');}
  function barrel(x,y,w=33,h=45){shadow(x-3,y+h-5,w+6,12);g.beginPath();g.moveTo(x+3,y);g.bezierCurveTo(x-5,y+h*.3,x-5,y+h*.8,x+4,y+h);g.quadraticCurveTo(x+w/2,y+h+8,x+w-4,y+h);g.bezierCurveTo(x+w+5,y+h*.8,x+w+5,y+h*.3,x+w-3,y);g.closePath();g.fillStyle=grad(x,y,w,h,'#b98d52','#6f4a29');g.fill();for(let i=1;i<5;i++)path([[x+i*w/5,y+2],[x+i*w/5-1,y+h-1]],'#543e2a88');for(const yy of [y+10,y+h-11]){round(x-1,yy,w+2,5,1,grad(x,yy,w,5,'#77766b','#343d37'));fill(x+2,yy+1,w-4,1,'#a9a58c');nail(x+6,yy+3)}oval(x+w/2,y,w/2-2,7,'#be995f','#644c31');oval(x+w/2,y,w/2-6,4,'#a6804c');path([[x+5,y],[x+w-5,y]],'#76562f');}
- function base(){
+ function base(title='HANDELSKONTOR',subtitle='WAREN  ·  VORRÄTE  ·  HANDEL'){
  fill(0,70,800,420,'#6c4c31');g.save();g.beginPath();g.rect(0,70,800,420);g.clip();for(let row=0;row<15;row++){const yy=ground(95)+row*27;let xx=row%2?-51:0;let k=0;while(xx<800){const width=94+(row*19+k*23)%40;wood(xx,yy,width-1,26,['#ad8152','#a07649','#b48b5a','#976c42'][(row+k)%4],'#8b623c',row+k);if(xx>0){nail(xx+5,yy+5);nail(xx+5,yy+21)}if((row+k)%3===0){oval(xx+width*.6,yy+15,8,2,'#6d4c2e44');oval(xx+width*.6,yy+15,3,1,'#5e422c66')}xx+=width;k++;}}
  g.restore();
  // Timber wall, plinth and windows with reflected daylight.
@@ -27,7 +27,7 @@ window.ShopArt=(()=>{
  for(const x of [126,585]){shadow(x-8,0,98,71,.5);wood(x-7,-11,99,76,'#977448','#5e422a');fill(x,-4,85,56,grad(x,-4,0,56,'#a4c3bd','#ded9ac'));g.save();g.beginPath();g.rect(x,-4,85,56);g.clip();for(let j=0;j<4;j++){const xx=x+j*27;path([[xx,30],[xx+10,1],[xx+20,30]],null,1,true,'#59756633')}path([[x+5,0],[x+35,0],[x+10,45],[x-3,45]],null,1,true,'#ffffff33');g.restore();wood(x+39,-7,6,63,'#b38a57','#795736');wood(x-2,22,89,5,'#b08a56','#6c4a30');wood(x-8,52,102,8,'#c09a62','#6e5133');
  const beam=g.createLinearGradient(x,65,x+130,320);beam.addColorStop(0,'#f6d79720');beam.addColorStop(1,'#f6d79700');path([[x,65],[x+85,65],[x+205,380],[x+50,380]],null,1,true,beam);}
  // Sign with carved border, corner pins and aged lettering.
- shadow(278,-8,245,69,.4);round(278,-15,244,69,3,'#302b22','#bda06b');round(284,-9,232,57,1,'#374139','#887a51');text('HANDELSKONTOR',400,16,17,'#e8d4a5');path([[300,24],[500,24]],'#b9a174',.8);text('WAREN  ·  VORRÄTE  ·  HANDEL',400,38,8,'#c9bd96');for(const x of [288,512])for(const y of [-4,42])nail(x,y);
+ shadow(278,-8,245,69,.4);round(278,-15,244,69,3,'#302b22','#bda06b');round(284,-9,232,57,1,'#374139','#887a51');text(title.toUpperCase(),400,16,17,'#e8d4a5');path([[300,24],[500,24]],'#b9a174',.8);text(subtitle,400,38,8,'#c9bd96');for(const x of [288,512])for(const y of [-4,42])nail(x,y);
  // Notice and hunting print on the wall, away from the central sign.
  round(30,1,57,49,1,'#332d23');fill(34,4,49,41,'#cebd92');text('WILD & FELL',58,14,6,'#5c4a30');path([[42,33],[47,22],[57,25],[66,22],[72,30],[62,34],[51,34]],'#6b6746',1.5);path([[51,33],[48,40],[60,33],[62,40]],'#6b6746');
  // Brass lanterns and their warm pool of light.
@@ -52,6 +52,40 @@ window.ShopArt=(()=>{
  }
  function furniture(o){const {x,y,w,h,kind}=o,sy=ground(y),dh=h*.78;
  shadow(x-6,sy+dh-10,w+12,32,.5);
+ if(!['shelf','counter','display','barrels','crates'].includes(kind)){
+ const front=volume(x,sy,w,dh,42);
+ for(const xx of [x+12,x+w-24])wood(xx,front+8,13,32,'#a98250','#513b28');
+ if(kind==='forge'||kind==='stove'){
+  fill(x+7,sy-71,w-14,66,grad(x,sy-71,0,66,'#918b74','#4b4b40'));
+  for(let row=0;row<4;row++)for(let col=0;col<5;col++){const xx=x+10+col*26+(row%2)*4;fill(xx,sy-67+row*15,23,12,row%2?'#77715f':'#a0987d');}
+  round(x+32,sy-54,w-64,46,12,'#262c27');const fire=g.createRadialGradient(x+w/2,sy-19,2,x+w/2,sy-19,38);fire.addColorStop(0,'#ffdc7e');fire.addColorStop(.45,'#d97837');fire.addColorStop(1,'#412d2500');fill(x+29,sy-51,w-58,44,fire);
+  path([[x+55,sy-15],[x+62,sy-38],[x+68,sy-25],[x+77,sy-43],[x+86,sy-15]],null,1,true,'#eebe69');fill(x+24,sy-9,w-48,7,'#b1a080');
+  if(kind==='stove'){oval(x+108,sy-27,17,8,'#363f37','#aaa78a');round(x+94,sy-47,28,20,5,'#555c4c');oval(x+108,sy-47,16,5,'#9b9e81');}return;
+ }
+ if(kind==='anvil'){
+  wood(x+43,sy-3,63,39,'#906741','#57412b');path([[x+44,sy+4],[x+105,sy+4]],'#443326',4);
+  path([[x+18,sy-26],[x+128,sy-26],[x+114,sy-9],[x+77,sy-9],[x+77,sy+3],[x+97,sy+11],[x+48,sy+11],[x+65,sy+1],[x+65,sy-9],[x+36,sy-9]],'#424d48',1,true,'#5e6a61');
+  path([[x+18,sy-26],[x+34,sy-36],[x+130,sy-36],[x+128,sy-26]],'#bdc0ac',1,true,'#9ea99a');path([[x+24,sy-27],[x+125,sy-27]],'#d6d2b9',2);
+  path([[x+114,sy+9],[x+138,sy-16]],'#a58049',5);round(x+126,sy-24,22,11,2,'#515d56','#a4ad98');oval(x+16,sy+21,18,9,'#384e48','#8e9f85');oval(x+16,sy+18,13,5,'#6b9386');return;
+ }
+ if(kind==='casting'){
+  for(let i=0;i<3;i++){round(x+12+i*42,sy-28,35,35,3,'#4d5146','#abb196');for(let k=0;k<4;k++)round(x+18+i*42+k*6,sy-20,3,19,1,'#242d27');}path([[x+20,sy-38],[x+72,sy-38]],'#b2b297',3);oval(x+79,sy-38,12,7,'#796a46','#d3bd8b');return;
+ }
+ if(['medicine','herbs','still'].includes(kind)){
+  for(let j=0;j<4;j++)bottle(x+15+j*25,sy-55,38,['#8fa17c','#9d824f','#64968a','#bda278'][j]);
+  if(kind==='still'){oval(x+109,sy-26,24,27,'#ab7846','#d4ac6a');path([[x+109,sy-53],[x+109,sy-68],[x+138,sy-68],[x+138,sy-18]],'#c69c5c',5);}else{oval(x+114,sy-8,21,10,'#b8ad87','#655f45');path([[x+114,sy-10],[x+130,sy-28]],'#e0d2ad',5);}return;
+ }
+ if(['saw','fence','hunting'].includes(kind)){
+  for(let i=0;i<3;i++)wood(x+14,sy-29+i*12,w-30,9,'#d0a66a','#997043',i);
+  if(kind==='hunting'){path([[x+20,sy-18],[x+115,sy-40]],'#453f32',5);path([[x+20,sy-18],[x+43,sy-23]],'#a77545',9);round(x+90,sy-6,40,21,3,'#637c6a','#354d41');}else{path([[x+20,sy-35],[x+124,sy-8]],'#aeb3a3',5);round(x+111,sy-16,23,13,3,'#7f5132','#d7b67b');}return;
+ }
+ if(['mining','coal'].includes(kind)){
+  for(let i=0;i<7;i++){const xx=x+23+i*16;path([[xx-12,sy-6],[xx-7,sy-26-i%3*8],[xx+7,sy-30],[xx+15,sy-9]],'#3a4038',1,true,kind==='coal'?'#4b5148':'#8e8b72');}path([[x+27,sy-30],[x+83,sy+6]],'#a3804b',5);path([[x+15,sy-34],[x+47,sy-46],[x+62,sy-31]],'#b5b69f',4);return;
+ }
+ // Reception desks, paperwork and a visibly resting repair trap.
+ round(x+18,sy-30,54,32,2,'#ddd1a9','#9b8864');for(let j=0;j<4;j++)path([[x+25,sy-23+j*6],[x+65,sy-23+j*6]],'#8e8261');
+ if(kind==='repairdesk'){round(x+90,sy-27,42,25,3,'#4c5b4d','#b9c0a1');for(let j=0;j<5;j++)path([[x+95+j*7,sy-25],[x+95+j*7,sy-2]],'#9ba88e',2);}else if(kind==='sheriff'){path([[x+112,sy-43],[x+118,sy-29],[x+133,sy-29],[x+122,sy-18],[x+126,sy-3],[x+112,sy-11],[x+98,sy-3],[x+102,sy-18],[x+91,sy-29],[x+106,sy-29]],'#dbc082',1,true,'#b89b54');}else{oval(x+112,sy-18,10,5,'#a78d56');path([[x+112,sy-18],[x+112,sy-34]],'#c4aa6c',2);}return;
+ }
  if(kind==='shelf'){
  wood(x,sy-57,w,dh+57,'#805a35','#473422');fill(x+7,sy-49,w-15,dh+43,'#30271e');for(let row=0;row<4;row++){const yy=sy-43+row*51;fill(x+8,yy,w-18,43,grad(0,yy,0,43,'#29251e','#4b3b27'));for(let j=0;j<4;j++){const xx=x+12+j*16;if((row+j)%4===0)tin(xx,yy+21,12,18,['#9c6d46','#638378'][row%2]);else if(row===2&&j>1){wood(xx,yy+17,13,24,'#a59b72','#6f6949');path([[xx+2,yy+24],[xx+11,yy+24]],'#d5c8a1',2);}else bottle(xx,yy+7+(j%2)*4,31-(j%2)*4,['#9eac7d','#b78d5d','#708b78','#b4a382'][j]);}wood(x+4,yy+41,w-9,6,'#b29258','#75502d');for(const xx of [x+10,x+w-12])nail(xx,yy+44);}
  path([[x+w-9,sy-57],[x+w+7,sy-48],[x+w+7,sy+dh],[x+w-9,sy+dh-8]],'#463420',1,true,'#483222');path([[x-3,sy-67],[x+w-10,sy-67],[x+w+7,sy-57],[x+12,sy-57]],'#6b4c2c',1,true,'#d2ad70');path([[x+12,sy-57],[x+w+7,sy-57]],'#f1d19a',2);wood(x,sy+dh-36,w,36,'#7f5d36','#503b24');round(x+9,sy+dh-28,w-21,19,1,'#6c5032','#97764b');fill(x+8,sy+dh,w-15,5,'#372c1e');return;}
@@ -81,5 +115,5 @@ window.ShopArt=(()=>{
  if(npc){for(const xx of [x-6,x+5]){g.strokeStyle='#a89770';g.lineWidth=1;g.beginPath();g.arc(xx,y-62,4,0,Math.PI*2);g.stroke()}path([[x-2,y-62],[x+1,y-62]],'#a89770');}else if(!back){for(let i=0;i<2;i++)oval(x+5,y-39+i*8,1,1,'#d3b376');}
  }
  function cached(key,ox,oy,w,h,paint){if(!cache.has(key)){const c=document.createElement('canvas');c.width=Math.ceil(w*2);c.height=Math.ceil(h*2);const previous=g;g=c.getContext('2d');g.scale(2,2);g.translate(-ox,-oy);paint();g=previous;cache.set(key,{c,ox,oy,w,h});}const a=cache.get(key);g.drawImage(a.c,a.ox,a.oy,a.w,a.h)}
- return {characterCanvas(color,facing=1.57,phase=0,npc=false){const c=document.createElement('canvas');c.width=160;c.height=240;const previous=g;g=c.getContext('2d');g.scale(2,2);person({x:40,y:140,facing},color,phase!==0,phase,npc,true);g=previous;return c;},palette:P,base(ctx){g=ctx;cached('base',-20,-30,840,550,base)},furniture(ctx,o){g=ctx;cached('f-'+o.kind+'-'+o.x,o.x-24,ground(o.y)-100,o.w+48,o.h*.78+145,()=>furniture(o))},person(ctx,p,color,walk,phase){g=ctx;person(p,color,walk,phase)},merchant(ctx){g=ctx;person({x:445,y:165,facing:Math.PI/2},'#527c70',false,0,true);},vignette(ctx,w,h){const q=ctx.createRadialGradient(w*.5,h*.45,Math.min(w,h)*.15,w*.5,h*.45,Math.max(w,h)*.75);q.addColorStop(0,'#00000000');q.addColorStop(1,'#0e0d0b55');ctx.fillStyle=q;ctx.fillRect(0,0,w,h)}};
+ return {characterCanvas(color,facing=1.57,phase=0,npc=false){const c=document.createElement('canvas');c.width=160;c.height=240;const previous=g;g=c.getContext('2d');g.scale(2,2);person({x:40,y:140,facing},color,phase!==0,phase,npc,true);g=previous;return c;},palette:P,base(ctx,room){g=ctx;const title=room?.name||'Handelskontor',sub=room?.id===0?'FEUER  ·  EISEN  ·  HANDWERK':room?.id===3?'WAREN  ·  VORRÄTE  ·  HANDEL':'ARBEIT  ·  AUFTRÄGE  ·  GEMEINSCHAFT';cached('base-'+title,-20,-30,840,550,()=>base(title,sub))},furniture(ctx,o){g=ctx;cached('f-'+o.kind+'-'+o.x,o.x-24,ground(o.y)-100,o.w+48,o.h*.78+145,()=>furniture(o))},person(ctx,p,color,walk,phase){g=ctx;person(p,color,walk,phase)},merchant(ctx){g=ctx;person({x:445,y:165,facing:Math.PI/2},'#527c70',false,0,true);},vignette(ctx,w,h){const q=ctx.createRadialGradient(w*.5,h*.45,Math.min(w,h)*.15,w*.5,h*.45,Math.max(w,h)*.75);q.addColorStop(0,'#00000000');q.addColorStop(1,'#0e0d0b55');ctx.fillStyle=q;ctx.fillRect(0,0,w,h)}};
 })();

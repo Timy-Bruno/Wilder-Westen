@@ -109,3 +109,8 @@ Die Kameraperspektive wird durch die Eingabeumrechnung berücksichtigt; der Joys
 
 ## Aktuelle Stilentscheidung: gerade 2D-Ansicht mit räumlichen Möbeln
 Der schräge WebGL-Diorama-Versuch wird nicht weiter als aktive Darstellung verwendet. Stadt und Laden bleiben parallel zu den Bildschirmachsen. Die Canvas-Kamera im Laden folgt der Figur sanft wie zuvor. Möbel erhalten helle Oberseiten, dunklere senkrechte Fronten und Bodenschatten; der Händler wird an seinem Bodenstandpunkt hinter der Theke vor der Theke gezeichnet. Der Laden außen erhält ein sichtbares Dach und einen erhöhten Vorbau ohne gedrehten Grundriss. Die experimentellen WebGL-Module bleiben ungenutzt und werden nicht geladen.
+
+
+## Begehbare Berufshäuser
+Alle acht Berufshäuser verwenden nun `interior.js` und `room-definitions.js`. Türen der oberen und unteren Häuserreihe sind automatisch durchlaufbar. Arbeitsplätze haben gemeinsame Grafik-/Kollisionsdaten und eigene Rezeptlisten. Vor den Arbeitsplatz laufen, „Arbeitsplatz öffnen“ antippen; der Joystick stoppt während des Menüs. Ausgang unten im Raum zurück zur Stadt.
+Schmiede: Esse → Eisen, Gusstisch → Munition, Fallenwerkbank → zugewiesene Reparaturen, Annahme → Falle abgeben/abholen. Die übrigen Gebäude haben passende bestehende Aktionen an eigenen Stationen. Bestehende Minispiele werden aus dem jeweiligen Arbeitsplatz gestartet. Kirche und Glockenturm bleiben Stadtaktionen.

@@ -11,4 +11,4 @@ Der vom Nutzer bestätigte Laden ist die Referenz für alle zukünftigen Gebäud
 - Laufwege und Arbeitsplätze bleiben auf kleinen Handys verständlich. Joystick bleibt fest; Meldungen sind wegwischbar. Hoch- und Querformat werden geprüft.
 - Statische Zeichnungen werden zwischengespeichert. Canvas-Grafik bleibt unabhängig von serverseitigen Kollisionen, Waren und Aufgaben.
 
-Der Laden und die Außenansicht der Schmiede verwenden diese Richtung. Die Schmiede bleibt spielerisch über ihre bisherigen Werkstattaktionen bedienbar; ein begehbarer Innenraum folgt separat. Andere Gebäude werden schrittweise angepasst.
+Alle acht Berufshäuser haben begehbare Canvas-Innenräume mit eigenen Arbeitsstationen. Die Schmiede besitzt Esse, Gusstisch, Fallenwerkbank und Reparaturannahme. Die übrigen Räume erhalten berufstypische Geräte auf derselben grafischen Grundlage und werden weiter individuell ausgestaltet. Stadtfassaden werden schrittweise angepasst; Laden und Schmiede sind die ersten beiden.

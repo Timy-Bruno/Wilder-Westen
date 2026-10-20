@@ -1,8 +1,9 @@
+const Interior=require('./interior');
 // Shared workshop jobs. Customers retain ownership; only their assigned smith can work.
 const MAX_CONDITION=3,COST={ore:1,coal:1};
 const smith=room=>room.slots.find(p=>p.role===0);
 function reason(room,p){
- const f=p.woodland;if(p.inside!==0)return 'Bring die eingepackte Falle zur Schmiede.';
+ const f=p.woodland;if(p.interior&&(!Interior.canWork(p)||Interior.station(p.interior)?.id!=='service'))return 'Geh zur Reparaturannahme und öffne den Arbeitsplatz.';if(p.inside!==0)return 'Bring die eingepackte Falle zur Schmiede.';
  if(p.cur||p.forge)return 'Beende zuerst deine aktuelle Arbeit.';
  if(!f)return 'Deine Leihfalle bekommst du in der Jagdhütte.';
  if(f.repairId)return 'Deine Falle ist bereits in der Schmiede.';
@@ -19,8 +20,9 @@ function request(room,p){
 }
 function start(room,p,id){
  const job=(room.repairs||[]).find(j=>j.id===id);
+ if(p.interior&&(!Interior.canWork(p)||Interior.station(p.interior)?.id!=='repairs'))return false;
  if(!job||job.npc||job.provider!==p.i||p.role!==0||p.inside!==0||p.cur||p.hunt||p.forge||!['open','work'].includes(job.state))return false;
- job.state='work';job.heating=false;p.forge=job.id;p.forgeSuspended=false;return true;
+ job.state='work';job.heating=false;Interior.stop(p.interior);p.forge=job.id;p.forgeSuspended=false;return true;
 }
 function active(room,p){return (room.repairs||[]).find(j=>j.id===p.forge&&j.provider===p.i&&j.state==='work'&&!j.npc);}
 function stop(room,p){const job=active(room,p);if(job)job.heating=false;p.forge=null;p.forgeSuspended=false;}
@@ -56,6 +58,7 @@ function tick(room,dt){
 }
 function collect(room,p,id){
  const j=(room.repairs||[]).find(j=>j.id===id);
+ if(p.interior&&(!Interior.canWork(p)||Interior.station(p.interior)?.id!=='service'))return false;
  if(!j||j.owner!==p.i||j.state!=='ready'||p.inside!==0||p.cur||p.forge||p.woodland?.repairId!==id)return false;
  p.woodland.condition=MAX_CONDITION;p.woodland.repairId=null;room.repairs=room.repairs.filter(j=>j!==j);return true;
 }
