@@ -10,7 +10,7 @@ const ROLES=[
   {id:'smelt',n:'Eisen schmelzen',g:'smelt',h:'Erz schmelzen, Schlacke entfernen und einen Barren gießen.',i:{ore:2,coal:1},o:{bar:1},t:15},
   {id:'cast',n:'Munition gießen',g:'cast',h:'Gussformen erwärmen, einzeln füllen und die Ansätze entfernen.',i:{bar:1},o:{ammo:3},t:20}]},
  {n:'Doc',b:'Arztpraxis',r:[
-  {id:'brew',n:'Medizin mischen',g:'memory',h:'Merke dir das Rezept!',i:{herbs:2},o:{med:2},t:20}]},
+  {id:'brew',n:'Medizin mischen',g:'medicine',h:'Kräuter auswählen, zerreiben und Medizin abfüllen.',i:{herbs:2},o:{med:2},t:20}]},
  {n:'Sheriff',b:'Sheriff-Büro',r:[
   {id:'guard',n:'Wache einteilen',g:'memory',h:'Merke dir den Schichtplan!',i:{ammo:1},o:{guard:1},t:15}]},
  {n:'Händler',b:'Laden',r:[
