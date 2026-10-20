@@ -87,7 +87,7 @@ s.on('me',m=>{
  $('city').hidden=!!m.inside;$('in').hidden=!m.inside;
  if(!m.inside){const a=$('act'),sell=m.inv.filter(i=>i.sell);a.disabled=!m.near||m.near==='Kirche'||m.near==='Laden';a.textContent=!m.near?'🚶 Lauf zu einem Gebäude':m.near==='Kirche'?'⛪ Am Glockenturm':m.near==='Laden'?'Durch die Ladentür laufen':'🚪 Betreten: '+m.near;
   $('bells').hidden=$('deliver').hidden=m.near!=='Kirche';[...$('bells').children].forEach(b=>b.disabled=m.cd>0);
-  const d=$('deliver');d.disabled=!sell.length;d.textContent=sell.length?'📦 Abliefern: '+sell.map(i=>i.n+'× '+i.name).join(', '):'📦 Nichts abzuliefern (erst verarbeiten)'}
+  const d=$('deliver');d.disabled=!sell.length;d.textContent=sell.length?'Stadt versorgen: '+sell.map(i=>i.n+'× '+i.name).join(', '):'Stadt versorgen · keine passenden Waren'}
  else{$('bn').textContent=m.inside;let h='';
   if(m.mine){h+=m.recipes.map(r=>`<button data-r="${r.id}" ${r.ok?'':'disabled'}>🔧 ${r.n}<small>${r.i}  ➜  ${r.o}</small><small>${r.id==='hunt'?'Wald erkunden · eigene Jagdvorräte':'⏱ '+r.t+' s'}${r.ok?'':' · Material fehlt oder beschäftigt'}</small></button>`).join('');
    h+=O.inc.filter(o=>o.st==='open'&&(!m.interior||m.interior.station?.recipes?.includes(o.rid))).map(o=>`<button data-f="${o.id}">📋 Auftrag von Spieler ${o.from+1}<small>${o.n} – Material liegt bereit</small></button>`).join('')}

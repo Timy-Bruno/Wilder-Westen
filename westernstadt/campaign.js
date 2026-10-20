@@ -21,7 +21,7 @@ const RALLY={x:500,y:385,radius:76};
 function startRally(c,players,buildings){
  if(c.paused||c.stage!=='prepare'||c.supplies.food<1||c.supplies.planks<1)return false;
  c.stage='rally';c.ready={};c.votes={};
- for(const p of players){p.dx=p.dy=0;if(p.inside!==null){const b=buildings[p.inside];p.x=b.x+b.w/2;p.y=b.y<400?b.y+b.h+28:b.y-28;p.inside=null;p.interior=null;}}
+ for(const p of players){p.dx=p.dy=0;if(p.inside!==null){const b=buildings[p.inside];p.x=b.x+b.w/2;p.y=b.y+b.h+28;p.inside=null;p.interior=null;}}
  return true;
 }
 function rallyNear(p){return p.inside===null&&Math.hypot(p.x-RALLY.x,p.y-RALLY.y)<=RALLY.radius;}

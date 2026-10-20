@@ -20,3 +20,4 @@ body.game-active .campaign-panel[hidden],#chapterDock[hidden]{display:none}
 
 canvas[hidden]{display:none!important}
 #townRally{border-color:#c2b071!important;background:#354936ef!important;color:#f3e2ae!important}#townRally:disabled{opacity:.5;cursor:default}#rallyReady{max-width:190px;min-width:125px!important}#rallyCount{font:14px system-ui;color:#ebd29a}
+#cityActions #treckSupplies{background:linear-gradient(#52745c,#334d3a);border:1px solid #c4b276;color:#f3e1b8;min-width:0;font-size:14px;padding:10px;min-height:48px}#chapterSheet .supply-row button{min-width:112px;font-size:12px}#chapterSheet .supply-row button:disabled{opacity:.5}
