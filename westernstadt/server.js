@@ -2,6 +2,7 @@ const express=require('express'),http=require('http'),os=require('os'),QR=requir
 const {Server}=require('socket.io');
 const {randomUUID}=require('crypto');
 const Campaign=require('./campaign');
+const Character=require('./character');
 const Hunt=require('./hunt');
 const Repairs=require('./repairs');
 const Shop=require('./shop');
@@ -47,6 +48,7 @@ io.on('connection',s=>{
  s.emit('appVersion',CLIENT_BUILD);
  const P=()=>{const p=room&&room.slots[s.data.slot];return p&&p.sock===s.id?p:null};
  const host=()=>room&&room.hostToken===s.data.hostToken;
+ const manage=()=>host()||!!P();
  s.use(([event],next)=>{if(['input','act','craft','fulfill','result','order','collect','deliver','give','bell'].includes(event)&&room&&(room.campaign.paused||(room.campaign.stage!=='prepare'&&!(event==='input'&&['escort','rally'].includes(room.campaign.stage)))))return;next()});
  s.on('screen',token=>{if(!room||token!==room.hostToken)return;s.data.hostToken=token;s.join('screen');lobby();if(room.phase==='play')s.emit('started')});
  s.on('create',async n=>{
@@ -61,10 +63,10 @@ io.on('connection',s=>{
   for(let i=0;i<6;i++)room.npcs.push({x:200+Math.random()*600,y:200+Math.random()*200,tx:500,ty:380});
   s.data.hostToken=room.hostToken;s.emit('hostToken',room.hostToken);s.join('screen');lobby();
  });
- s.on('start',()=>{if(host()&&room.phase==='lobby'){room.phase='play';io.to('screen').emit('started')}});
+ s.on('start',()=>{if(manage()&&room.phase==='lobby'){room.phase='play';io.to('screen').emit('started')}});
  s.on('join',i=>{const p=room&&room.slots[i|0];if(!p)return s.emit('err','Kein Spiel gefunden. Erst am großen Bildschirm starten.');
   if(p.sock&&p.sock!==s.id){const old=io.sockets.sockets.get(p.sock);if(old)old.disconnect(true);}
-  p.dx=p.dy=0;Interior.stop(p.interior);if(p.interior)p.interior.menu=false;p.sock=s.id;s.data.slot=i|0;lobby();if(p.medWork)s.emit('medicineState',MedicineWork.snapshot(p.medWork,room.campaign.paused));else if(p.smithWork)s.emit('smithState',SmithWork.snapshot(p.smithWork,room.campaign.paused));else if(p.hunt)s.emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));else if(p.forge)s.emit('repairState',Repairs.snapshot(room,p,room.campaign.paused));else if(p.cur)s.emit('game',{g:p.cur.g,n:p.cur.n,h:p.cur.h});if(p.woodland?.pendingNotice){say(p,'🪤 Deine Falle hat Kleinwild gefangen. Im Wald kannst du den Fang bergen.');p.woodland.pendingNotice=false;}for(const j of room.repairs||[])if(j.owner===p.i&&j.notice&&j.state==='ready'){say(p,'⚒️ Deine Falle ist fertig. Hol sie in der Schmiede ab.');j.notice=false;}});
+  p.dx=p.dy=0;Interior.stop(p.interior);if(p.interior)p.interior.menu=false;p.sock=s.id;s.data.slot=i|0;lobby();s.emit('phoneLobby',{waiting:room.phase==='lobby'});if(p.medWork)s.emit('medicineState',MedicineWork.snapshot(p.medWork,room.campaign.paused));else if(p.smithWork)s.emit('smithState',SmithWork.snapshot(p.smithWork,room.campaign.paused));else if(p.hunt)s.emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));else if(p.forge)s.emit('repairState',Repairs.snapshot(room,p,room.campaign.paused));else if(p.cur)s.emit('game',{g:p.cur.g,n:p.cur.n,h:p.cur.h});if(p.woodland?.pendingNotice){say(p,'🪤 Deine Falle hat Kleinwild gefangen. Im Wald kannst du den Fang bergen.');p.woodland.pendingNotice=false;}for(const j of room.repairs||[])if(j.owner===p.i&&j.notice&&j.state==='ready'){say(p,'⚒️ Deine Falle ist fertig. Hol sie in der Schmiede ab.');j.notice=false;}});
  s.on('input',v=>{if(!v||typeof v!=='object')return;const p=P();if(!p||room.phase!=='play'||p.inside!==null)return;
   p.dx=Math.max(-1,Math.min(1,+v.dx||0));p.dy=Math.max(-1,Math.min(1,+v.dy||0))});
  s.on('act',()=>{const p=P();if(!p||room.phase!=='play'||p.cur||p.forge)return;
@@ -72,7 +74,7 @@ io.on('connection',s=>{
   const b=BUILD.findIndex(b=>near(p,b));if(b>=0&&b!==3)Doors.enter(p,b)});
  s.on('craft',rid=>{const p=P();if(p?.interior&&!Interior.canWork(p,rid))return;if(!p||p.inside===null||p.cur||p.forge||(p.inside!==p.role&&room.slots.some(q=>q.role===p.inside)))return;
   const r=ROLES[p.inside].r.find(x=>x.id===rid);if(!r||!has(p,r))return;
-  for(const k in r.i)p.inv[k]-=r.i[k];p.cur=p.inside===p.role?r:{...r,t:r.t*2};p.curOrder=null;if(r.g==='hunt'){p.woodland=p.woodland||Hunt.createField();p.hunt=Hunt.create(p.woodland);p.dx=p.dy=0;s.emit('huntState',Hunt.snapshot(p.hunt));}else if(r.g==='medicine'){Interior.stop(p.interior);p.medWork=MedicineWork.create();s.emit('medicineState',MedicineWork.snapshot(p.medWork));}else if(['smelt','cast'].includes(r.g)){Interior.stop(p.interior);p.smithWork=SmithWork.create(r.g);s.emit('smithState',SmithWork.snapshot(p.smithWork));}else s.emit('game',{g:r.g,n:r.n,h:r.h})});
+  for(const k in r.i)p.inv[k]-=r.i[k];p.cur=p.inside===p.role?r:{...r,t:r.t*2};p.curOrder=null;if(r.g==='hunt'){p.woodland=p.woodland||Hunt.createField();p.woodland.weapon=Character.ensure(p).equipped;p.hunt=Hunt.create(p.woodland);p.hunt.appearance=Character.view(p);p.dx=p.dy=0;s.emit('huntState',Hunt.snapshot(p.hunt));}else if(r.g==='medicine'){Interior.stop(p.interior);p.medWork=MedicineWork.create();s.emit('medicineState',MedicineWork.snapshot(p.medWork));}else if(['smelt','cast'].includes(r.g)){Interior.stop(p.interior);p.smithWork=SmithWork.create(r.g);s.emit('smithState',SmithWork.snapshot(p.smithWork));}else s.emit('game',{g:r.g,n:r.n,h:r.h})});
  s.on('fulfill',oid=>{const p=P(),o=room&&room.orders.find(x=>x.id===oid);
   if(p?.interior&&!Interior.canWork(p))return;
   if(!p||p.forge||!o||o.to!==p.i||o.st!=='open'||p.inside!==p.role||p.cur)return;
@@ -106,17 +108,20 @@ io.on('connection',s=>{
   room.bellUntil=Date.now()+8000;room.bell={sig,txt,by:p.i,false:!needed};
   for(const q of room.slots)if(q.sock)io.to(q.sock).emit('alert',{sig,txt})});
  s.on('donate',key=>{const p=P();if(p&&p.inside===null&&near(p,CHURCH)&&Campaign.donate(room.campaign,p,key))say(p,'Für den Treck eingelagert: '+Campaign.GOODS[key])});
- s.on('depart',()=>{if(!host()||room.phase!=='play')return;
+ s.on('depart',()=>{if(!manage()||room.phase!=='play')return;
   if(room.slots.some(p=>p.cur||p.forge))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');
   if(!Campaign.startRally(room.campaign,room.slots,BUILD))return s.emit('err','Mindestens 1 Proviant und 1 Brett an der Kirche einlagern.');
   for(const p of room.slots){p.dx=p.dy=0;Interior.stop(p.interior);if(p.interior)p.interior.menu=false;}
  });
  s.on('rallyReady',()=>{const p=P();if(p)Campaign.ready(room.campaign,p)});
- s.on('rallyCancel',()=>{if(host())Campaign.cancelRally(room.campaign)});
+ s.on('rallyCancel',()=>{if(manage())Campaign.cancelRally(room.campaign)});
  s.on('routeVote',route=>{const p=P();if(p)Campaign.vote(room.campaign,p,route)});
  s.on('missionAction',kind=>{const p=P();if(p)Campaign.act(room.campaign,p,kind)});
- s.on('pause',()=>{if(!host()||room.phase!=='play')return;if(room.slots.some(p=>p.cur&&!p.hunt&&!p.smithWork&&!p.medWork))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');room.campaign.paused=!room.campaign.paused;for(const p of room.slots){p.dx=p.dy=0;Interior.stop(p.interior);if(p.smithWork){p.smithWork.heating=false;p.smithWork.pouring=false;}if(p.hunt){p.hunt.player.dx=p.hunt.player.dy=0;p.hunt.aiming=false;p.hunt.focus=0}if(p.forge)Repairs.action(room,p,{type:'heat',active:false})}});
- s.on('retry',()=>{if(host())Campaign.retry(room.campaign)});
+ s.on('pause',()=>{if(!manage()||room.phase!=='play')return;if(room.slots.some(p=>p.cur&&!p.hunt&&!p.smithWork&&!p.medWork))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');room.campaign.paused=!room.campaign.paused;for(const p of room.slots){p.dx=p.dy=0;Interior.stop(p.interior);if(p.smithWork){p.smithWork.heating=false;p.smithWork.pouring=false;}if(p.hunt){p.hunt.player.dx=p.hunt.player.dy=0;p.hunt.aiming=false;p.hunt.focus=0}if(p.forge)Repairs.action(room,p,{type:'heat',active:false})}});
+ s.on('missionReturn',()=>{if(manage())Campaign.returnTown(room.campaign)});
+ s.on('equip',id=>{const p=P();if(p&&room.phase==='play'&&!room.campaign.paused&&room.campaign.stage==='prepare')Character.equip(p,id)});
+ s.on('dress',v=>{const p=P();if(p&&room.phase==='play'&&!room.campaign.paused&&room.campaign.stage==='prepare')Character.dress(p,v)});
+ s.on('retry',()=>{if(manage())Campaign.retry(room.campaign)});
  s.on('roomInput',v=>{const p=P();if(!p||!p.interior||p.cur||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare')return;if(!p.forge)Interior.control(p.interior,v);});
  s.on('roomInteract',()=>{const p=P();if(!p||!p.interior||p.cur||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare'||!Interior.station(p.interior))return;if(Interior.station(p.interior)?.passage)return;p.interior.menu=true;Interior.stop(p.interior);});
  s.on('medicineInput',v=>{const p=P();if(!p?.medWork||room.campaign.paused||room.campaign.stage!=='prepare')return;MedicineWork.action(p.medWork,v);});
@@ -180,12 +185,12 @@ setInterval(()=>{
  if(!room||room.phase!=='play')return;const now=Date.now();
  const low=Object.entries(room.stats).sort((a,b)=>a[1]-b[1])[0];
  io.to('screen').emit('state',{campaign:Campaign.publicState(room.campaign,room.slots),stats:room.stats,npcs:room.npcs,
-  slots:room.slots.map(p=>({i:p.i,x:p.x,y:p.y,hidden:p.inside!==null,on:!!p.sock})),
+  slots:room.slots.map(p=>({i:p.i,character:Character.view(p),x:p.x,y:p.y,hidden:p.inside!==null,on:!!p.sock})),
   occupied:room.slots.filter(p=>p.inside!==null).map(p=>p.inside),
   bell:now<room.bellUntil?room.bell:null,warn:low[1]<30?low[0]:null,builds:BUILD,church:CHURCH});
  for(const p of room.slots){if(!p.sock)continue;if(p.medWork)io.to(p.sock).emit('medicineState',MedicineWork.snapshot(p.medWork,room.campaign.paused));if(p.smithWork)io.to(p.sock).emit('smithState',SmithWork.snapshot(p.smithWork,room.campaign.paused));if(p.hunt)io.to(p.sock).emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));if(p.forge)io.to(p.sock).emit('repairState',Repairs.snapshot(room,p,room.campaign.paused));const r=ROLES[p.role];
   const nb=BUILD.findIndex(b=>near(p,b)),mine=p.inside!==null&&(p.inside===p.role||!room.slots.some(q=>q.role===p.inside)),inB=p.inside!==null;
-  io.to(p.sock).emit('me',{casino:PokerTable.view(room,p)||Casino.view(p),interior:Interior.snapshot(p,room.slots),townTasks:TownTasks.view(room.townTasks,p),gold:p.gold,shop:Shop.view(p),workshop:Repairs.view(room,p),woodland:p.woodland?Hunt.fieldSnapshot(p.woodland):null,campaign:Campaign.publicState(room.campaign,room.slots),myVote:room.campaign.votes[p.i]||null,position:{x:p.x,y:p.y},slot:p.i,apprentice:mine&&p.inside!==p.role,role:r.n,icon:RICON[p.role],
+  io.to(p.sock).emit('me',{character:Character.view(p),wardrobe:{shirts:Character.SHIRTS,hats:Character.HATS},casino:PokerTable.view(room,p)||Casino.view(p),interior:Interior.snapshot(p,room.slots),townTasks:TownTasks.view(room.townTasks,p),gold:p.gold,shop:Shop.view(p),workshop:Repairs.view(room,p),woodland:p.woodland?Hunt.fieldSnapshot(p.woodland):null,campaign:Campaign.publicState(room.campaign,room.slots),myVote:room.campaign.votes[p.i]||null,position:{x:p.x,y:p.y},slot:p.i,apprentice:mine&&p.inside!==p.role,role:r.n,icon:RICON[p.role],
    inside:inB?BUILD[p.inside].name:null,mine,
    recipes:mine?ROLES[p.inside].r.filter(x=>!p.interior||Interior.canWork(p,x.id)).map(x=>({id:x.id,n:x.n,i:fmt(x.i)||'nichts',o:x.g==='hunt'?'Eigene Jagd · Beute sofort im Rucksack':fmt(x.o),t:x.t*(p.inside===p.role?1:2),ok:has(p,x)&&!p.cur})):[],
    bld:inB&&!mine?{provider:room.slots.some(q=>q.role===p.inside&&q!==p),

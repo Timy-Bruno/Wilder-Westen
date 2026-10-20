@@ -7,7 +7,7 @@ button{font:inherit;font-weight:bold;font-size:1.4rem;margin:6px;padding:12px 22
 canvas{width:100%;max-width:1500px;display:block;margin:0 auto}</style><link rel="stylesheet" href="/campaign.css"></head><body>
 <div id=lobby><h1>🤠 Wilder Westen</h1><div id=pick>Wie viele Spieler? </div><div id=qrs></div><button id=go style=display:none>Spiel starten</button></div>
 <canvas id=c width=2000 height=1200 hidden></canvas>
-<script src=/socket.io/socket.io.js></script><script src="/app-update.js"></script><script src="/city-shop.js"></script><script src="/city-buildings.js"></script>
+<script src=/socket.io/socket.io.js></script><script src="/app-update.js"></script><script src="/character-art.js"></script><script src="/city-shop.js"></script><script src="/city-buildings.js"></script>
 <script>
 const s=io(),$=i=>document.getElementById(i),cv=$('c'),g=cv.getContext('2d');
 attachGameUpdates(s);
@@ -25,7 +25,7 @@ s.on('state',d=>{S=d});s.on('fx',a=>a.forEach(f=>fx.push({...f,at:Date.now()})))
 const lerp=(a,b)=>a+(b-a)*.3;
 function frame(){requestAnimationFrame(frame);if(!S)return;const d=S,t=Date.now();
  g.setTransform(1,0,0,1,0,0);g.fillStyle=d.campaign.stage==='escort'?'#b17b50':'#d3ad70';g.fillRect(0,0,cv.width,cv.height);g.setTransform(view.scale,0,0,view.scale,view.x,view.y);
- if(d.campaign.stage==='escort'){renderConvoy(g,d,t);return;}
+ if(['escort','arrival'].includes(d.campaign.stage)){renderConvoy(g,d,t);return;}
  const gr=g.createLinearGradient(0,0,0,600);gr.addColorStop(0,'#e6c88f');gr.addColorStop(1,'#cfa766');g.fillStyle=gr;g.fillRect(0,0,1000,600);
  g.fillStyle='#bf9a5e';g.fillRect(0,165,1000,70);g.fillRect(0,355,1000,70);
  g.strokeStyle='rgba(255,255,255,.3)';g.lineWidth=3;g.setLineDash([18,14]);g.beginPath();g.moveTo(0,200);g.lineTo(1000,200);g.moveTo(0,390);g.lineTo(1000,390);g.stroke();g.setLineDash([]);
@@ -36,9 +36,7 @@ function frame(){requestAnimationFrame(frame);if(!S)return;const d=S,t=Date.now(
  renderTownEvent(g,d,t);
  d.npcs.forEach((n,i)=>{const p=dn[i]=dn[i]||{x:n.x,y:n.y};p.x=lerp(p.x,n.x);p.y=lerp(p.y,n.y);g.font='20px serif';g.fillText('🧑‍🌾',p.x,p.y+7)});
  d.slots.forEach(q=>{const p=dp[q.i]=dp[q.i]||{x:q.x,y:q.y};p.x=lerp(p.x,q.x);p.y=lerp(p.y,q.y);if(q.hidden)return;
-  g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse(p.x,p.y+13,14,5,0,0,7);g.fill();
-  g.fillStyle=COL[q.i];g.beginPath();g.arc(p.x,p.y,14,0,7);g.fill();g.strokeStyle=q.on?'#fff':'#777';g.lineWidth=3;g.stroke();
-  g.fillStyle='#000';g.font='bold 15px Georgia';g.fillText(q.i+1,p.x,p.y+5)});
+  CharacterArt.draw(g,p.x,p.y,q.character,{scale:.72,label:q.i+1,walk:Math.hypot(q.x-p.x,q.y-p.y)>.5,phase:t/110});});
  g.fillStyle='rgba(20,10,4,.92)';g.fillRect(0,0,1000,46);
  ST.forEach(([k,ic,n],i)=>{const x=12+i*198,v=d.stats[k],low=v<30;g.textAlign='left';g.font='20px serif';g.fillStyle='#fff';g.fillText(ic,x,28);
   g.font='bold 13px Georgia';g.fillStyle=low&&t%800<400?'#ff7b6b':'#f3e3c3';g.fillText(n+'  '+Math.round(v),x+28,18);

@@ -104,14 +104,7 @@
   g.restore();
   if(a.mode==='watch'||a.mode==='flee'){g.fillStyle=a.mode==='flee'?'#f1bc77':'#eee2a0';g.font='bold 17px Georgia';g.textAlign='center';g.fillText(a.mode==='flee'?'!':'?',x,y-66);}
  }
- function cowboy(t){const p=playerVisual,x=p.x,y=groundY(p.y),moving=!state.aiming&&Math.hypot(state.player.dx,state.player.dy)>.1,step=moving?Math.sin(t*(state.sneak?7:11))*3:0;
-  ellipse('#1c382d55',x,y+2,14,6);
-  rect('#293d37',x-8,y-15,6,14+step);rect('#293d37',x+2,y-15,6,14-step);rect('#3c3026',x-9,y-2+step,8,5);rect('#3c3026',x+1,y-2-step,8,5);
-  poly('#8b6941',[[x-12,y-31],[x+10,y-31],[x+13,y-12],[x-13,y-12]]);rect('#ba9a59',x-8,y-30,7,15);rect('#443d2b',x-12,y-15,25,4);rect('#dfc37d',x-2,y-15,4,4);
-  rect('#cdab77',x-6,y-40,12,12);ellipse('#b49a57',x,y-40,19,6);rect('#b59a58',x-10,y-50,20,11);rect('#634e30',x-10,y-43,20,3);ellipse('#d1b575',x,y-49,10,3);
-  const angle=state.player.facing,dx=Math.cos(angle),dy=Math.sin(angle)*.72;
-  stroke('#59442b',5,[[x+dx*7,y-23+dy*7],[x+dx*24,y-23+dy*24]]);stroke('#cad0ad',2,[[x+dx*20,y-24+dy*20],[x+dx*34,y-24+dy*34]]);ellipse('#cca777',x+dx*13,y-23+dy*13,4,3);
- }
+ function cowboy(t){const p=playerVisual;CharacterArt.draw(g,p.x,groundY(p.y),state.appearance,{scale:.85,walk:!state.aiming&&Math.hypot(state.player.dx,state.player.dy)>.1,phase:t*10,weapon:state.aiming?state.weapon:null,facing:state.player.facing});}
  function drawTrap(t){
   const x=t.x,y=groundY(t.y),caught=t.state==='caught';shadow(x,t.y,21,7);ellipse(caught?'#d9b76b66':'#c4c59b33',x,y,27,15);
   stroke('#463f2e',5,[[x-20,y+3],[x+22,y+3]]);stroke('#c0ba8a',2,[[x-20,y+1],[x+22,y+1]]);rect('#6c7358',x-4,y-7,8,9);

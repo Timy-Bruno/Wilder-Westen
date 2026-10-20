@@ -58,7 +58,7 @@ h3{margin:4px 0 0;font-size:.8rem;letter-spacing:.1em;color:var(--g);text-transf
 </div>
 <div id=game hidden><h2 class=ttl id=gt></h2><p id=gh></p><div id=ga></div></div>
 <div id=toast hidden></div>
-<script src=/socket.io/socket.io.js></script><script src="/app-update.js"></script><script src="/notices.js"></script>
+<script src=/socket.io/socket.io.js></script><script src="/app-update.js"></script><script src="/character-art.js"></script><script src="/notices.js"></script>
 <script>
 const $=i=>document.getElementById(i),slot=+new URLSearchParams(location.search).get('slot'),s=io(),vib=p=>navigator.vibrate&&navigator.vibrate(p);
 attachGameUpdates(s);
@@ -139,5 +139,5 @@ function mv(e){if(!on)return;const r=j.getBoundingClientRect(),R=r.width/2-30;le
  k.style.transform=`translate(${x}px,${y}px)`;s.emit('input',{dx:x/R,dy:y/R})}
 j.onpointerdown=e=>{on=true;j.setPointerCapture(e.pointerId);mv(e)};j.onpointermove=mv;
 j.onpointerup=j.onpointercancel=()=>{on=false;k.style.transform='';s.emit('input',{dx:0,dy:0})};
-</script><script src="/campaign-phone.js"></script><script src="/hunting.js"></script><script src="/repair-phone.js"></script><script src="/shop-phone.js"></script><script src="/town-tasks-phone.js"></script><script src="/shop-art.js"></script><script src="/casino-art.js"></script><script src="/room-art.js"></script><script src="/interior-phone.js"></script><script src="/poker-phone.js"></script><script src="/casino-phone.js"></script><script src="/smith-phone.js"></script><script src="/medicine-phone.js"></script></body></html>
+</script><script src="/campaign-phone.js"></script><script src="/hunting.js"></script><script src="/repair-phone.js"></script><script src="/shop-phone.js"></script><script src="/town-tasks-phone.js"></script><script src="/shop-art.js"></script><script src="/casino-art.js"></script><script src="/room-art.js"></script><script src="/interior-phone.js"></script><script src="/poker-phone.js"></script><script src="/casino-phone.js"></script><script src="/smith-phone.js"></script><script src="/medicine-phone.js"></script><script src="/character-phone.js"></script></body></html>
 

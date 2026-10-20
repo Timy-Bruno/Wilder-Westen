@@ -25,7 +25,7 @@ function visible(h,a){return a.alive&&dist(h.player,a)<=370&&lineClear(h.player,
 function selected(h){return h.animals.find(a=>a.id===h.targetId&&visible(h,a));}
 function aimInfo(h){const a=selected(h);if(!a)return null;const distance=dist(h.player,a),moving=a.mode==='walk'||a.mode==='flee';
  const radius=(1-h.focus)*(30+distance*.09)+(moving?12:1.5),angle=h.elapsed*2.3;
- return {targetId:a.id,distance:Math.round(distance/5),inRange:distance<=(h.field.rifleLevel>=2?350:300),clear:lineClear(h.player,a),focus:h.focus,radius,
+ return {targetId:a.id,distance:Math.round(distance/5),inRange:distance<=(h.field.weapon==='revolver'?200:h.field.rifleLevel>=2?350:300),clear:lineClear(h.player,a),focus:h.focus,radius,
  x:a.x+Math.cos(angle)*radius,y:a.y+Math.sin(angle)*radius};}
 function control(h,input){
  if(!input||typeof input!=='object')return false;
@@ -85,7 +85,7 @@ function tick(h,dt,random=Math.random){
  if(h.status!=='active'||h.suspended)return;dt=clamp(dt,0,.2);h.elapsed+=dt;
  const p=h.player,walking=Math.hypot(p.dx,p.dy)>.05;
  if(walking&&!h.aiming){const speed=h.sneak?48:108;move(p,p.dx*speed*dt,p.dy*speed*dt);p.facing=Math.atan2(p.dy,p.dx);h.focus=0;}
- const target=selected(h);if(h.aiming&&target){p.facing=Math.atan2(target.y-p.y,target.x-p.x);h.focus=Math.min(1,h.focus+dt/(h.field.rifleLevel>=2?1.6:2.2));}else h.focus=0;
+ const target=selected(h);if(h.aiming&&target){p.facing=Math.atan2(target.y-p.y,target.x-p.x);h.focus=Math.min(1,h.focus+dt/(h.field.weapon==='revolver'?2.5:h.field.rifleLevel>=2?1.6:2.2));}else h.focus=0;
  for(const a of h.animals){
   if(!a.alive)continue;
   const d=dist(p,a),noticed=lineClear(p,a)&&(d<48||(walking&&!h.aiming&&d<(h.sneak?65:170))||(a.mode==='watch'&&d<(h.sneak?90:125)));
@@ -117,7 +117,7 @@ function tickField(field,dt,presence=null){
  t.progress=1;t.state='caught';field.pendingNotice=true;field.catches++;field.condition=Math.max(0,field.condition-1);return true;
 }
 function fieldSnapshot(field){const t=field?.trap;return {available:!t&&!field?.repairId&&(field?.condition??3)>0,condition:field?.condition??3,maxCondition:3,repairId:field?.repairId??null,trap:t?{x:t.x,y:t.y,state:t.state,baited:t.baited,progress:Math.min(1,t.progress)}:null};}
-function snapshot(h,paused=false){const field=fieldSnapshot(h.field),t=field.trap;return {gear:{condition:field.condition,maxCondition:3,inRepair:!!field.repairId},trap:t?{...t,near:dist(h.player,t)<=65,distance:Math.round(dist(h.player,t)/5),quiet:dist(h.player,t)>=130}:null,canPlaceTrap:field.available&&nearTrail(h.player)&&canStand(h.player.x,h.player.y),version:3,world:WORLD,trees:TREES,rocks:ROCKS,tracks:TRACKS,elapsed:h.elapsed,ammo:h.ammo,bait:h.bait,
+function snapshot(h,paused=false){const field=fieldSnapshot(h.field),t=field.trap;return {appearance:h.appearance,weapon:h.field.weapon||'rifle',gear:{condition:field.condition,maxCondition:3,inRepair:!!field.repairId},trap:t?{...t,near:dist(h.player,t)<=65,distance:Math.round(dist(h.player,t)/5),quiet:dist(h.player,t)>=130}:null,canPlaceTrap:field.available&&nearTrail(h.player)&&canStand(h.player.x,h.player.y),version:3,world:WORLD,trees:TREES,rocks:ROCKS,tracks:TRACKS,elapsed:h.elapsed,ammo:h.ammo,bait:h.bait,
  baitSpot:h.baitSpot&&h.baitSpot.until>h.elapsed?{x:h.baitSpot.x,y:h.baitSpot.y}:null,
  player:{...h.player},sneak:h.sneak,aiming:h.aiming,focus:h.focus,targetId:h.targetId,aim:aimInfo(h),suspended:h.suspended,paused:paused||h.suspended,
  status:h.status,kills:h.kills,loot:{...h.loot},ready:h.elapsed>=h.cooldown,message:h.message,lastShot:h.lastShot?{...h.lastShot}:null,

@@ -1,6 +1,8 @@
 const Hunt=require('./hunt');
+const Character=require('./character');
 const Interior=require('./interior');
 const GOODS=[
+ {id:'buyRifle',name:'Jagdgewehr kaufen',price:14,kind:'weapon',weapon:'rifle',page:1,description:'Größere Reichweite als der Revolver. Danach im Rucksack ausrüsten.'},
  {id:'cartridges',name:'6 Jagdpatronen',price:4,kind:'ammo',amount:6,page:0,description:'Nachschub für dein Jagdgewehr.'},
  {id:'bait',name:'2 Wildköder',price:3,kind:'bait',amount:2,page:0,description:'Für Köderplätze und deine Falle.'},
  {id:'rifle',name:'Gewehr verbessern',price:18,kind:'rifleLevel',amount:1,page:1,description:'Ruhiger zielen: 1,6 statt 2,2 Sekunden. Reichweite: 70 statt 60 Meter.'},
@@ -12,11 +14,13 @@ const GOODS=[
 const SELL={meat:{name:'Fleisch',price:1},hide:{name:'Fell',price:3}};
 function allowed(p){return Interior.canTrade(p);}
 function buy(p,id){const g=GOODS.find(g=>g.id===id);if(!allowed(p)||!g||(p.gold||0)<g.price)return false;
+ if(g.kind==='weapon'){const c=Character.ensure(p);if(c.owned[g.weapon])return false;c.owned[g.weapon]=true;p.gold-=g.price;return g;}
+ if(g.kind==='rifleLevel'&&p.character&&!p.character.owned.rifle)return false;
  if(g.kind==='rifleLevel'&&(p.woodland?.rifleLevel||1)>=2)return false;
  if(['ammo','bait','rifleLevel'].includes(g.kind)){p.woodland=p.woodland||Hunt.createField();p.woodland[g.kind]=(p.woodland[g.kind]??(g.kind==='ammo'?6:1))+g.amount;}
  else p.inv[g.kind]=(p.inv[g.kind]||0)+g.amount;
  p.gold-=g.price;return g;
 }
 function sell(p,key){const g=typeof key==='string'&&Object.hasOwn(SELL,key)?SELL[key]:null;if(!allowed(p)||!g||!(p.inv[key]>0))return false;p.inv[key]--;p.gold=(p.gold||0)+g.price;return g;}
-function view(p){return {here:Interior.canTrade(p),busy:!allowed(p),gold:p.gold||0,ammo:p.woodland?.ammo??6,bait:p.woodland?.bait??1,rifleLevel:p.woodland?.rifleLevel??1,goods:GOODS.map(g=>({...g,owned:g.id==='rifle'&&(p.woodland?.rifleLevel||1)>=2})),sales:Object.entries(SELL).map(([id,g])=>({id,...g,count:p.inv[id]||0}))};}
+function view(p){return {here:Interior.canTrade(p),busy:!allowed(p),gold:p.gold||0,ammo:p.woodland?.ammo??6,bait:p.woodland?.bait??1,rifleLevel:p.woodland?.rifleLevel??1,goods:GOODS.map(g=>({...g,owned:g.kind==='weapon'?!!Character.ensure(p).owned[g.weapon]:g.id==='rifle'&&(p.woodland?.rifleLevel||1)>=2})),sales:Object.entries(SELL).map(([id,g])=>({id,...g,count:p.inv[id]||0}))};}
 module.exports={buy,sell,view};
