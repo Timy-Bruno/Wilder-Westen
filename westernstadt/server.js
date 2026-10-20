@@ -15,6 +15,10 @@ app.get('/manifest.json',(q,r)=>{const sl=Math.max(0,Math.min(7,+q.query.slot||0
  r.set('Cache-Control','no-store, max-age=0');r.type('application/manifest+json').json({name:'Wilder Westen',short_name:'Wilder Westen',start_url:'/phone.html?slot='+sl+'&v='+CLIENT_BUILD,scope:'/',display:'fullscreen',orientation:'any',background_color:'#1a0f07',theme_color:'#120a04',
   icons:[{src:'/icon-192.png',sizes:'192x192',type:'image/png'},{src:'/icon-512.png',sizes:'512x512',type:'image/png'}]})});
 app.use(express.static(__dirname+'/public',{setHeaders:WebAssets.cacheHeaders}));
+// Pinned, local 3D runtime: compressed once, cached by its versioned URL.
+const threeVendor=new Map(['three.module.min.js','three.core.min.js'].map(name=>{const raw=require('fs').readFileSync(__dirname+'/node_modules/three/build/'+name);return [name,{raw,gzip:require('zlib').gzipSync(raw)}]}));
+app.get('/vendor/three-0.180.0/:asset',(q,r,next)=>{const file=threeVendor.get(q.params.asset);if(!file)return next();r.type('application/javascript').set({'Cache-Control':'public, max-age=31536000, immutable','Vary':'Accept-Encoding'});if(q.acceptsEncodings('gzip','identity')==='gzip'){r.set('Content-Encoding','gzip');r.send(file.gzip)}else r.send(file.raw)});
+app.use('/vendor/three-0.180.0',express.static(__dirname+'/node_modules/three/build',{setHeaders:WebAssets.cacheHeaders}));
 const PORT=process.env.PORT||3000,W=1000,H=600;
 const fmt=o=>Object.entries(o).map(([k,v])=>META[k][0]+' '+v+'× '+ITEM[k]).join('  +  ');
 const BUILD=ROLES.map((r,i)=>({name:r.b,ic:RICON[i],x:60+(i%4)*230,y:i<4?50:430,w:130,h:100}));
@@ -145,7 +149,7 @@ setInterval(()=>{
  for(const k in room.stats)room.stats[k]=Math.max(0,room.stats[k]-.15*dt);
  for(const p of room.slots){
   if(p.hunt&&p.sock)Hunt.tick(p.hunt,dt);
-  if(p.inside===3&&p.interior&&p.sock&&!p.cur){const before={x:p.interior.x,y:p.interior.y};Interior.tick(p.interior,dt);if(Doors.exiting(before,p.interior))Doors.leave(p,BUILD[3]);}
+  if(p.inside===3&&p.interior&&p.sock&&!p.cur)Doors.step(p,dt,BUILD[3]);
   const nx=Math.max(10,Math.min(W-10,p.x+p.dx*180*dt)),ny=Math.max(55,Math.min(H-10,p.y+p.dy*180*dt));
   if(p.inside===null){if(Doors.entering(BUILD[3],p,{x:nx,y:ny})){Doors.enter(p);}else{if(!hit(nx,p.y))p.x=nx;if(!hit(p.x,ny))p.y=ny;}}
   p.jobs=p.jobs.filter(j=>{if(j.t>now)return true;

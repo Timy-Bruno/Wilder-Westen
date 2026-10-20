@@ -14,3 +14,5 @@ window.CityShop={draw(g,b,occupied){const {x,y,w,h}=b,cx=x+w/2,bottom=y+h;g.save
  for(const xx of [x-2,x+w-4]){rect(xx,bottom-53,5,55,'#684a2d');rect(xx-2,bottom-55,9,4,'#d0ab70');}poly([[x-8,bottom-56],[x+w-4,bottom-56],[x+w+8,bottom-43],[x+4,bottom-43]],'#b78d53');line([[x+4,bottom-43],[x+w+8,bottom-43]],'#61482d',2);
  // The entrance stays open even while other players are inside.
  g.font='9px Georgia';g.fillStyle='#3d3224';g.fillText('EINGANG',cx,bottom+11);g.restore();}};
+
+const flatCityShop=window.CityShop;window.CityShop={draw(g,b,occupied){if(window.ShopWorld){try{const a=ShopWorld.exterior(),scale=.37;g.drawImage(a.image,b.x+b.w/2-a.anchor.x*scale,b.y+b.h-a.anchor.y*scale,a.image.width*scale,a.image.height*scale);return}catch(e){console.warn("Shop exterior fallback",e)}}flatCityShop.draw(g,b,occupied)}};

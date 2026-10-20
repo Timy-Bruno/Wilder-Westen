@@ -70,3 +70,11 @@ Zielen sitzt links über dem unveränderten Joystick; Schießen rechts. Regeltes
 - Lokaler Zwei-Handy-Browsertest mit realem Touch-Swipe per CDP: Wegwischen, Antippen, × und Tastatur schließen Hinweise; ein neuer Hinweis während einer alten Geste bleibt erhalten.
 - Automatischer Eintritt per Stadt-Joystick, Ausgang per Raum-Joystick, erneuter Eintritt und Ausgang, kein unbeabsichtigtes Zurückspringen, Handel, Nebenauftragsabgabe, Neuladen und Pause geprüft. Keine JavaScript-Fehler.
 - Möbelkörper innen in vier Handyformaten und Fassade auf dem Hauptbildschirm fotografiert und visuell geprüft. Keine Änderungen an den anderen Gebäudezugängen.
+
+## Stilversuch mit echter 3D-Szene
+- Three.js 0.180.0, orthografische feste Kamera, räumliche Ladenmodelle und gezeichnete Figuren auf aufrechten Bildflächen. Außenansicht aus einem 3D-Modell mit Dach und Veranda. Händler auf Bodenhöhe hinter der Theke, Kunde davor; Sichtkontrolle für beide Überdeckungen.
+- Browserprüfung verlangt tatsächlich `webgl` als aktiven Renderer; eine bloße Canvas-Ersatzansicht genügt dem Test nicht. Chromium mit Software-WebGL: 390×844, 844×390, 320×568 und 667×375 fotografiert. Prüfung im echten Safari/iPhone steht aus.
+- Zwei-Handy-Ablauf mit echtem Server: automatisch eintreten, um die Möbel laufen, Katalog/Kauf, Nebenauftrag abgeben, pausieren, neu verbinden und mehrfach durch die Tür zurück. Kamerablick und Joystickrichtung werden gemeinsam umgerechnet. Keine JavaScript-Fehler.
+- WebGL-Kontext gezielt verloren und wiederhergestellt: Canvas-Ersatzansicht und Rückkehr in den 3D-Modus geprüft. Beim Wechsel werden gehaltene Bewegungen gestoppt.
+- Laufzeit lokal mit gzip/identity getestet: beide Varianten ergeben denselben Modulinhalt, gepinnte URLs sind cachebar. Minifizierte Three.js-Module werden vom eigenen Server geliefert.
+- Zwei Projektionstests und ein Regressionstest für eine übersprungene Türschwelle ergänzen die bisherigen Prüfungen: insgesamt 71 bestandene Regeltests. Die Schwelle wird vor einer durch die Raumgrenze abgewiesenen Bewegung geprüft, damit die Figur nicht knapp davor hängen bleibt.

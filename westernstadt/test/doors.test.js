@@ -6,3 +6,5 @@ test('transitions clear held controls and leave the player safely outside the tr
 test('entering the room does not immediately count as an exit',()=>{const p={};D.enter(p);assert.equal(D.exiting(p.interior,{...p.interior,y:540}),false);I.control(p.interior,{x:0,y:1});let exited=false;for(let i=0;i<10;i++){const before={...p.interior};I.tick(p.interior,.05);if(D.exiting(before,p.interior)){exited=true;break}}assert(exited);});
 
 test('the bottom wall blocks walking behind the threshold outside the door opening',()=>{assert.equal(I.stand(300,575),false);assert.equal(I.stand(400,575),true);});
+
+test("an exit is swept before rejecting a movement step beyond the room boundary",()=>{const p={inside:3,interior:{...I.create(),x:406,y:572.8,dx:0,dy:1}};assert(D.step(p,.06,b));assert.equal(p.inside,null);assert.equal(p.y,192);assert.equal(p.interior,null);});

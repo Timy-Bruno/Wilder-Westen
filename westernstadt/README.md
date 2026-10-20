@@ -100,3 +100,8 @@ Der Laden erhält als erstes Gebäude eine Außenfassade mit Holzveranda, Fenste
 Hinweise lassen sich in jede Richtung wegwischen, durch Antippen, über das Schließen-× oder mit Escape/Enter schließen. Sie verschwinden weiterhin nach 6,5 Sekunden von selbst. Neue Hinweise ersetzen den alten Inhalt; eine bereits begonnene Wischgeste darf keinen danach eintreffenden Hinweis schließen.
 
 Theke, Wareninsel und Kiste zeigen getrennte Oberseiten, Fronten und dunklere Seiten; Regale besitzen sichtbare obere und seitliche Flächen. Die Raumansicht bleibt ein gezeichneter 2D-Raum.
+
+### Räumlicher Laden als Stilversuch
+Der Laden nutzt jetzt eine echte Three.js-Szene mit orthografischer Kamera: dreidimensionale Möbel, Boden, Rück-/Seitenwand, Fenster und Licht. Die gezeichneten Figuren bleiben erhalten. Der Händler steht tatsächlich hinter der Theke auf dem Boden; die Tiefenprüfung verdeckt seinen unteren Körper durch die Möbel. Die Außenansicht stammt ebenfalls aus einem 3D-Modell mit Dach, Seitenwänden und Veranda.
+
+Die Kameraperspektive wird durch die Eingabeumrechnung berücksichtigt; der Joystick bewegt die Figur weiter in Bildschirmrichtung. Die Serverregeln einschließlich Türschwellen bleiben erhalten. Three.js 0.180.0 wird über den eigenen Server ausgeliefert, ohne Drittanbieter-CDN. WebGL-Verlust schaltet vorübergehend auf die vorhandene Canvas-Darstellung um; bei Wiederherstellung wird die 3D-Szene wieder aktiv. Das ist zunächst ein Stilversuch für den Laden, keine Umstellung aller Spielbereiche.

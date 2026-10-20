@@ -1,4 +1,5 @@
 // First walkable interior: the trading post. Server-owned coordinates and interactions.
+const SPEED=150;
 const ROOM={w:800,h:620,spawn:{x:400,y:535},door:{x:350,y:570,w:100,h:30},solids:[
  {x:190,y:180,w:420,h:75,kind:'counter'},
  {x:45,y:125,w:85,h:280,kind:'shelf'},{x:670,y:125,w:85,h:280,kind:'shelf'},
@@ -12,6 +13,6 @@ function nearDoor(r){return !!r&&Math.hypot(r.x-400,r.y-577)<=75;}
 function canTrade(p){return p.inside===3&&p.interior?.menu===true&&nearCounter(p.interior)&&!p.cur&&!p.hunt&&!p.forge;}
 function control(r,v){if(!r||r.menu||!v||!Number.isFinite(v.x)||!Number.isFinite(v.y))return false;const n=Math.max(1,Math.hypot(v.x,v.y));r.dx=v.x/n;r.dy=v.y/n;return true;}
 function stop(r){if(r)r.dx=r.dy=0;}
-function tick(r,dt){if(!r||r.menu)return;dt=Math.min(.2,Math.max(0,dt));const dx=r.dx*150*dt,dy=r.dy*150*dt;if(stand(r.x+dx,r.y))r.x+=dx;if(stand(r.x,r.y+dy))r.y+=dy;if(dx||dy)r.facing=Math.atan2(dy,dx);}
+function tick(r,dt){if(!r||r.menu)return;dt=Math.min(.2,Math.max(0,dt));const dx=r.dx*SPEED*dt,dy=r.dy*SPEED*dt;if(stand(r.x+dx,r.y))r.x+=dx;if(stand(r.x,r.y+dy))r.y+=dy;if(dx||dy)r.facing=Math.atan2(dy,dx);}
 function snapshot(p,players){if(p.inside!==3||!p.interior)return null;return {room:ROOM,player:{...p.interior},nearCounter:nearCounter(p.interior),nearDoor:nearDoor(p.interior),others:players.filter(q=>q!==p&&q.inside===3&&q.interior&&q.sock).map(q=>({i:q.i,x:q.interior.x,y:q.interior.y,facing:q.interior.facing}))};}
-module.exports={ROOM,create,stand,nearCounter,nearDoor,canTrade,control,stop,tick,snapshot};
+module.exports={SPEED,ROOM,create,stand,nearCounter,nearDoor,canTrade,control,stop,tick,snapshot};
