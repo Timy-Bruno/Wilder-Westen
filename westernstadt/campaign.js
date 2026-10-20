@@ -53,7 +53,7 @@ function act(c,p,kind) {
   if(!enemy)return false;
   const charged=c.supplies.ammo>0;if(charged)c.supplies.ammo--;
   enemy.hp-=charged?2:1;c.cooldowns[p.i]=c.elapsed+(charged?.55:1);row.shots++;
-  c.shots.push({shooter:p.i,x:p.x,y:p.y,tx:enemy.x,ty:enemy.y,until:c.elapsed+.16});return true;
+  c.shots.push({shooter:p.i,x:p.x,y:p.y,tx:enemy.x,ty:enemy.y,weapon:p.character?.equipped==='rifle'?'rifle':'revolver',at:c.elapsed,until:c.elapsed+.42});return true;
 }
 function difficulty(n){n=Math.max(1,Math.min(8,n));return {players:n,count:Math.ceil(n/2),waveScale:1/(1+(n-1)*.055),enemySpeed:32+n*1.5,damage:2.1+n*.15};}
 function tick(c,players,dt,random=Math.random) {
@@ -91,7 +91,7 @@ function retry(c) {
 function returnTown(c){const won=c.stage==='won';if(!retry(c))return false;c.completed=won;return true;}
 function publicState(c,players) {
   return {completed:!!c.completed,arrival:c.arrival||0,difficulty:difficulty(players.filter(p=>p.sock).length),rally:RALLY,ready:players.filter(p=>p.sock).map(p=>({i:p.i,near:rallyNear(p),ready:!!c.ready?.[p.i]})),stage:c.stage,paused:c.paused,day:c.day,target:c.target,supplies:{...c.supplies},remaining:Math.ceil(c.remaining),
-    routes:ROUTES,route:c.route,progress:c.progress,hp:Math.max(0,Math.round(c.hp)),enemies:c.enemies.map(e=>({...e})),shots:c.shots.map(s=>({...s})),
+    elapsed:c.elapsed,routes:ROUTES,route:c.route,progress:c.progress,hp:Math.max(0,Math.round(c.hp)),enemies:c.enemies.map(e=>({...e})),shots:c.shots.map(s=>({...s})),
     votes:Object.values(c.votes).length,voters:players.filter(p=>p.sock).length,result:c.result,attempt:c.attempt,
     escorted:players.some(p=>p.sock&&Math.hypot(p.x-500,p.y-310)<190),
     contributions:Object.entries(c.contributions).map(([i,v])=>({i:+i,...v}))};
