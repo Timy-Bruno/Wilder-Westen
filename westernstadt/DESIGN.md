@@ -16,3 +16,8 @@ Alle acht Berufshäuser haben begehbare Canvas-Innenräume mit eigenen Arbeitsst
 
 ## Individuelle Raumgestaltung
 Kein einheitliches Zwei-mal-zwei-Werkbankschema. Schmiede: Steinboden, Esse, Metallvorräte, Werkzeugwand und besetzte Annahmetheke. Arztpraxis: helle Fliesen, Betten, Waschplatz und Medizinschrank. Sheriff: Schreibtisch, Waffenständer und Zelle. Jagdhütte: Feuerstelle, Geweih-Trophäen, Felle, Bögen und Kräuterausrüstung. Mine: steiniger Boden, Schienen, Lore und Stolleneingang. Zimmerei: breite Sägebank, Baupläne, Holzstapel und Montagebank. Saloon: besetzte Bar, Flaschenregal, Sitzplätze, Klavier, Küche und Treppe zum Casino mit Filztischen. Beschriftungen sitzen auf der Möbelfront, nicht über dem Raum.
+
+
+## Poker und Werkstatt
+Gemeinsamer Pokertisch als runder Filztisch mit vier festen Plätzen; der eigene Platz liegt unten. Dealer/Blinds, Chips, aktueller Einsatz und letzte Aktion gehören sichtbar an die jeweilige Person. Aktiver Zug wird umrandet; Ereignisprotokoll erklärt die Setzrunde. Querformat stellt Tasten und Verlauf neben den Tisch, Hochformat darunter. Blackjack zeigt die Bank beim schrittweisen Ziehen. Die Treppe wird ohne Aktionsknopf durchlaufen.
+Schmiedearbeit zeigt echte Werkstücke und Phasen: Erz, Kohle, Esse, Tiegel, Schlacke und Barrenform gegenüber Munitionsformen und Gussansätzen. Halten, Loslassen und gezielte Werkstückaktionen ersetzen die bisherigen Timing-/Merkspiele dieser zwei Rezepte.

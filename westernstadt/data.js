@@ -7,8 +7,8 @@ const RICON=['⚒️','⚕️','⭐','💰','🥃','🏹','🧨','🔨'];
 // Rezepte: i = Zutaten, o = Ergebnis, t = Dauer in Sekunden. Rezepte mit Zutaten können andere Spieler bestellen.
 const ROLES=[
  {n:'Schmied',b:'Schmiede',r:[
-  {id:'smelt',n:'Eisen schmelzen',g:'timing',h:'Stoppe im richtigen Moment!',i:{ore:2,coal:1},o:{bar:1},t:15},
-  {id:'cast',n:'Munition gießen',g:'memory',h:'Merke dir die Gussform!',i:{bar:1},o:{ammo:3},t:20}]},
+  {id:'smelt',n:'Eisen schmelzen',g:'smelt',h:'Erz schmelzen, Schlacke entfernen und einen Barren gießen.',i:{ore:2,coal:1},o:{bar:1},t:15},
+  {id:'cast',n:'Munition gießen',g:'cast',h:'Gussformen erwärmen, einzeln füllen und die Ansätze entfernen.',i:{bar:1},o:{ammo:3},t:20}]},
  {n:'Doc',b:'Arztpraxis',r:[
   {id:'brew',n:'Medizin mischen',g:'memory',h:'Merke dir das Rezept!',i:{herbs:2},o:{med:2},t:20}]},
  {n:'Sheriff',b:'Sheriff-Büro',r:[

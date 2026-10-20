@@ -7,6 +7,8 @@ const Repairs=require('./repairs');
 const Shop=require('./shop');
 const Interior=require('./interior');
 const Casino=require('./casino');
+const PokerTable=require('./poker-table');
+const SmithWork=require('./smith-work');
 const Doors=require('./doors');
 const TownTasks=require('./town-tasks');
 const {ITEM,SELL,META,STN,RICON,ROLES}=require('./data');
@@ -34,6 +36,12 @@ const isSvc=r=>Object.keys(r.i).length>0;
 function lanIP(){try{for(const l of Object.values(os.networkInterfaces()))for(const a of l)if(a.family==='IPv4'&&!a.internal)return a.address;}catch{}return 'localhost'}
 function lobby(){if(!room)return;io.to('screen').emit('lobby',room.slots.map(p=>({i:p.i,qr:p.qr,on:!!p.sock})))}
 const say=(p,t)=>p&&p.sock&&io.to(p.sock).emit('msg',t);
+function completeWork(p,sc){const r=p.cur,o=p.curOrder;p.cur=null;p.curOrder=null;sc=Math.max(0,Math.min(1,+sc||0));
+  if(sc<.35){if(o){room.orders=room.orders.filter(x=>x!==o);say(room.slots[o.from],'❌ Dein Auftrag „'+o.n+'“ ist misslungen. Das Material ist verloren.')}
+   return say(p,'❌ Misslungen! Das Material ist verloren.')}
+  const out={...r.o},bonus=sc>=.8;if(bonus){const k=Object.keys(out)[0];out[k]++}
+  p.jobs.push({n:r.n,d:r.t,t:Date.now()+r.t*1000,out,order:o?o.id:null});
+  say(p,(bonus?'⭐ Perfekt, Bonus! ':'✔ Gelungen. ')+'Fertig in '+r.t+' Sekunden – du kannst derweil etwas anderes tun.')}
 io.on('connection',s=>{
  s.emit('appVersion',CLIENT_BUILD);
  const P=()=>{const p=room&&room.slots[s.data.slot];return p&&p.sock===s.id?p:null};
@@ -55,7 +63,7 @@ io.on('connection',s=>{
  s.on('start',()=>{if(host()&&room.phase==='lobby'){room.phase='play';io.to('screen').emit('started')}});
  s.on('join',i=>{const p=room&&room.slots[i|0];if(!p)return s.emit('err','Kein Spiel gefunden. Erst am großen Bildschirm starten.');
   if(p.sock&&p.sock!==s.id){const old=io.sockets.sockets.get(p.sock);if(old)old.disconnect(true);}
-  p.dx=p.dy=0;Interior.stop(p.interior);if(p.interior)p.interior.menu=false;p.sock=s.id;s.data.slot=i|0;lobby();if(p.hunt)s.emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));else if(p.forge)s.emit('repairState',Repairs.snapshot(room,p,room.campaign.paused));else if(p.cur)s.emit('game',{g:p.cur.g,n:p.cur.n,h:p.cur.h});if(p.woodland?.pendingNotice){say(p,'🪤 Deine Falle hat Kleinwild gefangen. Im Wald kannst du den Fang bergen.');p.woodland.pendingNotice=false;}for(const j of room.repairs||[])if(j.owner===p.i&&j.notice&&j.state==='ready'){say(p,'⚒️ Deine Falle ist fertig. Hol sie in der Schmiede ab.');j.notice=false;}});
+  p.dx=p.dy=0;Interior.stop(p.interior);if(p.interior)p.interior.menu=false;p.sock=s.id;s.data.slot=i|0;lobby();if(p.smithWork)s.emit('smithState',SmithWork.snapshot(p.smithWork,room.campaign.paused));else if(p.hunt)s.emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));else if(p.forge)s.emit('repairState',Repairs.snapshot(room,p,room.campaign.paused));else if(p.cur)s.emit('game',{g:p.cur.g,n:p.cur.n,h:p.cur.h});if(p.woodland?.pendingNotice){say(p,'🪤 Deine Falle hat Kleinwild gefangen. Im Wald kannst du den Fang bergen.');p.woodland.pendingNotice=false;}for(const j of room.repairs||[])if(j.owner===p.i&&j.notice&&j.state==='ready'){say(p,'⚒️ Deine Falle ist fertig. Hol sie in der Schmiede ab.');j.notice=false;}});
  s.on('input',v=>{if(!v||typeof v!=='object')return;const p=P();if(!p||room.phase!=='play'||p.inside!==null)return;
   p.dx=Math.max(-1,Math.min(1,+v.dx||0));p.dy=Math.max(-1,Math.min(1,+v.dy||0))});
  s.on('act',()=>{const p=P();if(!p||room.phase!=='play'||p.cur||p.forge)return;
@@ -63,17 +71,12 @@ io.on('connection',s=>{
   const b=BUILD.findIndex(b=>near(p,b));if(b>=0&&b!==3)Doors.enter(p,b)});
  s.on('craft',rid=>{const p=P();if(p?.interior&&!Interior.canWork(p,rid))return;if(!p||p.inside===null||p.cur||p.forge||(p.inside!==p.role&&room.slots.some(q=>q.role===p.inside)))return;
   const r=ROLES[p.inside].r.find(x=>x.id===rid);if(!r||!has(p,r))return;
-  for(const k in r.i)p.inv[k]-=r.i[k];p.cur=p.inside===p.role?r:{...r,t:r.t*2};p.curOrder=null;if(r.g==='hunt'){p.woodland=p.woodland||Hunt.createField();p.hunt=Hunt.create(p.woodland);p.dx=p.dy=0;s.emit('huntState',Hunt.snapshot(p.hunt));}else s.emit('game',{g:r.g,n:r.n,h:r.h})});
+  for(const k in r.i)p.inv[k]-=r.i[k];p.cur=p.inside===p.role?r:{...r,t:r.t*2};p.curOrder=null;if(r.g==='hunt'){p.woodland=p.woodland||Hunt.createField();p.hunt=Hunt.create(p.woodland);p.dx=p.dy=0;s.emit('huntState',Hunt.snapshot(p.hunt));}else if(['smelt','cast'].includes(r.g)){Interior.stop(p.interior);p.smithWork=SmithWork.create(r.g);s.emit('smithState',SmithWork.snapshot(p.smithWork));}else s.emit('game',{g:r.g,n:r.n,h:r.h})});
  s.on('fulfill',oid=>{const p=P(),o=room&&room.orders.find(x=>x.id===oid);
   if(p?.interior&&!Interior.canWork(p))return;
   if(!p||p.forge||!o||o.to!==p.i||o.st!=='open'||p.inside!==p.role||p.cur)return;
-  const r=ROLES[p.role].r.find(x=>x.id===o.rid);if(p.interior&&!Interior.canWork(p,r.id))return;o.st='work';p.cur=r;p.curOrder=o;s.emit('game',{g:r.g,n:r.n+' (Auftrag)',h:r.h})});
- s.on('result',sc=>{const p=P();if(!p||!p.cur||p.hunt)return;const r=p.cur,o=p.curOrder;p.cur=null;p.curOrder=null;sc=Math.max(0,Math.min(1,+sc||0));
-  if(sc<.35){if(o){room.orders=room.orders.filter(x=>x!==o);say(room.slots[o.from],'❌ Dein Auftrag „'+o.n+'“ ist misslungen. Das Material ist verloren.')}
-   return say(p,'❌ Misslungen! Das Material ist verloren.')}
-  const out={...r.o},bonus=sc>=.8;if(bonus){const k=Object.keys(out)[0];out[k]++}
-  p.jobs.push({n:r.n,d:r.t,t:Date.now()+r.t*1000,out,order:o?o.id:null});
-  say(p,(bonus?'⭐ Perfekt, Bonus! ':'✔ Gelungen. ')+'Fertig in '+r.t+' Sekunden – du kannst derweil etwas anderes tun.')});
+  const r=ROLES[p.role].r.find(x=>x.id===o.rid);if(p.interior&&!Interior.canWork(p,r.id))return;o.st='work';p.cur=r;p.curOrder=o;if(['smelt','cast'].includes(r.g)){p.smithWork=SmithWork.create(r.g);Interior.stop(p.interior);s.emit('smithState',SmithWork.snapshot(p.smithWork));}else s.emit('game',{g:r.g,n:r.n+' (Auftrag)',h:r.h})});
+ s.on('result',sc=>{const p=P();if(!p||!p.cur||p.hunt||p.smithWork)return;completeWork(p,sc)});
  s.on('order',rid=>{const p=P();if(p?.interior&&!Interior.canWork(p))return;if(!p||p.inside===null||p.inside===p.role||p.cur||(p.inside===3&&!Interior.canTrade(p)))return;
   const prov=room.slots.find(q=>q.role===p.inside&&q!==p),r=ROLES[p.inside].r.find(x=>x.id===rid);
   if(!prov||!r||!isSvc(r)||!has(p,r))return;
@@ -109,11 +112,13 @@ io.on('connection',s=>{
  });
  s.on('routeVote',route=>{const p=P();if(p)Campaign.vote(room.campaign,p,route)});
  s.on('missionAction',kind=>{const p=P();if(p)Campaign.act(room.campaign,p,kind)});
- s.on('pause',()=>{if(!host()||room.phase!=='play')return;if(room.slots.some(p=>p.cur&&!p.hunt))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');room.campaign.paused=!room.campaign.paused;for(const p of room.slots){p.dx=p.dy=0;Interior.stop(p.interior);if(p.hunt){p.hunt.player.dx=p.hunt.player.dy=0;p.hunt.aiming=false;p.hunt.focus=0}if(p.forge)Repairs.action(room,p,{type:'heat',active:false})}});
+ s.on('pause',()=>{if(!host()||room.phase!=='play')return;if(room.slots.some(p=>p.cur&&!p.hunt&&!p.smithWork))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');room.campaign.paused=!room.campaign.paused;for(const p of room.slots){p.dx=p.dy=0;Interior.stop(p.interior);if(p.smithWork){p.smithWork.heating=false;p.smithWork.pouring=false;}if(p.hunt){p.hunt.player.dx=p.hunt.player.dy=0;p.hunt.aiming=false;p.hunt.focus=0}if(p.forge)Repairs.action(room,p,{type:'heat',active:false})}});
  s.on('retry',()=>{if(host())Campaign.retry(room.campaign)});
  s.on('roomInput',v=>{const p=P();if(!p||!p.interior||p.cur||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare')return;if(!p.forge)Interior.control(p.interior,v);});
- s.on('roomInteract',()=>{const p=P();if(!p||!p.interior||p.cur||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare'||!Interior.station(p.interior))return;if(Interior.stairs(p))return;p.interior.menu=true;Interior.stop(p.interior);});
- s.on('casinoAction',input=>{const p=P();if(!p||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare'||p.cur||p.forge)return;Casino.action(p,input);});
+ s.on('roomInteract',()=>{const p=P();if(!p||!p.interior||p.cur||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare'||!Interior.station(p.interior))return;if(Interior.station(p.interior)?.passage)return;p.interior.menu=true;Interior.stop(p.interior);});
+ s.on('smithInput',v=>{const p=P();if(!p?.smithWork||room.campaign.paused||room.campaign.stage!=='prepare')return;SmithWork.action(p.smithWork,v);});
+ s.on('smithCancel',()=>{const p=P();if(!p?.smithWork)return;if(p.curOrder)p.curOrder.st='open';p.smithWork=null;p.cur=null;p.curOrder=null;s.emit('smithClosed');});
+ s.on('casinoAction',input=>{const p=P();if(!p||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare'||p.cur||p.forge)return;if(Interior.station(p.interior)?.id==='poker')PokerTable.action(room,p,input);else Casino.action(p,input,true);});
  s.on('roomClose',()=>{const p=P();if(p?.interior){p.interior.menu=false;Interior.stop(p.interior);}});
  s.on('townTaskAccept',id=>{const p=P();if(!p||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare')return;if(TownTasks.accept(room.townTasks,p,id))say(p,'📜 Nebenauftrag angenommen. Ziel und Fortschritt findest du unter Aufträge.');});
  s.on('townTaskCancel',id=>{const p=P();if(!p||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare')return;if(TownTasks.cancel(room.townTasks,p,id))say(p,'📜 Nebenauftrag freigegeben. Deine Waren bleiben im Rucksack.');});
@@ -128,7 +133,7 @@ io.on('connection',s=>{
  s.on('huntControl',input=>{const p=P();if(!p?.hunt||room.campaign.paused||room.campaign.stage!=='prepare')return;Hunt.control(p.hunt,input)});
  s.on('huntShoot',point=>{const p=P();if(!p?.hunt||room.campaign.paused||room.campaign.stage!=='prepare')return;if(Hunt.shoot(p.hunt,point))s.emit('huntState',Hunt.snapshot(p.hunt))});
  s.on('huntLeave',()=>{const p=P();if(!p?.hunt)return;const loot={...p.hunt.loot};for(const [k,n] of Object.entries(loot))p.inv[k]=(p.inv[k]||0)+n;p.hunt=null;p.cur=null;p.curOrder=null;s.emit('huntEnded',{loot});const text=loot.meat?'Jagdbeute im Rucksack: '+loot.meat+' Fleisch, '+loot.hide+' Felle.':'Du bist ohne Beute zurückgekehrt. Du kannst eine neue Jagd starten.';say(p,text+(p.woodland?.trap?' 🪤 Deine Falle bleibt im Wald. Ihren Zustand findest du im Rucksack.':''))});
- s.on('disconnect',()=>{const p=P();if(p&&p.sock===s.id){p.sock=null;p.dx=p.dy=0;Interior.stop(p.interior);if(p.hunt)Hunt.control(p.hunt,{type:'suspend',active:true});if(p.forge)Repairs.action(room,p,{type:'suspend',active:true});lobby()}});
+ s.on('disconnect',()=>{const p=P();if(p&&p.sock===s.id){p.sock=null;p.dx=p.dy=0;Interior.stop(p.interior);if(p.smithWork)SmithWork.action(p.smithWork,{type:'suspend',active:true});if(p.hunt)Hunt.control(p.hunt,{type:'suspend',active:true});if(p.forge)Repairs.action(room,p,{type:'suspend',active:true});lobby()}});
 });
 let previousTick=Date.now();
 setInterval(()=>{
@@ -147,10 +152,10 @@ setInterval(()=>{
  Campaign.tick(room.campaign,room.slots,dt);
  if(room.campaign.stage==='escort'){for(const p of room.slots){for(const j of p.jobs)j.t+=wall;p.x=Math.max(25,Math.min(W-25,p.x+p.dx*190*dt));p.y=Math.max(95,Math.min(H-25,p.y+p.dy*190*dt));}return;}
  if(room.campaign.stage!=='prepare'){for(const p of room.slots)for(const j of p.jobs)j.t+=wall;return;}
- TownTasks.tick(room.townTasks,dt);
+ TownTasks.tick(room.townTasks,dt);PokerTable.tick(room,dt);
  for(const k in room.stats)room.stats[k]=Math.max(0,room.stats[k]-.15*dt);
  for(const p of room.slots){
-  if(p.hunt&&p.sock)Hunt.tick(p.hunt,dt);
+  if(p.sock)Casino.tick(p,dt);if(p.hunt&&p.sock)Hunt.tick(p.hunt,dt);if(p.smithWork&&p.sock){const score=SmithWork.tick(p.smithWork,dt);if(score!==null){p.smithWork=null;completeWork(p,score);io.to(p.sock).emit('smithClosed');}}
   if(p.interior&&p.sock&&!p.cur&&!p.forge)Doors.step(p,dt,BUILD[p.inside]);
   const nx=Math.max(10,Math.min(W-10,p.x+p.dx*180*dt)),ny=Math.max(55,Math.min(H-10,p.y+p.dy*180*dt));
   if(p.inside===null){const doorway=BUILD.findIndex(b=>Doors.entering(b,p,{x:nx,y:ny}));if(doorway>=0){Doors.enter(p,doorway);}else{if(!hit(nx,p.y))p.x=nx;if(!hit(p.x,ny))p.y=ny;}}
@@ -172,9 +177,9 @@ setInterval(()=>{
   slots:room.slots.map(p=>({i:p.i,x:p.x,y:p.y,hidden:p.inside!==null,on:!!p.sock})),
   occupied:room.slots.filter(p=>p.inside!==null).map(p=>p.inside),
   bell:now<room.bellUntil?room.bell:null,warn:low[1]<30?low[0]:null,builds:BUILD,church:CHURCH});
- for(const p of room.slots){if(!p.sock)continue;if(p.hunt)io.to(p.sock).emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));if(p.forge)io.to(p.sock).emit('repairState',Repairs.snapshot(room,p,room.campaign.paused));const r=ROLES[p.role];
+ for(const p of room.slots){if(!p.sock)continue;if(p.smithWork)io.to(p.sock).emit('smithState',SmithWork.snapshot(p.smithWork,room.campaign.paused));if(p.hunt)io.to(p.sock).emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));if(p.forge)io.to(p.sock).emit('repairState',Repairs.snapshot(room,p,room.campaign.paused));const r=ROLES[p.role];
   const nb=BUILD.findIndex(b=>near(p,b)),mine=p.inside!==null&&(p.inside===p.role||!room.slots.some(q=>q.role===p.inside)),inB=p.inside!==null;
-  io.to(p.sock).emit('me',{casino:Casino.view(p),interior:Interior.snapshot(p,room.slots),townTasks:TownTasks.view(room.townTasks,p),gold:p.gold,shop:Shop.view(p),workshop:Repairs.view(room,p),woodland:p.woodland?Hunt.fieldSnapshot(p.woodland):null,campaign:Campaign.publicState(room.campaign,room.slots),myVote:room.campaign.votes[p.i]||null,position:{x:p.x,y:p.y},slot:p.i,apprentice:mine&&p.inside!==p.role,role:r.n,icon:RICON[p.role],
+  io.to(p.sock).emit('me',{casino:PokerTable.view(room,p)||Casino.view(p),interior:Interior.snapshot(p,room.slots),townTasks:TownTasks.view(room.townTasks,p),gold:p.gold,shop:Shop.view(p),workshop:Repairs.view(room,p),woodland:p.woodland?Hunt.fieldSnapshot(p.woodland):null,campaign:Campaign.publicState(room.campaign,room.slots),myVote:room.campaign.votes[p.i]||null,position:{x:p.x,y:p.y},slot:p.i,apprentice:mine&&p.inside!==p.role,role:r.n,icon:RICON[p.role],
    inside:inB?BUILD[p.inside].name:null,mine,
    recipes:mine?ROLES[p.inside].r.filter(x=>!p.interior||Interior.canWork(p,x.id)).map(x=>({id:x.id,n:x.n,i:fmt(x.i)||'nichts',o:x.g==='hunt'?'Eigene Jagd · Beute sofort im Rucksack':fmt(x.o),t:x.t*(p.inside===p.role?1:2),ok:has(p,x)&&!p.cur})):[],
    bld:inB&&!mine?{provider:room.slots.some(q=>q.role===p.inside&&q!==p),
