@@ -146,3 +146,7 @@ Berufe prägen jetzt Aussehen und Arbeit: Schmied mit Lederschürze und 25 % kü
 Bewohner der Stadt, Bedienpersonal, Spieler und Pokergäste verwenden detaillierte, individuelle Outfitdaten mit unterschiedlicher Haut, Haaren, Gesichtszubehör und Kleidung. Der Spiel-Knopf wird in die aktive Menü-/Kopfleiste eingehängt, statt über dem Spielfeld zu schweben. Der Casinoraum wurde unter den Tischen freigeräumt.
 
 Poker zeigt die konkrete beste Fünf-Karten-Hand und Beikarten. Die Karten der Kombination werden gold markiert (z.B. beide Paar-Karten, alle fünf Karten einer Straße oder eines Flushs); nach dem Showdown können aufgedeckte Hände zum Vergleich ausgewählt werden. Die Ergebnisphase dauert 16 Sekunden. Erklärungen anderer Hände erscheinen erst beim öffentlichen Aufdecken; ein Sieg durch Passen deckt keine fremden Karten auf.
+
+### Figuren-Stilprobe
+
+`/character-preview.html` zeigt den ersten illustrierten Jäger im Stadt- und Ladenumfeld. Joystick oder Pfeiltasten bewegen ihn; Vergleich und Vergrößerung helfen bei der Stilentscheidung. Die Probe benötigt keine laufende Partie. Details: [ART-DIRECTION.md](ART-DIRECTION.md).
