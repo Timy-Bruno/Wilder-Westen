@@ -34,7 +34,7 @@
  root.innerHTML=`<canvas id="huntCanvas" aria-label="Begehbarer Wald: Tier antippen, mit dem Joystick bewegen"></canvas><div class="hunt-top"><div class="hunt-title"><div class="hunt-kicker">JAGDGEBIET · BLACKWOOD CREEK</div><h2>Auf leisen Sohlen</h2><span id="huntBag">6 Patronen · 0 Tiere erlegt</span></div><div class="huntMenuStack"><button id="huntBack">Zur Stadt<small>Beute mitnehmen</small></button></div></div><div id="huntHint"></div><div id="huntFocus" hidden><span id="huntFocusText"></span><div id="huntFocusBar"><div id="huntFocusFill"></div></div></div><div id="huntSummary" hidden></div><div id="huntTrapPanel" role="dialog" aria-label="Falle verwalten" hidden><div class="trap-heading"><h3 id="huntTrapTitle">Deine Leihfalle</h3><button id="huntTrapClose" aria-label="Fallenansicht schließen">×</button></div><p id="huntTrapInfo"></p><div id="huntTrapProgress" hidden><i></i></div><div class="trap-buttons"><button id="huntTrapMain">Hier aufstellen</button><button id="huntTrapSecondary" hidden>Aufnehmen</button></div></div><div id="huntJoystick" role="group" aria-label="Bewegen mit dem Daumen"><div id="huntStick"></div><span>BEWEGEN</span></div><button id="huntAim" aria-pressed="false">Zielen<small>halten</small></button><div class="hunt-actions"><button id="huntTrap" aria-expanded="false">Falle<small>1 Leihfalle dabei</small></button><button id="huntSneak" aria-pressed="false">Schleichen<small>leise & langsam</small></button><button id="huntBait">Köder<small>hier auslegen</small></button><button id="huntFire">Schießen</button></div><div id="huntStatus">Wildspuren folgen · Tier antippen</div>`;
  document.body.append(root);
  const el=id=>root.querySelector('#'+id),canvas=el('huntCanvas');let g=canvas.getContext('2d');
- let state=null,raf=0,lastFrame=0,camera={x:180,y:790,s:1},view={w:0,h:0},visual=new Map(),playerVisual=null,stickPointer=null,aimPointer=null,shotPending=false,lastAudio=null,lastMessage='',messageAt=0,moveInput={x:0,y:0},keys=new Set(),lastShotAt=-1,shotReceivedAt=0,trapAction='trapPlace';
+ let state=null,raf=0,lastFrame=0,camera={x:180,y:790,s:1},view={w:0,h:0},visual=new Map(),playerVisual=null,stickPointer=null,aimPointer=null,shotPending=false,lastAudio=null,lastMessage='',messageAt=0,moveInput={x:0,y:0},keys=new Set(),trapAction='trapPlace';
  const seeded=n=>{let a=n|0;return()=>{a=(a*1664525+1013904223)>>>0;return a/4294967296}};
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
  const rect=(c,x,y,w,h)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};
@@ -104,7 +104,7 @@
   g.restore();
   if(a.mode==='watch'||a.mode==='flee'){g.fillStyle=a.mode==='flee'?'#f1bc77':'#eee2a0';g.font='bold 17px Georgia';g.textAlign='center';g.fillText(a.mode==='flee'?'!':'?',x,y-66);}
  }
- function cowboy(t){const p=playerVisual;CharacterArt.draw(g,p.x,groundY(p.y),state.appearance,{scale:.85,walk:!state.aiming&&Math.hypot(state.player.dx,state.player.dy)>.1,phase:t*10,weapon:state.aiming?state.weapon:null,facing:state.player.facing});}
+ function cowboy(t){const p=playerVisual,age=state.lastShot?Math.max(0,state.elapsed-state.lastShot.at):99,moving=Math.hypot(state.player.dx,state.player.dy)>.1,afterShot=age<.42&&!moving;CharacterArt.draw(g,p.x,groundY(p.y),state.appearance,{scale:.85,walk:!state.paused&&!state.aiming&&moving,phase:state.elapsed*(state.sneak?7:10),weapon:state.aiming||afterShot?state.weapon:null,recoil:age<.18?1-age/.18:0,facing:state.player.facing});}
  function drawTrap(t){
   const x=t.x,y=groundY(t.y),caught=t.state==='caught';shadow(x,t.y,21,7);ellipse(caught?'#d9b76b66':'#c4c59b33',x,y,27,15);
   stroke('#463f2e',5,[[x-20,y+3],[x+22,y+3]]);stroke('#c0ba8a',2,[[x-20,y+1],[x+22,y+1]]);rect('#6c7358',x-4,y-7,8,9);
@@ -141,7 +141,7 @@
   const selected=state.animals.find(a=>a.id===state.targetId&&a.alive);
   for(const a of state.animals.filter(a=>a.alive)){g.strokeStyle=a===selected?'#f4da8e':'#eff3c58a';g.lineWidth=a===selected?2:1;g.setLineDash(a===selected?[]:[3,5]);g.beginPath();g.ellipse(a.x,groundY(a.y)+2,28,14,0,0,7);g.stroke();g.setLineDash([]);}
   if(state.aiming&&state.aim){const a=state.aim,pt={x:a.x,y:groundY(a.y)-22};stroke('#eddda277',1.5,[[playerVisual.x,groundY(playerVisual.y)-23],[pt.x,pt.y]]);g.strokeStyle=a.inRange?'#f3e6ab':'#e4a17b';g.lineWidth=1.5;g.beginPath();g.arc(pt.x,pt.y,6,0,7);g.moveTo(pt.x-12,pt.y);g.lineTo(pt.x+12,pt.y);g.moveTo(pt.x,pt.y-12);g.lineTo(pt.x,pt.y+12);g.stroke();ellipse('#fff2c0',pt.x,pt.y,2,2);}
-  const shot=state.lastShot;if(shot&&now-shotReceivedAt<160){stroke('#ffedb3',2,[[shot.fromX,groundY(shot.fromY)-23],[shot.x,groundY(shot.y)-22]]);ellipse('#f9d780aa',shot.fromX,groundY(shot.fromY)-23,9,6);}
+  const shot=state.lastShot;if(shot&&state.elapsed-shot.at<.13){const m=CharacterSprites.muzzle(state.appearance,{scale:.85,weapon:state.weapon,facing:Math.atan2(shot.y-shot.fromY,shot.x-shot.fromX)}),sx=shot.fromX+m.x,sy=groundY(shot.fromY)+m.y;stroke('#ffedb3',1.5,[[sx,sy],[shot.x,groundY(shot.y)-22]]);ellipse('#f9d78066',sx,sy,7,5);ellipse('#fff0b9',sx,sy,3,2);}
   // Compact compass; it reveals the trailhead and player, never hidden animals.
   g.setTransform(dpr,0,0,dpr,0,0);const mx=16,my=h>500?164:94,mw=72,mh=59;rect('#10291fce',mx,my,mw,mh);g.strokeStyle='#afba7e77';g.lineWidth=1;g.strokeRect(mx,my,mw,mh);stroke('#b2a374',2,state.tracks.map(t=>[mx+t.x/1280*mw,my+t.y/1040*mh]));if(state.trap){const t=state.trap;rect(t.state==='caught'?'#f6c679':t.state==='broken'?'#df966c':'#d5e8c9',mx+t.x/1280*mw-3,my+t.y/1040*mh-3,6,6);}ellipse('#f9db8e',mx+p.x/1280*mw,my+p.y/1040*mh,3,3);g.fillStyle='#e8e6bd';g.font='8px system-ui';g.textAlign='left';g.fillText('N ↑',mx+4,my+10);g.fillText('WILDPFAD',mx+4,my+mh-4);
   const vignette=g.createRadialGradient(w/2,h/2,Math.min(w,h)*.3,w/2,h/2,Math.max(w,h)*.7);vignette.addColorStop(0,'#10291f00');vignette.addColorStop(1,'#10291f40');g.fillStyle=vignette;g.fillRect(0,0,w,h);
@@ -170,7 +170,7 @@
  window.addEventListener('keyup',e=>{if(root.hidden)return;keys.delete(e.key);keyboardMove()});
  function keyboardMove(){emitMove(Number(keys.has('d')||keys.has('ArrowRight'))-Number(keys.has('a')||keys.has('ArrowLeft')),Number(keys.has('s')||keys.has('ArrowDown'))-Number(keys.has('w')||keys.has('ArrowUp')))}
  s.on('huntState',h=>{
-  const opening=root.hidden;state=h;root.hidden=false;shotPending=false;if(h.lastShot&&h.lastShot.at!==lastShotAt){lastShotAt=h.lastShot.at;shotReceivedAt=performance.now()}
+  const opening=root.hidden;state=h;root.hidden=false;shotPending=false;
   if(opening){visual.clear();playerVisual={...h.player};if(!terrain){makeTerrain();cacheForest();}if(typeof stopMove==='function')stopMove();if(!raf)raf=requestAnimationFrame(render);}
   if(h.suspended&&!document.hidden)s.emit('huntControl',{type:'suspend',active:false});
   if(lastMessage!==h.message){lastMessage=h.message;messageAt=performance.now()}el('huntHint').textContent=h.message;
