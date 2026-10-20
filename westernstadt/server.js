@@ -6,6 +6,7 @@ const Hunt=require('./hunt');
 const Repairs=require('./repairs');
 const Shop=require('./shop');
 const Interior=require('./interior');
+const Casino=require('./casino');
 const Doors=require('./doors');
 const TownTasks=require('./town-tasks');
 const {ITEM,SELL,META,STN,RICON,ROLES}=require('./data');
@@ -111,7 +112,8 @@ io.on('connection',s=>{
  s.on('pause',()=>{if(!host()||room.phase!=='play')return;if(room.slots.some(p=>p.cur&&!p.hunt))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');room.campaign.paused=!room.campaign.paused;for(const p of room.slots){p.dx=p.dy=0;Interior.stop(p.interior);if(p.hunt){p.hunt.player.dx=p.hunt.player.dy=0;p.hunt.aiming=false;p.hunt.focus=0}if(p.forge)Repairs.action(room,p,{type:'heat',active:false})}});
  s.on('retry',()=>{if(host())Campaign.retry(room.campaign)});
  s.on('roomInput',v=>{const p=P();if(!p||!p.interior||p.cur||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare')return;if(!p.forge)Interior.control(p.interior,v);});
- s.on('roomInteract',()=>{const p=P();if(!p||!p.interior||p.cur||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare'||!Interior.station(p.interior))return;p.interior.menu=true;Interior.stop(p.interior);});
+ s.on('roomInteract',()=>{const p=P();if(!p||!p.interior||p.cur||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare'||!Interior.station(p.interior))return;if(Interior.stairs(p))return;p.interior.menu=true;Interior.stop(p.interior);});
+ s.on('casinoAction',input=>{const p=P();if(!p||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare'||p.cur||p.forge)return;Casino.action(p,input);});
  s.on('roomClose',()=>{const p=P();if(p?.interior){p.interior.menu=false;Interior.stop(p.interior);}});
  s.on('townTaskAccept',id=>{const p=P();if(!p||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare')return;if(TownTasks.accept(room.townTasks,p,id))say(p,'📜 Nebenauftrag angenommen. Ziel und Fortschritt findest du unter Aufträge.');});
  s.on('townTaskCancel',id=>{const p=P();if(!p||room.phase!=='play'||room.campaign.paused||room.campaign.stage!=='prepare')return;if(TownTasks.cancel(room.townTasks,p,id))say(p,'📜 Nebenauftrag freigegeben. Deine Waren bleiben im Rucksack.');});
@@ -172,7 +174,7 @@ setInterval(()=>{
   bell:now<room.bellUntil?room.bell:null,warn:low[1]<30?low[0]:null,builds:BUILD,church:CHURCH});
  for(const p of room.slots){if(!p.sock)continue;if(p.hunt)io.to(p.sock).emit('huntState',Hunt.snapshot(p.hunt,room.campaign.paused));if(p.forge)io.to(p.sock).emit('repairState',Repairs.snapshot(room,p,room.campaign.paused));const r=ROLES[p.role];
   const nb=BUILD.findIndex(b=>near(p,b)),mine=p.inside!==null&&(p.inside===p.role||!room.slots.some(q=>q.role===p.inside)),inB=p.inside!==null;
-  io.to(p.sock).emit('me',{interior:Interior.snapshot(p,room.slots),townTasks:TownTasks.view(room.townTasks,p),gold:p.gold,shop:Shop.view(p),workshop:Repairs.view(room,p),woodland:p.woodland?Hunt.fieldSnapshot(p.woodland):null,campaign:Campaign.publicState(room.campaign,room.slots),myVote:room.campaign.votes[p.i]||null,position:{x:p.x,y:p.y},slot:p.i,apprentice:mine&&p.inside!==p.role,role:r.n,icon:RICON[p.role],
+  io.to(p.sock).emit('me',{casino:Casino.view(p),interior:Interior.snapshot(p,room.slots),townTasks:TownTasks.view(room.townTasks,p),gold:p.gold,shop:Shop.view(p),workshop:Repairs.view(room,p),woodland:p.woodland?Hunt.fieldSnapshot(p.woodland):null,campaign:Campaign.publicState(room.campaign,room.slots),myVote:room.campaign.votes[p.i]||null,position:{x:p.x,y:p.y},slot:p.i,apprentice:mine&&p.inside!==p.role,role:r.n,icon:RICON[p.role],
    inside:inB?BUILD[p.inside].name:null,mine,
    recipes:mine?ROLES[p.inside].r.filter(x=>!p.interior||Interior.canWork(p,x.id)).map(x=>({id:x.id,n:x.n,i:fmt(x.i)||'nichts',o:x.g==='hunt'?'Eigene Jagd · Beute sofort im Rucksack':fmt(x.o),t:x.t*(p.inside===p.role?1:2),ok:has(p,x)&&!p.cur})):[],
    bld:inB&&!mine?{provider:room.slots.some(q=>q.role===p.inside&&q!==p),

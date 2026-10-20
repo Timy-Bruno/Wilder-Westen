@@ -12,3 +12,7 @@ Der vom Nutzer bestätigte Laden ist die Referenz für alle zukünftigen Gebäud
 - Statische Zeichnungen werden zwischengespeichert. Canvas-Grafik bleibt unabhängig von serverseitigen Kollisionen, Waren und Aufgaben.
 
 Alle acht Berufshäuser haben begehbare Canvas-Innenräume mit eigenen Arbeitsstationen. Die Schmiede besitzt Esse, Gusstisch, Fallenwerkbank und Reparaturannahme. Die übrigen Räume erhalten berufstypische Geräte auf derselben grafischen Grundlage und werden weiter individuell ausgestaltet. Stadtfassaden werden schrittweise angepasst; Laden und Schmiede sind die ersten beiden.
+
+
+## Individuelle Raumgestaltung
+Kein einheitliches Zwei-mal-zwei-Werkbankschema. Schmiede: Steinboden, Esse, Metallvorräte, Werkzeugwand und besetzte Annahmetheke. Arztpraxis: helle Fliesen, Betten, Waschplatz und Medizinschrank. Sheriff: Schreibtisch, Waffenständer und Zelle. Jagdhütte: Feuerstelle, Geweih-Trophäen, Felle, Bögen und Kräuterausrüstung. Mine: steiniger Boden, Schienen, Lore und Stolleneingang. Zimmerei: breite Sägebank, Baupläne, Holzstapel und Montagebank. Saloon: besetzte Bar, Flaschenregal, Sitzplätze, Klavier, Küche und Treppe zum Casino mit Filztischen. Beschriftungen sitzen auf der Möbelfront, nicht über dem Raum.

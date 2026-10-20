@@ -1,14 +1,18 @@
-// Shared floor plans: collision bodies and interaction points use the same coordinates.
+// Floor plans are authoritative for furniture, collision, signs and interaction zones.
 const names=['Schmiede','Arztpraxis','Sheriff-Büro','Handelskontor','Saloon','Jagdhütte','Mine','Zimmerei'];
-const station=(id,label,x,y,kind,recipes=[])=>({id,label,x,y,w:150,h:65,kind,recipes,reach:{x:x-20,y:y+78,w:190,h:68}});
-const plans=[
- [station('smelt','Esse · Eisen schmelzen',155,170,'forge',['smelt']),station('cast','Gusstisch · Munition',495,170,'casting',['cast']),station('repairs','Werkbank · Fallen reparieren',155,380,'anvil'),station('service','Reparaturannahme & Abholung',495,380,'repairdesk')],
- [station('brew','Apothekertisch · Medizin mischen',190,180,'medicine',['brew']),station('service','Empfang & Aufträge',495,380,'desk')],
- [station('guard','Schreibtisch · Wache einteilen',190,180,'sheriff',['guard']),station('service','Aufträge & Abholung',495,380,'desk')],null,
- [station('stew','Herd · Eintopf kochen',155,180,'stove',['stew']),station('whis','Brennerei · Whiskey',495,180,'still',['whis']),station('service','Tresen · Aufträge',495,380,'desk')],
- [station('hunt','Jagdausrüstung · In den Wald',155,180,'hunting',['hunt']),station('gather','Kräutertisch · Sammeln',495,180,'herbs',['gather']),station('service','Aufträge & Abholung',495,380,'desk')],
- [station('blast','Sprengbank · Erz abbauen',155,180,'mining',['blast']),station('coal','Kohleflöz · Kohle abbauen',495,180,'coal',['coal']),station('service','Aufträge & Abholung',495,380,'desk')],
- [station('saw','Sägebank · Bretter sägen',155,180,'saw',['saw']),station('fence','Werkbank · Zaun bauen',495,180,'fence',['fence']),station('service','Aufträge & Abholung',495,380,'desk')]
+const station=(id,label,x,y,kind,recipes=[],w=150,h=65)=>({id,label,x,y,w,h,kind,recipes,reach:{x:x-12,y:y+h+13,w:w+24,h:65}});
+const prop=(kind,x,y,w,h)=>({kind,x,y,w,h});
+const npc=(name,x,y,color='#607568')=>({name,x,y,color});
+const make=(id,stations,props,theme,npcs=[])=>({id,name:names[id],w:800,h:620,spawn:{x:400,y:535},door:{x:350,y:570,w:100,h:30},theme,npcs,stations,solids:[...stations.filter(s=>!s.passage).map(({x,y,w,h,kind})=>({x,y,w,h,kind})),...props]});
+const stair=(id,x,y)=>({...station(id,id==='up'?'Treppe zum Casino':'Treppe zum Saloon',x,y,'stairs',[],105,120),passage:true,reach:{x:x-5,y:y+75,w:115,h:70}});
+const rooms=[
+ make(0,[station('smelt','Esse',100,165,'forge',['smelt'],175,95),station('cast','Gusstisch',465,155,'casting',['cast'],205,75),station('repairs','Fallenwerkbank',100,370,'anvil',[],175,80),station('service','Annahme & Abholung',475,355,'repairdesk',[],220,75)], [prop('toolrack',320,115,90,75),prop('orebin',310,365,65,70),prop('coalbin',655,115,65,90)],'smith',[npc('Martha · Annahme',590,333,'#648173')]),
+ make(1,[station('brew','Apothekertisch',475,150,'medicine',['brew'],220,75),station('service','Empfang',140,370,'desk',[],170,65)], [prop('bed',100,145,135,150),prop('bed',280,150,135,150),prop('medicinecabinet',650,345,70,135),prop('washstand',480,375,90,65)],'doctor',[npc('Sprechstundenhilfe',225,348,'#8a9c91')]),
+ make(2,[station('guard','Dienstplan',105,175,'sheriff',['guard'],220,90),station('service','Meldestelle',180,390,'desk',[],170,65)], [prop('cell',490,125,230,180),prop('gunrack',80,360,65,130),prop('noticeboard',345,120,90,70)],'sheriff',[npc('Deputy',265,367,'#8c7955')]),null,
+ make(4,[station('stew','Küche',75,140,'stove',['stew'],150,100),station('whis','Brennerei',75,360,'still',['whis'],150,80),station('service','Bar & Aufträge',340,180,'bar',[],320,70),stair('up',665,360)], [prop('piano',500,380,110,85),prop('roundtable',285,355,110,90),prop('salooncabinet',345,115,270,35)],'saloon',[npc('Barkeeper',500,158,'#eee0bf')]),
+ make(5,[station('hunt','Jagdausrüstung',95,330,'hunting',['hunt'],230,70),station('gather','Kräuterbank',490,280,'herbs',['gather'],190,65),station('service','Tausch & Aufträge',500,420,'desk',[],170,60)], [prop('fireplace',110,135,150,95),prop('hiderack',350,125,120,95),prop('bowrack',590,125,95,95)],'hunting',[npc('Fährtenleser',585,398,'#7d7955')]),
+ make(6,[station('blast','Sprengbank',90,190,'mining',['blast'],190,80),station('coal','Kohleflöz',505,330,'coal',['coal'],210,85),station('service','Vorarbeiter',110,405,'desk',[],170,65)], [prop('mineentrance',450,125,230,110),prop('minecart',315,310,100,95),prop('orebin',300,135,85,75)],'mine',[npc('Vorarbeiter',195,383,'#9c8055')]),
+ make(7,[station('saw','Sägebank',110,165,'saw',['saw'],280,85),station('fence','Montagebank',450,350,'fence',['fence'],235,80),station('service','Bauaufträge',100,410,'desk',[],165,60)], [prop('lumber',510,125,190,100),prop('blueprints',100,295,115,65),prop('toolrack',290,335,75,70)],'carpenter',[npc('Zimmermann',182,388,'#ad8b57')])
 ];
-const rooms=plans.map((stations,id)=>stations?{id,name:names[id],w:800,h:620,spawn:{x:400,y:535},door:{x:350,y:570,w:100,h:30},stations,solids:[...stations.map(({x,y,w,h,kind})=>({x,y,w,h,kind})),{x:45,y:140,w:70,h:220,kind:'shelf'},{x:685,y:140,w:70,h:220,kind:'shelf'}]}:null);
-module.exports={rooms,names};
+const casino=make(4,[station('poker','Texas Hold’em',95,220,'poker',[],250,110),station('blackjack','Blackjack',445,200,'blackjack',[],230,110),stair('down',665,400)],[prop('sofa',100,420,200,65),prop('salooncabinet',365,125,240,35)],'casino',[npc('Poker · Jack',220,198,'#8d695b'),npc('Croupier',560,178,'#ddd1b1')]);casino.name='Saloon · Casino';casino.floor=1;
+module.exports={rooms,names,casino};
