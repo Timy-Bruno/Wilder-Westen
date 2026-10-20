@@ -47,7 +47,7 @@ io.on('connection',s=>{
  s.emit('appVersion',CLIENT_BUILD);
  const P=()=>{const p=room&&room.slots[s.data.slot];return p&&p.sock===s.id?p:null};
  const host=()=>room&&room.hostToken===s.data.hostToken;
- s.use(([event],next)=>{if(['input','act','craft','fulfill','result','order','collect','deliver','give','bell'].includes(event)&&room&&(room.campaign.paused||(room.campaign.stage!=='prepare'&&!(event==='input'&&room.campaign.stage==='escort'))))return;next()});
+ s.use(([event],next)=>{if(['input','act','craft','fulfill','result','order','collect','deliver','give','bell'].includes(event)&&room&&(room.campaign.paused||(room.campaign.stage!=='prepare'&&!(event==='input'&&['escort','rally'].includes(room.campaign.stage)))))return;next()});
  s.on('screen',token=>{if(!room||token!==room.hostToken)return;s.data.hostToken=token;s.join('screen');lobby();if(room.phase==='play')s.emit('started')});
  s.on('create',async n=>{
   if(room)return s.emit('err','Es läuft bereits eine Partie. Öffne den ursprünglichen Hauptbildschirm.');
@@ -108,9 +108,11 @@ io.on('connection',s=>{
  s.on('donate',key=>{const p=P();if(p&&p.inside===null&&near(p,CHURCH)&&Campaign.donate(room.campaign,p,key))say(p,'Für den Treck eingelagert: '+Campaign.GOODS[key])});
  s.on('depart',()=>{if(!host()||room.phase!=='play')return;
   if(room.slots.some(p=>p.cur||p.forge))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');
-  if(!Campaign.startVote(room.campaign))s.emit('err','Mindestens 1 Proviant und 1 Brett an der Kirche einlagern.');
+  if(!Campaign.startRally(room.campaign,room.slots,BUILD))return s.emit('err','Mindestens 1 Proviant und 1 Brett an der Kirche einlagern.');
   for(const p of room.slots){p.dx=p.dy=0;Interior.stop(p.interior);if(p.interior)p.interior.menu=false;}
  });
+ s.on('rallyReady',()=>{const p=P();if(p)Campaign.ready(room.campaign,p)});
+ s.on('rallyCancel',()=>{if(host())Campaign.cancelRally(room.campaign)});
  s.on('routeVote',route=>{const p=P();if(p)Campaign.vote(room.campaign,p,route)});
  s.on('missionAction',kind=>{const p=P();if(p)Campaign.act(room.campaign,p,kind)});
  s.on('pause',()=>{if(!host()||room.phase!=='play')return;if(room.slots.some(p=>p.cur&&!p.hunt&&!p.smithWork&&!p.medWork))return s.emit('err','Bitte beendet zuerst die laufenden Minispiele.');room.campaign.paused=!room.campaign.paused;for(const p of room.slots){p.dx=p.dy=0;Interior.stop(p.interior);if(p.smithWork){p.smithWork.heating=false;p.smithWork.pouring=false;}if(p.hunt){p.hunt.player.dx=p.hunt.player.dy=0;p.hunt.aiming=false;p.hunt.focus=0}if(p.forge)Repairs.action(room,p,{type:'heat',active:false})}});
@@ -154,6 +156,7 @@ setInterval(()=>{
  }
  Campaign.tick(room.campaign,room.slots,dt);
  if(room.campaign.stage==='escort'){for(const p of room.slots){for(const j of p.jobs)j.t+=wall;p.x=Math.max(25,Math.min(W-25,p.x+p.dx*190*dt));p.y=Math.max(95,Math.min(H-25,p.y+p.dy*190*dt));}return;}
+ if(room.campaign.stage==='rally'){for(const p of room.slots){for(const j of p.jobs)j.t+=wall;const nx=Math.max(10,Math.min(W-10,p.x+p.dx*180*dt)),ny=Math.max(55,Math.min(H-10,p.y+p.dy*180*dt));if(!hit(nx,p.y))p.x=nx;if(!hit(p.x,ny))p.y=ny;}return;}
  if(room.campaign.stage!=='prepare'){for(const p of room.slots)for(const j of p.jobs)j.t+=wall;return;}
  TownTasks.tick(room.townTasks,dt);PokerTable.tick(room,dt);
  for(const k in room.stats)room.stats[k]=Math.max(0,room.stats[k]-.15*dt);

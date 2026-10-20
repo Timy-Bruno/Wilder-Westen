@@ -19,3 +19,4 @@ body.game-active .campaign-panel[hidden],#chapterDock[hidden]{display:none}
 @media(max-width:600px){#chapterDock{gap:6px}#chapterDock button{font-size:12px;padding:9px 10px}body.game-active .campaign-panel{bottom:66px}.campaign-panel .route-cards{grid-template-columns:1fr}}
 
 canvas[hidden]{display:none!important}
+#townRally{border-color:#c2b071!important;background:#354936ef!important;color:#f3e2ae!important}#townRally:disabled{opacity:.5;cursor:default}#rallyReady{max-width:190px;min-width:125px!important}#rallyCount{font:14px system-ui;color:#ebd29a}

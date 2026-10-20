@@ -17,6 +17,16 @@ function startVote(c) {
   if(c.paused||c.stage!=='prepare'||c.supplies.food<1||c.supplies.planks<1)return false;
   c.stage='vote';c.remaining=20;c.votes={};return true;
 }
+const RALLY={x:500,y:385,radius:76};
+function startRally(c,players,buildings){
+ if(c.paused||c.stage!=='prepare'||c.supplies.food<1||c.supplies.planks<1)return false;
+ c.stage='rally';c.ready={};c.votes={};
+ for(const p of players){p.dx=p.dy=0;if(p.inside!==null){const b=buildings[p.inside];p.x=b.x+b.w/2;p.y=b.y<400?b.y+b.h+28:b.y-28;p.inside=null;p.interior=null;}}
+ return true;
+}
+function rallyNear(p){return p.inside===null&&Math.hypot(p.x-RALLY.x,p.y-RALLY.y)<=RALLY.radius;}
+function ready(c,p){if(c.paused||c.stage!=='rally'||!p.sock||!rallyNear(p))return false;c.ready[p.i]=true;p.dx=p.dy=0;return true;}
+function cancelRally(c){if(c.paused||c.stage!=='rally')return false;c.stage='prepare';c.ready={};return true;}
 function vote(c,p,route) {
   if(c.paused||c.stage!=='vote'||!Object.hasOwn(ROUTES,route))return false;
   c.votes[p.i]=route;return true;
@@ -47,6 +57,10 @@ function act(c,p,kind) {
 }
 function tick(c,players,dt,random=Math.random) {
   if(c.paused||!players.some(p=>p.sock))return;
+  if(c.stage==='rally'){
+    const active=players.filter(p=>p.sock);for(const p of active)if(!rallyNear(p))delete c.ready[p.i];
+    if(active.length&&active.every(p=>c.ready[p.i])){c.stage='vote';c.remaining=20;c.votes={};for(const p of players)p.dx=p.dy=0;}return;
+  }
   if(c.stage==='vote'){
     c.remaining=Math.max(0,c.remaining-dt);const active=players.filter(p=>p.sock);
     if(c.remaining<=0||active.every(p=>c.votes[p.i]))beginEscort(c,players);
@@ -73,10 +87,10 @@ function retry(c) {
   c.stage='prepare';c.day++;c.attempt++;c.result=null;c.paused=false;c.votes={};c.enemies=[];c.shots=[];c.progress=0;c.hp=100;return true;
 }
 function publicState(c,players) {
-  return {stage:c.stage,paused:c.paused,day:c.day,target:c.target,supplies:{...c.supplies},remaining:Math.ceil(c.remaining),
+  return {rally:RALLY,ready:players.filter(p=>p.sock).map(p=>({i:p.i,near:rallyNear(p),ready:!!c.ready?.[p.i]})),stage:c.stage,paused:c.paused,day:c.day,target:c.target,supplies:{...c.supplies},remaining:Math.ceil(c.remaining),
     routes:ROUTES,route:c.route,progress:c.progress,hp:Math.max(0,Math.round(c.hp)),enemies:c.enemies.map(e=>({...e})),shots:c.shots.map(s=>({...s})),
     votes:Object.values(c.votes).length,voters:players.filter(p=>p.sock).length,result:c.result,attempt:c.attempt,
     escorted:players.some(p=>p.sock&&Math.hypot(p.x-500,p.y-310)<190),
     contributions:Object.entries(c.contributions).map(([i,v])=>({i:+i,...v}))};
 }
-module.exports={GOODS,ROUTES,createCampaign,donate,startVote,vote,act,tick,retry,publicState};
+module.exports={startRally,ready,cancelRally,rallyNear,GOODS,ROUTES,createCampaign,donate,startVote,vote,act,tick,retry,publicState};
