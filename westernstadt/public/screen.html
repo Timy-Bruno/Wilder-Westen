@@ -30,7 +30,7 @@ function frame(){requestAnimationFrame(frame);if(!S)return;const d=S,t=Date.now(
  g.fillStyle='#bf9a5e';g.fillRect(0,165,1000,70);g.fillRect(0,355,1000,70);
  g.strokeStyle='rgba(255,255,255,.3)';g.lineWidth=3;g.setLineDash([18,14]);g.beginPath();g.moveTo(0,200);g.lineTo(1000,200);g.moveTo(0,390);g.lineTo(1000,390);g.stroke();g.setLineDash([]);
  g.textAlign='center';g.font='28px serif';[[30,300],[965,300],[260,300],[760,310],[30,575],[965,575],[480,590]].forEach(c=>g.fillText('🌵',c[0],c[1]));
- d.builds.forEach((b,i)=>{const occ=d.occupied.includes(i),top=i<4;if(i===3){CityShop.draw(g,b,occ);return;}
+ d.builds.forEach((b,i)=>{const occ=d.occupied.includes(i),top=i<4;if(i===3){CityShop.draw(g,b,occ);return;}if(i===0){CitySmith.draw(g,b,occ);return;}
   g.fillStyle='rgba(0,0,0,.2)';g.fillRect(b.x+7,b.y+9,b.w,b.h);
   g.fillStyle=occ?'#4a2f15':BC[i%4];g.fillRect(b.x,b.y,b.w,b.h);
   g.strokeStyle='rgba(0,0,0,.13)';g.lineWidth=1;for(let k=1;k<6;k++){g.beginPath();g.moveTo(b.x,b.y+k*16);g.lineTo(b.x+b.w,b.y+k*16);g.stroke()}
