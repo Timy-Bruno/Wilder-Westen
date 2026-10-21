@@ -17,7 +17,7 @@ const ROLES=[
   {id:'wood',n:'Holz einkaufen',g:'hotcold',h:'Finde den fairen Preis!',i:{},o:{wood:3},t:10},
   {id:'herb',n:'Kräuter einkaufen',g:'hotcold',h:'Finde den fairen Preis!',i:{},o:{herbs:2},t:10}]},
  {n:'Saloon-Wirt',b:'Saloon',r:[
-  {id:'stew',n:'Eintopf kochen',g:'timing',h:'Nicht anbrennen lassen!',i:{meat:1},o:{food:3},t:15},
+  {id:'stew',n:'Eintopf kochen',g:'cooking',h:'Zutaten schneiden, in den Topf geben, bei guter Hitze rühren und portionieren.',i:{meat:1},o:{food:3},t:15},
   {id:'whis',n:'Whiskey brennen',g:'memory',h:'Merke dir die Mischung!',i:{herbs:1},o:{whiskey:2},t:20}]},
  {n:'Jäger',b:'Jagdhütte',r:[
   {id:'hunt',n:'Im Wald jagen',g:'hunt',h:'Wildspuren folgen, leise anschleichen und ruhig zielen.',i:{},o:{meat:2,hide:1},t:0},
