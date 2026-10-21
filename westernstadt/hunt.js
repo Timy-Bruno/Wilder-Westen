@@ -89,7 +89,7 @@ function control(h,input){
  }
  if(input.type==='trapPickup'){
   if(!near||trap.state==='caught')return false;
-  h.field.trap=null;h.field.pendingNotice=false;h.message=h.field.condition>0?'Falle eingepackt. Du kannst sie an einem anderen Wildwechsel aufstellen.':'Defekte Falle eingepackt. Bring sie zur Schmiede; die Reparatur braucht 1 Erz und 1 Kohle.';return true;
+  h.field.trap=null;h.field.pendingNotice=false;h.message=h.field.condition>0?'Falle eingepackt. Du kannst sie an einem anderen Wildwechsel aufstellen.':'Defekte Falle eingepackt. Bring sie zur Schmiede; der Ersatzrahmen braucht 1 Brett, die Metallreparatur 1 Erz und 1 Kohle.';return true;
  }
  if(input.type==='bait'&&h.bait>0){h.bait--;h.field.bait=h.bait;h.baitSpot={x:h.player.x,y:h.player.y,until:h.elapsed+65};h.message='Köder ausgelegt. Geh leise auf Abstand und beobachte den Platz.';return true;}
  return false;
